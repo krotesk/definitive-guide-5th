@@ -493,7 +493,7 @@ The bottom line is that you need to make sure that the phone system you create h
 
 [2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407852440-marker) You can name these anything you wish.
 
-[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407848792-marker) For more information on pattern matches, see [Chapter 6](glava-6.md).
+[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407848792-marker) For more information on pattern matches, see [Chapter 6](glava-06.md).
 
 [4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407792344-marker) We should note, however, that we’ve written extensively on the subject in the past, and that body of work has been released under Creative Commons licensing, and is freely available.
 
