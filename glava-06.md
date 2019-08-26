@@ -4,9 +4,9 @@ description: Основы диалплана
 
 # Глава 6
 
-> Everything should be made as simple as possible, but not simpler.
+> _Всё должно быть изложено так просто, как только возможно, но не более того._ 
 >
-> Albert Einstein
+> — Альберт Эйнштейн
 
 The dialplan is the heart of your Asterisk system. It defines how calls flow into and out of the system. The dialplan is written in a scripting language, which specifies instructions that Asterisk follows in response to calls arriving from channels. In contrast to traditional phone systems, Asterisk’s dialplan is fully customizable.
 
