@@ -24,6 +24,7 @@ description: Основы диалплана
 
 Давайте нырнем прямо туда.
 
+{% hint style="success" %}
 **Примеры файлов конфигурации**
 
 А основной файл _extensions.conf_ был создан как часть процесса установки ранее в этой книге. Мы будем опираться на этот файл в этой главе.
@@ -31,29 +32,36 @@ description: Основы диалплана
 Asterisk также поставляется с подробным файлом _extensions.conf,_ который может быть установлен с образцами файлов конфигурации \(команда установки `make samples` сделает это\), и если вы запустили эту команду \(которую мы не рекомендуем во время установки, но предлагается установщиком\), у вас, скорее всего, будет файл _/etc/asterisk/extensions.conf_, который переполнен информацией. Вместо того, чтобы начинать с примера файла, мы предлагаем вам построить свой _extensions.conf_ с нуля с пустым файлом \(вы можете переименовать или переместить его куда-нибудь, если хотите сохранить в качестве ссылки\).
 
 Как и говорилось файл примера _extensions.conf_ - это фантастический ресурс, полный примеров и идей, которые вы можете использовать после того, как изучили основные понятия. Если вы выполнили наши инструкции по установке, то найдете файл _extensions.conf.sample_ в каталоге _~/src/asterisk-15.&lt;TAB&gt;/configs/samples_ \(наряду со многими другими образцами файлов конфигурации\).
+{% endhint %}
+
+\*\*\*\*
 
 ### Контексты
 
-Dialplans are divided into sections called contexts, which serve to separate different parts of the dialplan. An extension that is defined in one context is completely isolated from extensions in any other context, unless interaction is specifically allowed.
+Диалплан делится на разделы, называемые контекстами, которые служат для разделения различных частей диалплана. Расширение, определенное в одном контексте, полностью изолировано от расширений в любом другом контексте, если взаимодействие специально не разрешено.
 
-As a simple example, let’s imagine we have two companies sharing an Asterisk server. If we place each company’s automated attendant \(IVR\) in its own context, the two companies will be completely separated from each other. This allows us to independently define what happens when, say, extension 0 is dialed:
+В качестве простого примера представим, что у нас есть две компании, совместно использующие сервер Asterisk. Если мы поместим каждого автосекретаря компании \(IVR\) в свой собственный контекст, две компании будут полностью отделены друг от друга. Это позволяет нам самостоятельно определить, что происходит, когда, скажем, набирается номер 0:
 
-* Callers dialing 0 from Company A’s voice menu need to be transferred to Company A’s receptionist.
-* Callers dialing 0 at Company B’s voice menu will be sent to Company B’s customer service department.
+* Абоненты, набирающие 0 из голосового меню компании A, должны быть переданы администратору компании A.
+* Абоненты, набравшие 0 в голосовом меню компании B, будут отправлены в отдел обслуживания клиентов компании B.
 
-Both callers are on the same system, interacting with the same dialplan, but because they arrived in different contexts, they experience totally separate call flow. What happens to each incoming call is determined by the dialplan code in each context.
+Оба абонента находятся в одной и той же системе, взаимодействуя с одной и той же абонентской группой, но поскольку они прибыли в разные контексты, то испытывают совершенно разные потоки вызовов. То, что происходит с каждым входящим вызовом, определяется кодом диалплана в каждом контексте.
 
+{% hint style="info" %}
 **Note**
 
 This is a very important consideration. With traditional PBXs, there is generally a set of defaults for things like reception, which means that if you forget to define them, they will probably work anyway. In Asterisk, the opposite is true. If you do not tell Asterisk how to handle every situation, and it comes across something it cannot handle, the call will typically be disconnected.
+{% endhint %}
 
 Contexts are defined in the extensions.conf file by placing the name of the context inside square brackets \(\[\]\). The name can be made up of the letters A through Z \(upper- and lowercase\), the numbers 0 through 9, and the hyphen and underscore.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-1) A context for incoming calls from a carrier might simply be named this:
 
 \[incoming\]
 
+{% hint style="info" %}
 **Note**
 
 Context names have a maximum length of 79 characters \(80 characters minus 1 terminating null\).
+{% endhint %}
 
 Or perhaps:
 
@@ -89,17 +97,21 @@ When you define a channel \(which is not done in the extensions.conf file\), one
 
 **Figure 6-2. Relation between channel configuration \(on the left\) and contexts in the dialplan \(on the right\)**
 
+{% hint style="info" %}
 **Note**
 
 This is one of the most important concepts to understand when dealing with channels and dialplans. Troubleshooting call flow is much easier once you understand the relationship between the channel context \(which tells the channel where to plug into the dialplan\) and the dialplan context \(which is where we create the call flow that happens when the call arrives\).
+{% endhint %}
 
 An important \(perhaps the most important\) use of contexts is to provide privacy and security. By using contexts correctly, you can give some channels access to features \(such as long-distance calling\) that aren’t made available to others. If you do not design your dialplan carefully, you may inadvertently allow others to fraudulently use your system. Please keep this in mind as you build your Asterisk system; there are many bots on the internet that were specifically written to identify and exploit poorly secured Asterisk systems.
 
+{% hint style="danger" %}
 **Warning**
 
 The [Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Important+Security+Considerations) outlines several steps you should take to keep your Asterisk system secure. It is vitally important that you read and understand this page. If you ignore the security precautions outlined there, you may end up allowing anyone and everyone to make long-distance or toll calls at your expense!
 
 If you don’t take the security of your Asterisk system seriously, you may end up paying—literally. Please take the time and effort to secure your system from toll fraud.
+{% endhint %}
 
 ### Extensions
 
@@ -115,9 +127,11 @@ This is followed by the name \(or number\) of the extension.
 
 When dealing with traditional telephone systems, we tend to think of extensions as the numbers you would dial to make another phone ring. In Asterisk, extension names can be any combination of numbers and letters. Over the course of this chapter and the next, we’ll use both numeric and alphanumeric extensions.
 
+{% hint style="warning" %}
 **Tip**
 
 Assigning names to extensions may seem like an unusual concept, but when you realize that SIP supports dialing by all sorts of character combinations \(anything that is a valid URI, strictly speaking\), it makes perfect sense. This is one of the features that makes Asterisk so flexible and powerful.
+{% endhint %}
 
 Each step in an extension has three components:
 
