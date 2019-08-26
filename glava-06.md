@@ -8,33 +8,31 @@ description: Основы диалплана
 >
 > — Альберт Эйнштейн
 
-The dialplan is the heart of your Asterisk system. It defines how calls flow into and out of the system. The dialplan is written in a scripting language, which specifies instructions that Asterisk follows in response to calls arriving from channels. In contrast to traditional phone systems, Asterisk’s dialplan is fully customizable.
+Диалплан-это сердце вашей системы Asterisk. Он определяет, как звонки поступают в систему и выходят из нее. Диалплан является скриптовым языком, который определяет инструкции, которым Asterisk следует в ответ на вызовы, поступающие от каналов. В отличие от традиционных телефонных систем, диалплан Asterisk полностью настраивается.
 
-Experienced software developers find Asterisk dialplan code archaic, and often prefer to control call flow using Asterisk APIs such as AMI and ARI \(which we will discuss in later chapters\). Regardless of your plans in this regard, learning how Asterisk behaves is far easier if you understand dialplan first. It is perhaps also worth noting that Asterisk dialplan is performance-tuned, and is therefore the fastest way to execute call flow in terms of responsiveness and minimal load on the system. Dialplan is fast.
+Опытные разработчики программного обеспечения считают код диалплана Asterisk архаичным и часто предпочитают управлять потоком вызовов с помощью API Asterisk, таких как AMI и ARI \(которые мы обсудим в последующих главах\). Независимо от ваших планов в этом отношении, изучение поведения Asterisk намного проще, если вы сначала поймете диалплан. Возможно, также стоит отметить, что диалплан Asterisk настроен на производительность и поэтому является самым быстрым способом выполнения потока вызовов с точки зрения быстродействия и минимальной нагрузки на систему. Диалплан работает быстро.
 
-This chapter introduces the essential concepts of the dialplan, which will form the basis of any dialplan you write. Do not skip too much of this chapter, since the examples build on each other, and it is so fundamentally important to Asterisk. Please also note that this chapter is by no means an exhaustive survey of all the possible things dialplans can do; our aim is to cover just the essentials. We’ll cover more advanced dialplan topics in later chapters. You are encouraged to experiment.
+В этой главе представлены основные понятия диалплана, которые лягут в основу любого диалплана, который вы пишете. Не пропускайте слишком много из этой главы, так как примеры строятся друг на друге, и это так принципиально важно для Asterisk. Обратите также внимание, что эта глава ни в коем случае не является исчерпывающим обзором всех возможных вещей, которые может сделать диалплан; наша цель - охватить только самое необходимое. В последующих главах мы рассмотрим более сложные темы диалплана. Вам рекомендуется экспериментировать.
 
-## Dialplan Syntax
+## Синтаксис диалплана
 
-The Asterisk dialplan is specified in the configuration file named extensions.conf, located in the /etc/asterisk directory.
+Диалплан Asterisk задается в конфигурационном файле с именем _extensions.conf_, расположенном в каталоге _/etc/asterisk_.
 
-The dialplan structure is built on four hierarchical components: Contexts, Extensions, Priorities, and Applications \(see [Figure 6-1](6.%20Dialplan%20Basics%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig0601)\).
+Структура диалплана состоит из четырех иерархических компонентов: контекстов \(Context\), расширений \(Extension\), приоритетов \(Priority\) и приложений \(Application\) \(смотри Рисунок[ 6-1](6.%20Dialplan%20Basics%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig0601)\).
 
-![](.gitbook/assets/0%20%281%29.png)
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 6-1. &#x418;&#x435;&#x440;&#x430;&#x440;&#x445;&#x438;&#x44F; &#x434;&#x438;&#x430;&#x43B;&#x43F;&#x43B;&#x430;&#x43D;&#x430;](.gitbook/assets/0%20%281%29.png)
 
-**Figure 6-1. Dialplan hierarchy**
+Давайте нырнем прямо туда.
 
-Let’s dive right in.
+**Примеры файлов конфигурации**
 
-**Sample Configuration Files**
+А основной файл _extensions.conf_ был создан как часть процесса установки ранее в этой книге. Мы будем опираться на этот файл в этой главе.
 
-A basic extensions.conf file was created as part of the install process earlier in this book. We are going to build on that file in this chapter.
+Asterisk также поставляется с подробным файлом _extensions.conf,_ который может быть установлен с образцами файлов конфигурации \(команда установки `make samples` сделает это\), и если вы запустили эту команду \(которую мы не рекомендуем во время установки, но предлагается установщиком\), у вас, скорее всего, будет файл _/etc/asterisk/extensions.conf_, который переполнен информацией. Вместо того, чтобы начинать с примера файла, мы предлагаем вам построить свой _extensions.conf_ с нуля с пустым файлом \(вы можете переименовать или переместить его куда-нибудь, если хотите сохранить в качестве ссылки\).
 
-Asterisk also comes with a detailed extensions.conf file that can be installed with the sample configuration files \(the installation command make samples will do this\), and if you ran that command \(which we don’t recommend during the install, but is suggested by the installer\), you will most likely have an /etc/asterisk/extensions.conf file that is chock-full of information. Instead of starting with the sample file, we suggest that you build your extensions.conf file from scratch with a blank file \(you can rename it or move it somewhere if you wish to keep it as a reference\).
+Как и говорилось файл примера _extensions.conf_ - это фантастический ресурс, полный примеров и идей, которые вы можете использовать после того, как изучили основные понятия. Если вы выполнили наши инструкции по установке, то найдете файл _extensions.conf.sample_ в каталоге _~/src/asterisk-15.&lt;TAB&gt;/configs/samples_ \(наряду со многими другими образцами файлов конфигурации\).
 
-That being said, the extensions.conf.sample file is a fantastic resource, full of examples and ideas that you can use after you’ve learned the basic concepts. If you followed our installation instructions, you will find the file extensions.conf.sample in the folder ~/src/asterisk-15.&lt;TAB&gt;/configs/samples \(along with many other sample config files\).
-
-### Contexts
+### Контексты
 
 Dialplans are divided into sections called contexts, which serve to separate different parts of the dialplan. An extension that is defined in one context is completely isolated from extensions in any other context, unless interaction is specifically allowed.
 
