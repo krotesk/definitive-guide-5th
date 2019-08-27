@@ -28,5 +28,5 @@
 * [Глава 21](glava-21.md)
 * [Глава 22](glava-22.md)
 * [About the Authors](about-the-authors.md)
-* [Colophon](untitled.md)
+* [Послесловие](untitled.md)
 
