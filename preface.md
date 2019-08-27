@@ -1,28 +1,28 @@
 # Предисловие
 
-This is a book for anyone who uses Asterisk.
+Это книга для всех, кто использует Asterisk.
 
-Asterisk is an open source, converged telephony platform, which is designed primarily to run on Linux. Asterisk combines more than 100 years of telephony knowledge into a robust suite of tightly integrated telecommunications applications. The power of Asterisk lies in its customizable nature, complemented by unmatched standards compliance. No other private branch exchange \(PBX\) can be deployed in so many creative ways.
+Asterisk - это платформа конвергентной телефонии с открытым исходным кодом, которая предназначена в первую очередь для работы на Linux. Asterisk объединяет более чем 100-летние знания в области телефонии в надежный набор тесно интегрированных телекоммуникационных приложений. Сила Asterisk заключается в его настраиваемой природе, дополненной непревзойденным соответствием стандартам. Ни одна другая управленческая автоматизированная телефонная станция \(УАТС\) не может быть развернута таким множеством творческих способов.
 
-Applications such as voicemail, hosted conferencing, call queuing and agents, music on hold, and call parking are all standard features built right into the software. Moreover, Asterisk can integrate with other business technologies in ways that closed, proprietary PBXs can scarcely dream of.
+Такие приложения, как голосовая почта, конференции, очереди вызовов и агенты, музыка на удержании и парковка вызовов - все это стандартные функции, встроенные прямо в программное обеспечение. Кроме того, Asterisk может интегрироваться с другими бизнес-технологиями таким образом, о котором закрытые, проприетарные УАТС вряд ли могут мечтать.
 
-Asterisk can appear quite daunting and complex to a new user, which is why documentation is so important to its growth. Documentation lowers the barrier to entry and helps people contemplate the possibilities.
+Asterisk может показаться довольно пугающим и сложным для нового пользователя, поэтому документация так важна для его роста. Документация снижает барьер для входа и помогает людям созерцать возможности.
 
-Produced with the generous support of O’Reilly Media, [_Asterisk:_ _The Definitive Guide_](http://shop.oreilly.com/product/0636920025894.do) is the fifth edition of what was formerly called [_Asterisk: The Future of Telephony_](http://shop.oreilly.com/product/9780596510480.do).
+Выпущенный при щедрой поддержке O'Reilly Media, [Asterisk: Окончательное руководство](http://shop.oreilly.com/product/0636920025894.do) - это пятое издание того, что ранее называлось [Asterisk: Будущее телефонии](http://shop.oreilly.com/product/9780596510480.do).
 
-This book was written for, and by, members of the Asterisk community.
+Эта книга была написана для участников сообщества Asterisk.
 
-## Audience
+## АудиторияAudience
 
-This book is intended to be gentle toward those new to Asterisk, but we assume that you’re familiar with basic Linux administration, networking, and other IT disciplines. If not, we encourage you to explore the vast and wonderful library of books that O’Reilly publishes on these subjects. We also assume you’re fairly new to telecommunications \(both traditional switched telephony and the new world of Voice over IP\).
+Эта книга предназначена для того, чтобы быть нежной к тем, кто новичок в Asterisk, но мы предполагаем, что вы знакомы с базовым администрированием Linux, сетью и другими ИТ-дисциплинами. Если нет, мы рекомендуем вам изучить обширную и замечательную библиотеку книг, которые O'Reilly публикует по этим темам. Мы также предполагаем, что вы пока новичок в телекоммуникациях \(как традиционная коммутируемая Телефония, так и новый мир Voice over IP\).
 
-However, this book will also be useful for the more experienced Asterisk administrator. We ourselves use the book as a reference for features that we haven’t used for a while.
+Однако эта книга будет полезна и более опытному администратору Asterisk. Мы сами используем книгу в качестве ссылки на функции, которые мы не использовали в течение некоторого времени.
 
-## Software
+## Программное обеспечение
 
-This book is focused on documenting Asterisk version 16; however, many of the conventions and much of the information in this book is version-agnostic. Linux is the operating system we have run and tested Asterisk on, and we have documented installation instructions for CentOS \(Red Hat Enterprise Linux, or RHEL\).
+Эта книга сосредоточена на документировании версии 16 Asterisk; однако многие соглашения и большая часть информации в этой книге являются агностическими версиями. Linux - это операционная система, в которой мы запускали и тестировали Asterisk, и мы задокументировали инструкции по установке для CentOS \(Red Hat Enterprise Linux или RHEL\).
 
-## Conventions Used in This Book
+## Условные обозначения используемые в книге
 
 The following typographical conventions are used in this book:_Italic_
 
