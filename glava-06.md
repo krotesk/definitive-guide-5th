@@ -48,184 +48,186 @@ Asterisk также поставляется с подробным файлом 
 Оба абонента находятся в одной и той же системе, взаимодействуя с одной и той же абонентской группой, но поскольку они прибыли в разные контексты, то испытывают совершенно разные потоки вызовов. То, что происходит с каждым входящим вызовом, определяется кодом диалплана в каждом контексте.
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-This is a very important consideration. With traditional PBXs, there is generally a set of defaults for things like reception, which means that if you forget to define them, they will probably work anyway. In Asterisk, the opposite is true. If you do not tell Asterisk how to handle every situation, and it comes across something it cannot handle, the call will typically be disconnected.
+Это очень важное соображение. С традиционными УАТС, как правило, существует набор значений по умолчанию для таких вещей, как прием, что означает, что если вы забудете их определить, они, вероятно, будут работать в любом случае. В Asterisk все наоборот. Если вы не скажете Asterisk, как обрабатывать каждую ситуацию, и он столкнется с чем-то, что не может обработать, вызов, как правило, будет отклонен.
 {% endhint %}
 
-Contexts are defined in the extensions.conf file by placing the name of the context inside square brackets \(\[\]\). The name can be made up of the letters A through Z \(upper- and lowercase\), the numbers 0 through 9, and the hyphen and underscore.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-1) A context for incoming calls from a carrier might simply be named this:
+Контексты определяются в файле _extensions.conf_, помещая имя контекста в квадратные скобки \(\[\]\). Имя может состоять из букв A - Z \(верхний и нижний регистр\), чисел от 0 до 9, а также дефиса и подчеркивания.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#asterisk-DP-Basics-FN-1) Контекст для входящих вызовов от оператора связи может быть назван так:
 
-\[incoming\]
+```text
+[incoming]
+```
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-Context names have a maximum length of 79 characters \(80 characters minus 1 terminating null\).
+Имена контекстов имеют максимальную длину 79 символов \(80 символов минус 1 завершающий null\).
 {% endhint %}
 
-Or perhaps:
+Или возможно:
 
-\[incoming\_company\_A\]
+```text
+[incoming_company_A]
+```
 
-Which then of course might require something like:
+Что тогда, конечно, может потребовать что-то вроде:
 
-\[incoming\_company\_B\]
+```text
+[incoming_company_B]
+```
 
-All of the instructions placed after a context definition are part of that context, until the next context is defined.
+Все инструкции, помещенные после определения контекста, являются частью этого контекста, пока не будет определен следующий контекст.
 
-At the beginning of the dialplan, there are two special sections named \[general\] and \[globals\]. The \[general\] section contains a list of general dialplan settings \(which you’ll probably never have to worry about\), and we will discuss the \[globals\] context shortly. For now, it’s only important to know that these two labels are not contexts, despite using context syntax. Do not use \[general\], \[globals\], and \[default\][2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408408152) as context names, but otherwise name your contexts anything you wish.
+В начале диалплана есть два специальных раздела с именами `[general]` и `[globals]`. Раздел `[general]` содержит список общих настроек абонентской группы \(о которых вам, вероятно, никогда не придется беспокоиться\), а контекст `[globals]`мы вскоре обсудим. На данный момент важно только знать, что эти две метки не являются контекстами, несмотря на использование синтаксиса контекста. Не используйте `[general]`, `[globals]` и `[default]`[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408408152) в качестве имен контекста, но в противном случае называйте свои контексты как угодно.
 
-The contexts in a typical extensions.conf file might be structured something like this:
+Контексты в типичном файле _extensions.conf_ могут быть структурированы примерно так:
 
-\[general\] ; This always has to be here
+```text
+[general] ; он всегда должен быть здесь
+[globals] ; глобальные переменные (мы обсудим их позже)
+[incoming] ; звонки от поставщиков услуг могут поступать сюда
+[sets] ; в простой системе мы можем использовать это
+[sets1] ; многопользовательская же нуждается в этом (устройства от одной компании вводят диалплан здесь)
+[sets2] ; ... и этом (другая группа устройств может войти в диалплан здесь)
+[services] ; специальные услуги, такие как конференц-связь, могут быть определены здесь
+```
 
-\[globals\] ; Global variables \(we'll discuss these later\)
 
-\[incoming\] ; Calls from the carriers could arrive here
 
-\[sets\] ; on a simple system, we can use this
+Когда вы определяете канал \(что не делается в _extensions.conf_\), одним из обязательных параметров в каждом определении канала является `context`. _Контекст - это точка в диалплане, куда будут поступать соединения из этого канала._ Таким образом, способ подключения канала к диалплану осуществляется через контекст \(Рисунок 6-2\).
 
-\[sets1\] ; Multi-tenanted perhaps needs this \(sets from one company enter dialplan here\)
-
-\[sets2\] ; ... and this \(another group of sets might enter the dialplan here\)
-
-\[services\] ; Special services such as conferencing could be defined here
-
-When you define a channel \(which is not done in the extensions.conf file\), one of the required parameters in each channel definition is context. The context is the point in the dialplan where connections coming from that channel will arrive. So the way you plug a channel into the dialplan is through the context \(see [Figure 6-2](6.%20Dialplan%20Basics%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22DialplanBasics_id36055184)\).
-
-![](.gitbook/assets/1.png)
-
-**Figure 6-2. Relation between channel configuration \(on the left\) and contexts in the dialplan \(on the right\)**
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 6-2. &#x421;&#x432;&#x44F;&#x437;&#x44C; &#x43C;&#x435;&#x436;&#x434;&#x443; &#x43A;&#x43E;&#x43D;&#x444;&#x438;&#x433;&#x443;&#x440;&#x430;&#x446;&#x438;&#x435;&#x439; &#x43A;&#x430;&#x43D;&#x430;&#x43B;&#x430; \(&#x441;&#x43B;&#x435;&#x432;&#x430;\) &#x438; &#x43A;&#x43E;&#x43D;&#x442;&#x435;&#x43A;&#x441;&#x442;&#x430;&#x43C;&#x438; &#x432; &#x434;&#x438;&#x430;&#x43B;&#x43F;&#x43B;&#x430;&#x43D;&#x435; \(&#x441;&#x43F;&#x440;&#x430;&#x432;&#x430;\)](.gitbook/assets/1.png)
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-This is one of the most important concepts to understand when dealing with channels and dialplans. Troubleshooting call flow is much easier once you understand the relationship between the channel context \(which tells the channel where to plug into the dialplan\) and the dialplan context \(which is where we create the call flow that happens when the call arrives\).
+Это одна из наиболее важных концепций для понимания при работе с каналами и абонентскими группами. Устранение неполадок потока вызовов намного проще, если вы понимаете связь между контекстом канала \(который сообщает каналу, где подключаться к диалплану\) и контекстом диалплана \(где мы создаем поток вызовов, который происходит при поступлении вызова\).
 {% endhint %}
 
-An important \(perhaps the most important\) use of contexts is to provide privacy and security. By using contexts correctly, you can give some channels access to features \(such as long-distance calling\) that aren’t made available to others. If you do not design your dialplan carefully, you may inadvertently allow others to fraudulently use your system. Please keep this in mind as you build your Asterisk system; there are many bots on the internet that were specifically written to identify and exploit poorly secured Asterisk systems.
+Важным \(возможно, самым важным\) использованием контекстов является обеспечение конфиденциальности и безопасности. При правильном использовании контекстов можно предоставить некоторым каналам доступ к функциям \(например, междугородним вызовам\), которые недоступны другим. Если вы не проработаете свою абонентскую группу тщательно, то можете непреднамеренно позволить другим использовать вашу систему в корыстных целях. Пожалуйста, имейте это в виду, когда строите свою систему Asterisk; в интернете есть много ботов, которые были специально написаны для идентификации и использования плохо защищенных систем Asterisk.
 
 {% hint style="danger" %}
-**Warning**
+**Предупреждение**
 
-The [Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Important+Security+Considerations) outlines several steps you should take to keep your Asterisk system secure. It is vitally important that you read and understand this page. If you ignore the security precautions outlined there, you may end up allowing anyone and everyone to make long-distance or toll calls at your expense!
+[Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Important+Security+Considerations) описывает несколько шагов, которые вы должны предпринять, чтобы сохранить вашу систему Asterisk в безопасности. Жизненно важно чтобы вы прочитали и поняли эту страницу. Если вы игнорируете меры безопасности, изложенные там, то можете в конечном итоге позволить всем и каждому совершать междугородние или платные звонки за ваш счет!
 
-If you don’t take the security of your Asterisk system seriously, you may end up paying—literally. Please take the time and effort to secure your system from toll fraud.
+Если вы не относитесь к безопасности вашей системы Asterisk серьезно, то можете в конечном итоге поплатиться буквально. _Пожалуйста_, потратьте время и усилия, чтобы защитить вашу систему от мошенничества.
 {% endhint %}
 
-### Extensions
+### Extensions \(расширения\)
 
-In the telecommunications industry the word extension typically has referred to a numeric identifier that, when dialed, will ring a phone \(or system resource such as voicemail or a queue\). In Asterisk, an extension is far more powerful, as it defines the unique series of steps \(each step containing an application\) through which Asterisk will take that call.
+В телекоммуникационной отрасли слово _extension \(расширение\)_ обычно относится к числовому идентификатору, который при наборе будет звонить на телефон \(или вызывать системный ресурс, такой как голосовая почта или очередь\). В Asterisk расширение представляет нечто гораздо более мощное, поскольку оно определяет уникальную серию шагов \(каждый шаг, содержащий приложение\), через которые Asterisk будет принимать этот вызов.
 
-Within each context, we can define as many \(or few\) extensions as required. When a particular extension is triggered \(by an incoming channel\), Asterisk will follow the steps defined for that extension. It is the extensions, therefore, that specify what happens to calls as they make their way through the dialplan. Although extensions can, of course, be used to specify phone extensions in the traditional sense \(i.e., extension 153 will cause the SIP telephone set on John’s desk to ring\), in an Asterisk dialplan, they can be used for much more.
+В каждом контексте мы можем определить столько \(или несколько\) расширений, сколько потребуется. Когда определенное расширение запускается \(входящим каналом\), Asterisk будет следовать шагам, определенным для этого расширения. Поэтому именно расширения определяют, что происходит с вызовами, когда они проходят через диалплан. Хотя расширения могут использоваться для указания телефонных добавочных номеров в традиционном смысле \(т.е. расширение 153 вызовет звонок SIP-телефона на столе Джона\), в диалплане Asterisk они могут использоваться для гораздо большего.
 
-The syntax for an extension is the word exten, followed by an arrow formed by the equals sign and the greater-than sign, like this:
+Синтаксис расширения - это слово `exten`, за которым следует стрелка, образованная знаком равенства и знаком больше, как это:
 
-exten =&gt;
+```text
+exten =>
+```
 
-This is followed by the name \(or number\) of the extension.
+После этого следует имя \(или номер\) расширения.
 
-When dealing with traditional telephone systems, we tend to think of extensions as the numbers you would dial to make another phone ring. In Asterisk, extension names can be any combination of numbers and letters. Over the course of this chapter and the next, we’ll use both numeric and alphanumeric extensions.
+При работе с традиционными телефонными системами мы склонны думать о расширениях как о номерах, которые вы набираете, чтобы сделать еще один телефонный звонок. В Asterisk имена расширений могут быть любыми комбинациями цифр и букв. В этой и следующей главах мы будем использовать как цифровые, так и буквенно-цифровые расширения.
 
 {% hint style="warning" %}
-**Tip**
+**Совет**
 
-Assigning names to extensions may seem like an unusual concept, but when you realize that SIP supports dialing by all sorts of character combinations \(anything that is a valid URI, strictly speaking\), it makes perfect sense. This is one of the features that makes Asterisk so flexible and powerful.
+Назначение имен для расширений может показаться необычной концепцией, но когда вы понимаете, что SIP поддерживает набор всех видов комбинаций символов \(все, что является допустимым URI, строго говоря\), это имеет смысл. Это одна из особенностей, которая делает Asterisk настолько гибким и мощным.
 {% endhint %}
 
-Each step in an extension has three components:
+Каждый шаг расширения состоит из трех компонентов:
 
-* The name \(or number\) of the extension
-* The priority \(each extension can include multiple steps; the step number is called the “priority”\)
-* The application \(or command\) that will take place at that step
+* Имя \(или номер\) расширения
+* Приоритет \(каждое расширение может включать в себя несколько шагов; номер шага называется "приоритет”\)
+* Приложение \(или команда\), которое будет выполняться на этом шаге
 
-These three components are separated by commas, like this:
+Эти три компонента разделены запятыми, как это:
 
-exten =&gt; name,priority,application\(\)
+```text
+exten => name,priority,application()
+```
 
-Here’s a simple example:
+Вот простой пример:
 
-exten =&gt; 123,1,Answer\(\)
+```text
+exten => 123,1,Answer()
+```
 
-The extension name is 123, the priority is 1, and the application is Answer\(\).
+Имя расширения - `123`, приоритет - `1`, а приложение - `Answer()`.
 
-### Priorities
+### Приоритеты
 
-Each extension can have multiple steps, called priorities. The priorities are numbered sequentially, starting with 1, and each executes one specific application. As an example, the following extension would answer the phone in priority number 1, and then hang it up in priority number 2. The steps in an extension take place one after the other.
+Каждое расширение может иметь несколько шагов, называемых _приоритетами_. Приоритеты нумеруются последовательно, начиная с 1 и каждый выполняет одно конкретное приложение. Например, следующий добавочный номер ответит на звонок с приоритетом номер 1, а затем повесит трубку с приоритетом номер 2. Шаги в расширении происходят один за другим.
 
-exten =&gt; 123,1,Answer\(\)
+```text
+exten => 123,1,Answer()
+exten => 123,2,Hangup()
+```
 
-exten =&gt; 123,2,Hangup\(\)
+Совершенно очевидно, что этот код на самом деле не делает ничего полезного. Ключевым моментом здесь является то, что для конкретного расширения Asterisk следует за приоритетами по порядку.
 
-It’s pretty obvious that this code doesn’t really do anything useful. We’ll get there. The key point to note here is that for a particular extension, Asterisk follows the priorities in order.
+```text
+exten => 123,1,Answer()
+exten => 123,2,делаем что-то
+exten => 123,3,делаем что-то ещё
+exten => 123,4,сделаем ещё одну вещь
+exten => 123,5,Hangup()
+```
 
-exten =&gt; 123,1,Answer\(\)
+Этот стиль синтаксиса диалплана все еще встречается время от времени, хотя \(как вы вскоре увидите\) он обычно больше не используется для нового кода. Более новый синтаксис похож, но упрощен.
 
-exten =&gt; 123,2,do something
+#### Ненумерованные приоритеты
 
-exten =&gt; 123,3,do something else
+В старых версиях Asterisk нумерация приоритетов вызывала много проблем. Представьте себе расширение, которое имеет 15 приоритетов, а затем нужно что-то добавить на Шаге 2: все последующие приоритеты должны быть перенумерованы вручную. Asterisk не обрабатывает пропущенные шаги или неправильно пронумерованные приоритеты, и отладка этих типов ошибок была разочаровывающей.
 
-exten =&gt; 123,4,do one last thing
+Начиная с версии 1.2 Asterisk решил эту проблему: он ввел использование приоритета `n`, который означает “next." Каждый раз, когда Asterisk встречает приоритет с именем `n`, он принимает номер предыдущего приоритета и добавляет 1. Это упрощает внесение изменений в ваш диалплан, так как вам не нужно постоянно перенумеровывать все ваши шаги. Например, ваш диалплан может выглядеть примерно так:
 
-exten =&gt; 123,5,Hangup\(\)
+```text
+exten => 123,1,Answer()
+exten => 123,n,do something
+exten => 123,n,do something else
+exten => 123,n,do one last thing
+exten => 123,n,Hangup()
+```
 
-This style of dialplan syntax is still seen from time to time, although \(as you’ll see momentarily\) it is not generally used anymore for new code. Newer syntax is similar, but simplified.
+Внутри Asterisk будет вычислять следующий номер приоритета каждый раз, когда он сталкивается с `n`.[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408333272) Теперь, если мы хотим добавить новый элемент в приоритет 3, мы просто вводим новую строку, где она нам нужна, и не требуется перенумерация.
 
-#### Unnumbered priorities
+```text
+exten => 123,1,Answer()
+exten => 123,n,do something
+exten => 123,n,SOME NEW THING
+exten => 123,n,do something else
+exten => 123,n,do one last thing
+exten => 123,n,Hangup()
+```
 
-In older releases of Asterisk, the numbering of priorities caused a lot of problems. Imagine having an extension that had 15 priorities, and then needing to add something at step 2: all of the subsequent priorities would have to be manually renumbered. Asterisk does not handle missing steps or misnumbered priorities, and debugging these types of errors was frustrating.
+Имейте в виду, что вы всегда должны указывать приоритет № 1. Если вы случайно поставили `n` вместо `1` для первого приоритета \(распространенная ошибка даже среди опытных кодеров диалплана\), вы обнаружите после перезагрузки диалплана, что расширение не будет существовать.
 
-Beginning with version 1.2, Asterisk addressed this problem: it introduced the use of the n priority, which stands for “next.” Each time Asterisk encounters a priority named n, it takes the number of the previous priority and adds 1. This makes it easier to make changes to your dialplan, as you don’t have to keep renumbering all your steps. For example, your dialplan might look something like this:
+#### Оператор same =&gt;
 
-exten =&gt; 123,1,Answer\(\)
+Для дальнейшего упрощения написания диалплана был создан новый синтаксис. Пока расширение остается неизменным, вы можете просто ввести `same =>` с последующим приоритетом и приложением, а не вводить полное расширение в каждой строке:
 
-exten =&gt; 123,n,do something
+```text
+exten => 123,1,Answer()
+ same => n,do something
+ same => n,do something
+ same => n,do one last thing
+ same => n,Hangup()
+```
 
-exten =&gt; 123,n,do something else
+Этот стиль диалплана также облегчит копирование кода из одного расширения в другое. Это предпочтительный и рекомендуемый стиль. Единственная причина обсуждения предыдущих стилей - помочь понять, как мы сюда попали.
 
-exten =&gt; 123,n,do one last thing
+{% hint style="success" %}
+Не ошибитесь, диалплан Asterisk весьма своеобразен. Многие люди избегают его вообще, и использовать AGI и ARI, чтобы написать свой диалплан.
 
-exten =&gt; 123,n,Hangup\(\)
+Хотя, конечно, есть что сказать для написания диалплана на внешнем языке \(и мы рассмотрим его в последующих главах\), диалплан Asterisk является родным для него, и вы не получите лучшей производительности чем c ним. Код диалплана выполняется быстро.
 
-Internally, Asterisk will calculate the next priority number every time it encounters an n.[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408333272) Now, if we want to add a new item at priority 3, we just input the new line where we need it, and no renumbering is required.
+Кроме того, если вы хотите понять, как Asterisk думает, вам нужно понять его диалплан.
+{% endhint %}
 
-exten =&gt; 123,1,Answer\(\)
-
-exten =&gt; 123,n,do something
-
-exten =&gt; 123,n,SOME NEW THING
-
-exten =&gt; 123,n,do something else
-
-exten =&gt; 123,n,do one last thing
-
-exten =&gt; 123,n,Hangup\(\)
-
-Bear in mind that you must always specify priority number 1. If you accidentally put an n instead of 1 for the first priority \(a common mistake even among experienced dialplan coders\), you’ll find after reloading the dialplan that the extension will not exist.
-
-#### The same =&gt; operator
-
-In order to further simplify dialplan writing, a new syntax was created. As long as the extension remains the same, you can simply type same =&gt; followed by the priority and application rather than having to type the full extension on each line:
-
-exten =&gt; 123,1,Answer\(\)
-
- same =&gt; n,do something
-
- same =&gt; n,do something
-
- same =&gt; n,do one last thing
-
- same =&gt; n,Hangup\(\)
-
-This style of dialplan will also make it easier to copy code from one extension to another. This is the preferred and recommended style. The only reason for the discussion of previous styles is to help understand how we got here.
-
-Make no mistake, the Asterisk dialplan is peculiar. Many folks avoid it altogether, and use AGI and ARI to write their dialplan.
-
-While there’s certainly something to be said for writing dialplan in an external language \(and we’ll cover it in later chapters\), the Asterisk dialplan is native to it, and you will not get better performance than this. Dialplan code executes fast.
-
-Also, if you want to understand how Asterisk thinks, you need to understand its dialplan.
-
-#### Priority labels
+#### Метки приоритетов
 
 Priority labels allow you to assign a name to a priority within an extension. This is to ensure that you can refer to a priority by something other than its number \(which probably isn’t known, given that dialplans now generally use unnumbered priorities\). Later you will learn that it’s often necessary to send calls from other parts of the dialplan to a particular priority in a particular extension. To assign a text label to a priority, simply add the label inside parentheses after the priority, like this:
 
