@@ -4,73 +4,79 @@ description: Установка Asterisk
 
 # Глава 3
 
-> I long to accomplish great and noble tasks, but it is my chief duty to accomplish humble tasks as though they were great and noble. The world is moved along, not only by the mighty shoves of its heroes, but also by the aggregate of the tiny pushes of each honest worker.
+> Я долго шла к великим и благородным целям, но мой главный долг выполнять простые задачи так, как будто они великие и благородные. Мир движется не только мощными импульсами, которые дают ему герои, но также и крошечными толчками каждого трудящегося человека.
 >
-> Helen Keller
+> -- Хелен Келлер
 
-In this chapter we’re going to walk through the installation of Asterisk from the source code. Many people shy away from this method, claiming that it is too difficult and time-consuming. Our goal here is to demonstrate that installing Asterisk from source is not actually that difficult to do. More importantly, we want to provide you with the best Asterisk platform on which to learn.
+В этой главе мы рассмотрим установку Asterisk из исходного кода. Многие люди уклоняются от этого метода, утверждая, что это слишком сложно и отнимает много времени. Наша цель здесь - продемонстрировать, что установка Asterisk из исходного кода на самом деле не так уж сложна. Что еще более важно, мы хотим предоставить вам лучшую платформу Asterisk, на которой можно учиться.
 
-In this book we will be helping you build a functioning Asterisk system from scratch. Toward that goal, in this chapter we will build a base platform for your Asterisk system. Since we are installing from source, there is potentially a lot of variation in how you can do this. Our goal here is to deliver a standard sort of platform, suitable for explorations in many areas. It is possible to strip Asterisk down to the very basics and run a very lean machine; however, that exercise is left up to the reader. The process we discuss here is designed to get you up and running quickly and simply, without short-changing you on access to interesting features.
+В этой книге мы поможем вам построить функционирующую систему Asterisk с нуля. Для достижения этой цели в этой главе мы построим базовую платформу для вашей системы Asterisk. Поскольку мы устанавливаем из исходного кода, потенциально существует множество вариантов того, как вы можете это сделать. Наша цель - поставить стандартный вид платформы, подходящую для исследований во множестве областей. Можно снять звездочку до самых основ и запустить на очень слабой машине; однако это упражнение остается на усмотрение читателя. Процесс, который мы обсуждаем здесь, предназначен для быстрого и простого запуска, без кратковременного изменения доступа к интересным функциям.
 
-Most of the commands you see are going to be best handled with a series of copy-paste operations \(in fact, we strongly recommend you have an electronic version of this book handy for that very purpose\).[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409180936) While it looks like a lot of typing, the commands we take you through can get you from start to finish in less than 30 minutes, so it’s really not as complex as it might appear. We run some prerequisites, some compilation, and some post-install config, and Asterisk is ready to go.
+Большинство команд, которые вы видите, будут лучше всего обрабатываться с помощью ряда операций копирования-вставки \(на самом деле, мы настоятельно рекомендуем Вам иметь электронную версию этой книги под рукой именно для этой цели\).[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409180936) Хотя это выглядит как большой набор команд, которые мы даем вам, получить конфигурацию можно от начала до конца менее чем за 30 минут, так что это действительно не так сложно, как может показаться. Мы запускаем некоторые предварительные условия, некоторую компиляцию и некоторую конфигурацию после установки, и Asterisk готов к работе.
 
-For the sake of brevity, these steps will be performed on a CentOS 7 system. This is functionally equivalent to RHEL, and similar enough to Fedora that the steps should be quite similar. For other platforms such as Debian/Ubuntu and so forth, the instructions will also be similar, but you will need to adjust as needed for your platform.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409178472)
+Для краткости эти шаги будут выполнены на системе CentOS 7. Это функционально эквивалентно RHEL и достаточно похоже на Fedora, так что шаги должны быть очень похожи. Для других платформ, таких как Debian/Ubuntu и так далее, инструкции также будут аналогичны, но вам нужно будет настроить по мере необходимости для вашей платформы.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409178472)
 
-The first part of the installation instructions will not deal with Asterisk as such, but rather some of the dependencies that either Asterisk requires or are necessary for some of the more useful features \(such as database integration\). We’ll try to keep the instructions general enough that they should be useful on any distribution of your choice.
+Первая часть инструкции по установке не будет касаться Asterisk как такового, а скорее некоторых зависимостей, которые требуются Asterisk или необходимы для некоторых более полезных функций \(таких как интеграция с базой данных\). Мы постараемся сохранить инструкции достаточно общими, чтобы они были полезны при любом распределении по вашему выбору.
 
-These instructions assume that you are an experienced Linux administrator.[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409176504) A fully working Asterisk system will consist of enough discrete parts that you will find it challenging to deal with all of it if you have little or no Linux background. We’d still encourage you to dive right in, but please allow for the fact that there will be a steep learning curve if you don’t already have solid Linux command-line experience.
+В этих инструкциях предполагается, что вы являетесь опытным администратором Linux.[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409176504) Полностью работающая система Asterisk будет состоять из достаточно обособленных частей, так что вам будет сложно справиться со всем этим, если у вас мало или нет основ Linux. Мы по-прежнему рекомендуем вам погрузиться, но пожалуйста, учтите тот факт, что будет крутая кривая обучения, если у вас еще нет твердого опыта командной строки Linux.
 
-**Note**
+{% hint style="info" %}
+**Примечание**
 
-If you want to learn the Linux command line, one of the best books we’ve found is The Linux Command Line by William Shotts, which has been released under a Creative Commons license, and dives straight into all the knowledge you need to use the Linux shell effectively. It can be found at [linuxcommand.org](http://linuxcommand.org/). You could memorize the book from front to back, and pretty much everything you’d learned would be something any seasoned Linux administrator would agree was worth knowing.
+Если вы хотите изучить командную строку Linux, одна из лучших книг, которые мы нашли - это _Командная строка Linux_ Уильяма Шоттса, которая была выпущена под лицензией Creative Commons и погружается прямо во все знания, необходимые для эффективного использования оболочки Linux. Её можно найти по адресу [linuxcommand.org](http://linuxcommand.org/) вы можете изучить книгу от начала до конца, и почти все, что вы узнаете будет тем, что стоит знать любому опытному администратору Linux.
 
-Another fantastic book is of course the legendary UNIX and Linux System Administration Handbook by Dan Mackin, Ben Whaley, Trent R. Hein, Garth Snyder, and Evi Nemeth \(Prentice Hall\). Highly recommended.
+Еще одна фантастическая книга - это, конечно же, легендарное _Руководство по системному администрированию UNIX и Linux_ Дэна Макина, Бена Уэйли, Трента Р. Хейна, Гарта Снайдера и Эви Немет \(Prentice Hall\). Настоятельно рекомендуем.
+{% endhint %}
 
-#### Asterisk Packages
+{% hint style="success" %}
+#### Пакеты Asterisk
 
-There are Asterisk packages that can be installed using package management systems such as yum or apt-get. You are encouraged to use them once you are familiar with Asterisk.
+Существуют пакеты Asterisk, которые можно установить с помощью систем управления пакетами, таких как _yum_ или _apt-get_. Вы можете использовать их как только ознакомитесь с Asterisk.
 
-If you are using RHEL, Asterisk is available from the [EPEL repository](http://fedoraproject.org/wiki/EPEL) from the Fedora project. Asterisk packages are available in the Universe repository for Ubuntu.
+Если вы используете RHEL, Asterisk доступен из [репозитория EPEL](http://fedoraproject.org/wiki/EPEL) из проекта Fedora. Пакеты Asterisk доступны в репозитории Юниверса для Ubuntu.
+{% endhint %}
 
-You should also note that because of Asterisk’s history, it is able to integrate with a multitude of telephony technologies; however, these days, someone new to Asterisk is going to want to learn SIP integration before worrying about more complex, obsolete or peripheral channel types. Once you are comfortable with Asterisk in a pure SIP environment, it’ll be much easier to look at integrating other channel types.
+Вы также должны отметить, что из-за истории Asterisk он может интегрироваться со множеством технологий телефонии; однако новичку в Asterisk лучше сперва изучить интеграцию SIP, прежде чем беспокоиться о более сложных, устаревших или периферийных типах каналов. После того, как вы освоитесь с Asterisk в чистой среде SIP, вам будет намного проще смотреть на интеграцию других типов каналов.
 
-#### Asterisk-Based Projects
+{% hint style="success" %}
+#### Проекты основанные на Asterisk
 
-Many projects use Asterisk as their underlying platform. Some of these, such as the FreePBX GUI, have become so popular that many people mistake them for the Asterisk product itself. In fact, the FreePBX GUI is so ubiquitous it is found in most of the well-known Asterisk-based projects. These projects take the base Asterisk product and add a web-based administration interface, a complex database, and external functions that are useful in a typical PBX \(such as set provisioning, a time server, and so forth\).
+Многие проекты используют Asterisk в качестве базовой платформы. Некоторые из них, такие как графический интерфейс FreePBX, стали настолько популярными, что многие люди ошибочно принимают его за сам продукт Asterisk. На самом деле, графический интерфейс FreePBX настолько распространен, что его можно найти в большинстве известных проектов на основе Asterisk. Эти проекты берут базовый продукт Asterisk и добавляют веб-интерфейс администрирования, сложную базу данных и внешние функции, которые полезны в типичной УАТС \(например преднастройка \(provisioning\) аппаратов, сервер времени и т.д.\).
 
-We have chosen not to cover these projects in this book, for several reasons:
+Мы решили не освещать эти проекты в этой книге, по нескольким причинам:
 
-* This book tries, as much as possible, to focus on Asterisk and only Asterisk.
-* Books have already been written about many of these Asterisk-based projects.
-* We believe that if you learn Asterisk in the way that we will teach you, the knowledge will serve you well regardless of whether or not you eventually choose to use one of these prepackaged versions of Asterisk.
-* If you want to be able to make sense of what’s going on under the hood of a FreePBX-based system, this book will introduce you to some of the skills you will need.
-* For us, the power of Asterisk is that it does not attempt to solve your problems for you. These projects are truly amazing examples of what can be built with Asterisk. However, if you are looking to build your own Asterisk application \(which is really what Asterisk is all about\), these projects might create needless obstacles, simply because they are focused on simplifying the process of building a business PBX, not on making it possible to access the full potential of the Asterisk platform.
+* Эта книга пытается, насколько это возможно, сосредоточиться на Asterisk и только Asterisk.
+* О многих из этих проектов, основанных на Asterisk, уже написаны книги.
+* Мы считаем, что если вы изучите Asterisk так, как мы будем учить вас, знания будут хорошо служить вам независимо от того, решите ли вы в конечном итоге использовать одну из этих предварительно упакованных версий Asterisk.
+* Если вы хотите понять, что происходит под капотом системы на базе FreePBX, эта книга познакомит вас с некоторыми навыками, которые вам понадобятся.
+* Для нас сила Asterisk заключается в том, что он не пытается решить ваши проблемы за вас. Эти проекты являются поистине удивительными примерами того, что можно построить с помощью Asterisk. Однако, если вы хотите создать свое собственное приложение Asterisk \(чем на самом деле является Asterisk\), эти проекты могут создавать ненужные препятствия, просто потому, что они направлены на упрощение процесса создания бизнес-АТС, а не на то, чтобы сделать возможным доступ к полному потенциалу платформы Asterisk.
 
-Some of the most popular Asterisk-based projects include \(in no particular order\):
+Некоторые из самых популярных проектов на основе Asterisk включают \(в определенном порядке\):
 
 [AsteriskNOW](http://www.asterisk.org/asterisknow)
 
-Managed by Digium. Uses FreePBX GUI.
+Управляется Digium. Использует графический интерфейс FreePBX.
 
 [Issabel](https://www.issabel.org/)
 
-A fork of the original open source releases of the Elastix product.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409149976) Uses FreePBX GUI.
+Ответвление оригинальных релизов open source продукта Elastix.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409149976) Использует графический интерфейс FreePBX.
 
 [The Official FreePBX Distro](http://www.freepbx.org/freepbx-distro)
 
-The official distro of the FreePBX project. Managed by Sangoma.
+Официальный дистрибутив проекта FreePBX. Управляется Sangoma.
 
 [Asterisk for Raspberry Pi](http://www.raspberry-asterisk.org/)
 
-A complete install of Asterisk and FreePBX for the Raspberry Pi.
+Полная установка Asterisk и FreePBX для Raspberry Pi.
 
 [AstLinux](https://www.astlinux-project.org/)
 
-The AstLinux project caters to a community that want to run Asterisk on small, low-power, solid-state devices. The install size of the entire solution is measured in megabytes \(AstLinux was originally designed to fit on CompactFlash cards\). If you are fascinated by small computers, and want to play with a PBX-in-a-box that fits in your pocket, AstLinux may be for you.
+Проект AstLinux обслуживает сообщество, которое хочет запускать Asterisk на небольших, маломощных твердотельных устройствах. Размер установки всего решения измеряется в мегабайтах \(AstLinux был первоначально разработан, чтобы поместиться на картах CompactFlash\). Если вы очарованы маленькими компьютерами и хотите играть с АТС в коробке, которая помещается в вашем кармане, AstLinux может быть вам интересен.
 
-We recommend that you check them out.[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409144568)
+Мы рекомендуем вам проверить их.[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409144568)
+{% endhint %}
 
-## Linux Installation
+## Установка Linux
 
 Asterisk is developed using Linux, and unless you’re very comfortable with porting software between various platforms, that is what you’re going to want to use.
 
@@ -1280,23 +1286,23 @@ The safe\_asterisk script provides the following benefits:
 
 You don’t need to know too much about this script, other than to understand that it should normally be running. In most environments this script works fine in its default format.
 
-## Conclusion
+## Вывод
 
-In this chapter we’ve provided a curated example of how an Asterisk installation should go. We’ve chosen the Linux distribution and MySQL server for you for the sake of brevity, but noted that Asterisk is in fact quite flexible in such matters. We now have a solid foundation on which to build our Asterisk system. In the following chapters we will explore how to connect devices to our Asterisk system in order to start placing calls internally, and work toward increasingly complex concepts in later chapters \(such as video conferencing and WebRTC\).
+В этой главе мы представили кураторский пример того, как должна проходить установка Asterisk. Мы выбрали дистрибутив Linux и сервер MySQL для вас ради краткости, но отметили, что Asterisk на самом деле довольно гибок в таких вопросах. Теперь у нас есть прочный фундамент, на котором можно построить систему Asterisk. В следующих главах мы рассмотрим, как подключить устройства к нашей системе Asterisk для того, чтобы начать совершать вызовы внутри и работать над все более сложными концепциями в последующих главах \(таких как видеоконференции и WebRTC\).
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409180936-marker) It’s been released under a Creative Commons license, so if you have purchased a hard copy \(and we thank you!\), you can also download a soft copy for searching and copying/pasting.
+[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409180936-marker) Он был выпущен под лицензией Creative Commons, поэтому, если вы приобрели печатную копию \(и мы благодарим вас!\), вы также можете скачать программную копию для поиска и копирования/вставки.
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409178472-marker) Asterisk should run on pretty much any Linux platform, and if you are familiar with the basic process of installing software on a Linux machine, you should find Asterisk a fairly straightforward installation.
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409178472-marker) Asterisk должен работать практически на любой платформе Linux, и если вы знакомы с основным процессом установки программного обеспечения на Linux, вы должны найти установку Asterisk довольно простой.
 
-[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409176504-marker) By which we mostly mean that you are comfortable administering a system exclusively from the shell.
+[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409176504-marker) Под этим мы в основном подразумеваем, что вам удобно управлять системой исключительно из оболочки.
 
-[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409149976-marker) Elastix is no longer an Asterisk-based or open source product.
+Elastix больше не является продуктом на основе Asterisk или open source.
 
-[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409144568-marker) After you read our book, of course.
+[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409144568-marker) После того, как вы прочтете нашу книгу, конечно же.
 
-[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409086616-marker) Amazon’s new Lightsail service also promises to simplify the creation of hosted Linux machines.
+[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409086616-marker) Новый сервис Lightsail от Amazon также обещает упростить создание размещенных Linux-машин.
 
-[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409043048-marker) Note that members of the community will also produce packaged versions of Asterisk. The EPEL repository, for example, maintains a version that can be installed using dnf \(yum\). As of this writing, only the tarball version is officially maintained, and we recommend this method at this time, mostly due to the many different modules that come with Asterisk, and the usefulness in being able to build what you need from source.
+[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409043048-marker) Обратите внимание, что члены сообщества также будут создавать пакетные версии Asterisk. Например, репозиторий EPEL поддерживает версию, которая может быть установлена с помощью `dnf` \(`yum`\). На момент написания этой статьи официально поддерживается только версия tarball, и мы рекомендуем этот метод в настоящее время, в основном из-за множества различных модулей, которые поставляются с Asterisk, и полезности в возможности создавать то, что вам нужно из источника.
 
-[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409035896-marker) On a DigitalOcean instance, you’ll need to ensure your SSH key is in the file /home/astmin/.ssh/authorized\_keys.
+[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409035896-marker) На экземпляре DigitalOcean вам нужно будет убедиться, что ваш SSH-ключ находится в файле _/home/astmin/.ssh/authorized\_keys_.
 
