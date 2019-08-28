@@ -315,79 +315,84 @@ exten => 200,1,Answer()
     same => n,Hangup()
 ```
 
-Если вы следовали в Главе 5, у вас уже будет настроен канал или два, а также пример диалплана, который содержит этот код. Если нет,то вам нужно расширение.файл conf в каталоге /etc / asterisk, содержащий следующий код:
+Если вы следовали [Главе 5](glava-05.md), у вас уже будет настроен канал или два, а также пример диалплана, который содержит этот код. Если нет, то вам нужен файл  _extensions.conf_ в каталоге _/etc/asterisk_, содержащий следующий код:
 
 ```text
 [general]
 [globals]
+
 [sets]
-exten => 100,1,Dial(PJSIP/0000f30A0A01) ; Replace 0000f30A0A01 with your device name
+exten => 100,1,Dial(PJSIP/0000f30A0A01) ; Замените 0000f30A0A01 на имя вашего устройства
+
 exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
+
 exten => 102,1,Dial(PJSIP/0000f30B0B02)
+
 exten => 103,1,Dial(PJSIP/SOFTPHONE_B)
+
 exten => 200,1,Answer()
     same => n,Playback(hello-world)
     same => n,Hangup()
 ```
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
-If you don’t have any channels configured, now is the time to do so. There is real satisfaction that comes from passing your first call into an Asterisk dialplan on a system that you’ve built from scratch. People get this funny grin on their faces as they realize that they have just created a telephone system. This pleasure can be yours as well, so please, don’t go any further until you have made this little bit of dialplan work. If you have any problems, get back to [Chapter 5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch05.html%22%20/l%20%22asterisk-DeviceConfig) and work through the examples there.
+Если у вас нет настроенных каналов, сейчас самое время создать их. Существует реальное удовлетворение, которое приходит от передачи вашего первого вызова в диалплан Asterisk в системе, которую вы построили с нуля. Люди получают эту ухмылку на лицах когда понимают, что они только что создали телефонную систему. Это удовольствие может быть и вашим, поэтому, пожалуйста, не идите дальше, пока не сделаете эту маленькую работу диалплана. Если у вас есть какие-либо проблемы, вернитесь к [Главе 5](glava-05.md) и проработайте примеры оттуда.
 {% endhint %}
 
-If you don’t have this dialplan code built yet, you’ll need to add it and reload the dialplan with this CLI command:
+Если у вас еще нет этого кода диалплана, то нужно будет добавить его и перезагрузить диалплан с помощью этой команды CLI:
 
 ```text
-$ sudo asterisk -rvvvvv # ('r' attaches to a daemonized Asterisk; 'v's are for verbosity)
+$ sudo asterisk -rvvvvv # ('r' подключается к демону Asterisk; 'v' означает verbosity)
 *CLI> dialplan reload
 ```
 
-or you can issue the command directly from the shell with:
+или вы можете выполнить команду непосредственно из оболочки с помощью:
 
 ```text
-$ sudo asterisk -rx "dialplan reload" # ('rx' execute an Asterisk command and return)
+$ sudo asterisk -rx "dialplan reload" # ('rx' выполнение команды Asterisk и возврат)
 ```
 
-Calling extension 200 from either of your configured phones[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408218280) should reward you with the friendly voice of Allison Smith saying “Hello, World.”
+Вызов расширения 200 с любого из ваших настроенных телефонов[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408218280) должен вознаградить вас дружелюбным голосом Эллисон Смит, говорящим: "Hello, World.”
 
-If it doesn’t work, check the Asterisk console for error messages, and make sure your channels are assigned to the sets context.
+Если это не работает, проверьте консоль Asterisk на наличие сообщений об ошибках и убедитесь, что ваши каналы назначены контексту `sets`.
 
 {% hint style="danger" %}
-**Warning**
+**Предупреждение**
 
-We do not recommend that you move forward in this book until you have verified the following:
+Мы не рекомендуем Вам продвигаться вперед в этой книге, пока вы не проверите следующее:
 
-1. Calls between extension 100 and 101 are working.
-2. Calling extension 200 plays “Hello World.”
+1. Вызовы между добавочными номерами 100 и 101 работают.
+2. Вызов расширения 200 воспроизводит “Hello World.”
 {% endhint %}
 
-Even though this example is very short and simple, it emphasizes the core dialplan concepts of contexts, extensions, priorities, and applications. You now have the fundamental knowledge on which all dialplans are built.
+Хотя этот пример очень короткий и простой, он подчеркивает основные концепции диалплана: контексты, расширения, приоритеты и приложения. Теперь у вас есть фундаментальные знания, на которых строятся все диалпланы.
 
 {% hint style="success" %}
-As you build out a dialplan, it will be helpful to have the Asterisk CLI open in a new window. You will be reloading the dialplan often, and while testing your call flow, you will want to see what is happening, as it happens. The Asterisk CLI is useful for both of those things.
+Когда вы создаете диалплан, будет полезно открыть CLI Asterisk в новом окне. Вы будете часто перезагружать диалплан, и во время тестирования потока вызовов захотите увидеть что происходит и происходит. CLI Asterisk полезен для обеих этих вещей.
 
 ```text
 $ sudo asterisk -rvvvvv
-*CLI> dialplan reload # this Asterisk CLI command reloads the dialplan
+*CLI> dialplan reload # из командной строки Астериска перезагружает диалплан
 ```
 
-Best practice, then, would be to edit in one window, and to reload and debug in another.
+Поэтому лучше всего было бы редактировать в одном окне, а перезагружать и отлаживать в другом.
 {% endhint %}
 
-## Building an Interactive Dialplan
+## Создание интерактивного диалплана
 
-The dialplan we just built was static; it will always perform the same actions on every call. Many dialplans will also need logic to perform different actions based on input from the user, so let’s take a look at that now.
+Диалплан, который мы только что построили, был статическим; он всегда будет выполнять одни и те же действия при каждом вызове. Многие диалпланы также нуждаются в логике для выполнения различных действий на основе ввода пользователя, поэтому давайте посмотрим на это сейчас.
 
-### The Goto\(\), Background\(\), and WaitExten\(\) Applications
+### Приложения Goto\(\), Background\(\) и WaitExten\(\)
 
-As its name implies, the Goto\(\) application is used to send a call to another part of the dialplan. Goto\(\) requires us to pass the destination context, extension, and priority as arguments, like this:
+Как следует из названия, приложение `Goto()` используется для отправки вызова в другую часть диалплана. `Goto()` требует, чтобы мы передали контекст назначения, расширение и приоритет в качестве аргументов, например:
 
 ```text
  same => n,Goto(context,extension,priority)
 ```
 
-We’re going to create a new context called TestMenu, and create an extension in our sets context that will pass calls to that context using Goto\(\):
+Мы создадим новый контекст под названием `TestMenu` и создадим расширение в нашем контексте `sets`, которое будет передавать вызовы в этот контекст с помощью `Goto()`:
 
 ```text
 exten => 200,1,Answer()
@@ -399,24 +404,24 @@ exten => 201,1,Goto(TestMenu,start,1) ; add this to the end of the
 exten => start,1,Answer()
 ```
 
-Now, whenever a device enters the \[sets\] context and dials 201, the call will be passed to the start extension in the TestMenu context \(which currently won’t do anything interesting because we still have more code to write\).
+Теперь, когда устройство входит в контекст `[sets]` и набирает 201, вызов будет передан в расширение `start` в контексте `TestMenu` \(который в настоящее время не будет делать ничего интересного, потому что у нас есть ещё код для записи\).
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-We used the extension start in this example, but we could have used anything we wanted as an extension name, either numeric or alpha. We prefer to use alpha characters for extensions that are not directly dialable, as this makes the dialplan easier to read. Point being, we could have named our target extension 123 or xyz321, or 99luftballons, or whatever we wanted instead of start. The word start doesn’t mean anything special to the dialplan; it’s simply the name of an extension.
+Мы использовали расширение `start` в этом примере, но могли бы использовать все что угодно в качестве имени расширения, либо числовое, либо буквенное. Мы предпочитаем использовать буквенные-символы для расширений, которые не доступны напрямую, так как это упрощает чтение диалплана. Суть в том, что можно было бы назвать нашей целью расширения `123` или `xyz321`, или  `99luftballons`, или всё что угодно чтобы начать. Слово _start_ не означает ничего особенного для диалплана; это просто имя расширения.
 {% endhint %}
 
-One of the more useful applications in an interactive Asterisk dialplan is the Background\(\)[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408187512) application. Like Playback\(\), it plays a recorded sound file. Unlike Playback\(\), however, when the caller presses a key \(or series of keys\) on their telephone keypad, it interrupts the playback and passes the call to the extension that corresponds with the pressed digit\(s\). If a caller presses 5, for example, Asterisk will stop playing the sound prompt and send control of the call to the first priority of extension 5 \(assuming there is an extension 5 to send the call to\).
+Одним из наиболее полезных приложений в интерактивном диалплане Asterisk является приложение `Background()`[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408187512). Как и `Playback()`, оно воспроизводит записанный звуковой файл. Однако в отличие от функции `Playback()`, когда вызывающий абонент нажимает клавишу \(или серию клавиш\) на клавиатуре своего телефона, он прерывает воспроизведение и передает вызов на добавочный номер, соответствующий нажатой цифре\(цифрам\). Если вызывающий абонент нажимает 5, например, Asterisk прекратит воспроизведение звуковой подсказки и отправит управление вызовом на первый приоритет расширения 5 \(при условии, что расширение 5 существует для отправки вызова\).
 
-The most common use of the Background\(\) application is to create basic voice menus \(often called auto attendants, IVRs,[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408181448) or phone trees\). Many companies use voice menus to direct callers to the proper extensions, thus relieving their receptionists from having to answer every single call.
+Наиболее распространенным использованием приложения `Background()` является создание основных голосовых меню \(часто называемых _автосекретарями_, _IVR_,[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408181448) или _телефонными деревьями_\). Многие компании используют голосовые меню для направления абонентов на соответствующие добавочные номера, тем самым освобождая своих администраторов от необходимости отвечать на каждый вызов.
 
-Background\(\) has the same syntax as Playback\(\):
+Background\(\) имеет тот же синтаксис как и Playback\(\):
 
 ```text
 [TestMenu]
 exten => start,1,Answer()
- same => n,Background(enter-ext-of-person)
+    same => n,Background(enter-ext-of-person)
 ```
 
 If you want Asterisk to wait for input from the caller after the sound prompt has finished playing, you can use WaitExten\(\). The WaitExten\(\) application waits for the caller to enter DTMF digits and is used directly following the Background\(\) application, like this:
