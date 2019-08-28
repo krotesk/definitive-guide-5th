@@ -229,138 +229,151 @@ exten => 123,1,Answer()
 
 #### Метки приоритетов
 
-Priority labels allow you to assign a name to a priority within an extension. This is to ensure that you can refer to a priority by something other than its number \(which probably isn’t known, given that dialplans now generally use unnumbered priorities\). Later you will learn that it’s often necessary to send calls from other parts of the dialplan to a particular priority in a particular extension. To assign a text label to a priority, simply add the label inside parentheses after the priority, like this:
+Метки приоритетов позволяют назначить имя приоритету в пределах расширения. Это должно гарантировать что вы можете ссылаться на приоритет иначе чем его номер \(который, вероятно, неизвестен, учитывая, что диалпланы теперь, как правило, используют ненумерованные приоритеты\). Позже вы узнаете, что часто необходимо отправлять вызовы из других частей диалплана на определенный приоритет в определенном расширении. Чтобы назначить текстовую метку приоритету, просто добавьте метку в скобках после приоритета, например:
 
-exten =&gt; 123,n\(label\),application\(\)
+```text
+exten => 123,n(label),application()
+```
 
-Later, we’ll cover how to jump between different priorities based on dialplan logic. You’ll see a lot more of priority labels, and you’ll use them often in your dialplans.
+Позже мы рассмотрим, как переключаться между различными приоритетами на основе логики диалплана. Вы увидите гораздо больше меток приоритетов и будете чаще использовать их в своих диалпланах.
 
-**Warning**
+{% hint style="danger" %}
+**Предупреждение**
 
-A very common mistake when writing labels is to insert a comma between the n and the \(, like this:
+Очень распространенной ошибкой при написании меток является вставка запятой между then и \(, например:
 
-exten =&gt; 555,n,\(label\),application\(\) ;&lt;-- THIS WON'T WORK
+`exten => 555,n,(label),application() ;<-- ЭТО НЕ БУДЕТ РАБОТАТЬ`
 
-exten =&gt; 556,n\(label\),application\(\) :&lt;-- This is what we want
+`exten => 556,n(label),application() ;<-- Это, что надо`
 
-This mistake will break that part of your dialplan, and you will get an error stating that the application cannot be found.
+Эта ошибка нарушит часть вашего диалплана и вы получите сообщение об ошибке, указывающее, что приложение не может быть найдено.
+{% endhint %}
 
-### Applications
+### Приложения
 
-Applications are the workhorses of the dialplan. Each application performs a specific action on the current channel, such as playing a sound, accepting touch-tone input, looking something up in a database, dialing a channel, hanging up the call, feeding the cat, and so forth.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408295288) In the previous example, you were introduced to two simple applications: Answer\(\) and Hangup\(\). It’s obvious what they do, but it’s also obvious that on their own they aren’t terribly useful.
+Приложения — это рабочие лошадки диалплана. Каждое приложение выполняет определённое действие в текущем канале, такое как — воспроизведение звука, приём набора сигналов DTMF, поиск чего-то в базе данных, выполнение вызова в канал, завершение вызова, кормление кошки или что-то иное.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408295288) В предыдущем примере мы показали два простых приложения: `Answer()` и `Hangup()`. Очевидно что они делают, но также очевидно что сами по себе они не очень полезны.
 
-Some applications, including Answer\(\) and Hangup\(\), need no other instructions to do their jobs. Most applications, however, require more information. These additional elements, or arguments, are passed on to the applications to affect how they perform their actions. To pass arguments to an application, place them between the parentheses that follow the application name, separated by commas.
+Некоторые приложения, включая `Answer()` и `Hangup()` не требуют дополнительных инструкций для выполнения своей задачи. Но большинству приложений требуется дополнительная информация. Эти дополнительные элементы или аргументы передаются в приложения чтобы повлиять на выполнение действий. Чтобы передать аргументы приложению, поместите их между круглыми скобками, которые следуют за именем приложения, разделяя запятыми. 
 
-### The Answer\(\), Playback\(\), and Hangup\(\) Applications
+### Приложения Answer\(\), Playback\(\) и Hangup\(\)
 
-The Answer\(\) application is used to answer a channel that is ringing. It seems a simple thing, but a lot of things happen on the channel with this one command. Answer\(\) tells the channel to send a message back to the far end that the call has been answered, and also to enable the media paths \(the network streams that will carry the sound between the caller and the system\). As we mentioned earlier, Answer\(\) takes no arguments. Answer\(\) is not always required \(in fact, in some cases it may not be desirable at all\), but it is an effective way to ensure a channel is connected before performing further actions.
+Приложение `Answer()` используется для ответа на канал, который звонит. Это кажется простой вещью, но много вещей происходит на канале с этой одной командой. `Answer()` сообщает каналу отправить обратно на дальний конец сообщение, что вызов был отвечен, а также включить медиа-пути \(сетевые потоки, которые будут нести звук между вызывающим абонентом и системой\). Как мы уже упоминали ранее, `Answer()` не принимает аргументов. `Answer()` не всегда требуется \(на самом деле, в некоторых случаях он может быть вообще нежелательным\), но это эффективный способ обеспечить подключение канала перед выполнением дальнейших действий.
 
-**The Progress\(\) Application**
+{% hint style="success" %}
+**Приложение Progress\(\)**
 
-Sometimes it is useful to be able to pass information back to the network before answering a call. The Progress\(\) application attempts to provide call progress information to the originating channel. Some carriers expect this, and thus you may be able to resolve strange signaling problems by inserting Progress\(\) into the dialplan where your incoming calls arrive. In terms of billing, the use of Progress\(\) lets the carrier know you’re handling the call, without starting the billing meter.
+Иногда полезно иметь возможность передавать информацию обратно в сеть перед ответом на вызов. Приложение `Progress()` пытается предоставить информацию о ходе выполнения вызова исходному каналу. Некоторые операторы связи ожидают этого, и таким образом вы можете решить странные проблемы с сигнализацией, вставив `Progress()` в диалплан, куда поступают ваши входящие вызовы. С точки зрения биллинга, использование `Progress()` позволяет поставщику услуг знать, что вы обрабатываете вызов, не запуская счетчик биллинга.
+{% endhint %}
 
-The Playback\(\) application is used for playing a previously recorded sound file over a channel. Input from the user is ignored, which means that you would not use Playback\(\) in an auto attendant, for example, unless you did not want to accept input at that point.[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408274728)
+Приложение `Playback()` используется для воспроизведения ранее записанного звукового файла по каналу. Ввод от пользователя игнорируется, что означает невозможность использования `Playback()` в автосекретаре, например если не хотите принимать ввод в этот момент.[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408274728)
 
-**Tip**
+{% hint style="info" %}
+**Подсказка**
 
-Asterisk comes with many professionally recorded sound files, which should be found in the default sounds directory \(usually /var/lib/asterisk/sounds\). When you compile Asterisk, you can choose to install various sets of sample sounds that have been recorded in a variety of languages and file formats. We’ll be using these files in many of our examples. Several of the files in our examples come from the Extra Sound Package, which we installed in [Chapter 3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22asterisk-Install). You can also have your own sound prompts recorded in the same voices as the stock prompts by visiting [www.theivrvoice.com](http://www.theivrvoice.com/). Later in the book, we’ll talk more about how you can use a telephone and the dialplan to create and manage your own system recordings \(or import .wav files\).
+Asterisk поставляется со многими профессионально записанными звуковыми файлами, которые должны быть найдены в каталоге звуков по умолчанию \(обычно _/var/lib/asterisk/sounds_\). При компиляции Asterisk можно установить различные наборы образцов звуков, записанных на различных языках и в различных форматах файлов. Мы будем использовать эти файлы во многих наших примерах. Некоторые из файлов в наших примерах взяты из дополнительного звукового пакета, который мы установили в [Главе 3](glava-03.md). Вы также можете иметь свои собственные звуковые подсказки, записанные в тех же голосах, что и стоковые подсказки, посетив [www.theivrvoice.com](www.theivrvoice.com). Далее в книге мы поговорим о том, как можно использовать телефон и абонентскую группу для создания и управления собственными системными записями \(или импорта _.wav_ файлов\).
+{% endhint %}
 
-To use Playback\(\), specify a filename as the argument. For example, Playback\(filename\) would play a sound file called filename.wav, assuming it was located in the default sounds directory. Note that you can include the full path to a file if you want, like this:
+Чтобы использовать функцию `Playback()`, укажите имя файла в качестве аргумента. Например, воспроизведение `Playback(filename)`воспроизведёт звуковой файл с именем _filename.wav_, предполагая, что он находится в каталоге звуков по умолчанию. Обратите внимание, что вы можете включить полный путь к файлу, если хотите, например:
 
-Playback\(/home/john/sounds/filename\)
+```text
+Playback(/home/john/sounds/filename)
+```
 
-The previous example would play filename.wav from the /home/john/sounds directory. This can be problematic, however, due to potential file permissions problems. If you’re planning on having a lot of custom sounds on your system, you’ll likely want a dedicated directory for them, and you’ll need to test to ensure Asterisk can find and play the files.
+В предыдущем примере будет воспроизводиться _filename.wav_ из каталога _/home/john/sounds_. Это может быть проблематично из-за потенциальных проблем с правами доступа к файлам. Если вы планируете иметь много пользовательских звуков в своей системе, то вам, вероятно, понадобится выделенный каталог для них, и нужно будет проверить, чтобы Asterisk мог найти и воспроизвести файлы.
 
-You can also use relative paths from the Asterisk sounds directory, as follows:
+Вы также можете использовать относительные пути из каталога звуков Asterisk, как показано ниже:
 
-Playback\(custom/filename\)
+```text
+Playback(custom/filename)
+```
 
-This example would play filename.wav from the custom subdirectory of the default sounds directory \(probably /var/lib/asterisk/sounds/en/custom/filename.wav\). If the specified directory contains more than one file with that filename but with different file extensions, Asterisk automatically plays the best file.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-2)
+В этом примере будет воспроизводиться _filename.wav_ из подкаталога _custom_ каталога звуков по умолчанию \(возможно _/var/lib/asterisk/sounds/en/custom/filename.wav_\). Если указанный каталог содержит более одного файла с этим именем, но с разными расширениями, Asterisk автоматически воспроизведёт лучший.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#asterisk-DP-Basics-FN-2)
 
-The Hangup\(\) application does exactly as its name implies: it hangs up the active channel. You should use this application at the end of a context when you want to end the current call, to ensure that callers don’t continue on in the dialplan in a way you might not have anticipated. The Hangup\(\) application does not require any arguments, but you can pass an ISDN cause code if you want, such as Hangup\(16\), and it will be translated into a comparable SIP message and sent to the far end.
+Приложение `Hangup()` делает именно то, что следует из его названия: оно завершает активный канал. Вы должны использовать это приложение в конце контекста, когда хотите завершить текущий вызов, чтобы убедиться, что абоненты не продолжают выполнение диалплана таким образом, который вы, возможно, не ожидали. Приложение `Hangup()` не требует никаких аргументов, но вы можете передать код причины ISDN если захотите, например `Hangup(16)` и он будет переведен в сопоставимое сообщение SIP и отправлено на дальний конец.
 
-As we work through the book, we will be introducing you to many more Asterisk applications, but that’s enough theory for now; let’s write some dialplan!
+По мере работы над книгой мы будем знакомить вас со многими другими приложениями Asterisk, но пока достаточно теории; давайте напишем диалплан!
 
-### A Basic Dialplan Prototype
+### Базовый прототип диалплана
 
-To reiterate, then, the form of all dialplans is built from those four concepts: Context, Extension, Priority, and Application \([Figure 6-3](6.%20Dialplan%20Basics%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig0603)\).
+Таким образом, повторю, что форма всех диалпланов строится на основе этих четырех понятий: контекст, расширение, приоритет и приложение \(Рисунок6-3\).
 
-![](.gitbook/assets/2.png)
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 6-3. &#x41F;&#x440;&#x43E;&#x442;&#x43E;&#x442;&#x438;&#x43F; &#x434;&#x438;&#x430;&#x43B;&#x43F;&#x43B;&#x430;&#x43D;&#x430;](.gitbook/assets/2.png)
 
-**Figure 6-3. Dialplan prototype**
+## Простой диалплан
 
-## A Simple Dialplan
-
-OK, enough theory. Open up the file /etc/asterisk/extensions.conf in your favorite editor, and let’s take a look at your first dialplan \(which was created in [Chapter 5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch05.html%22%20/l%20%22asterisk-DeviceConfig)\). We’re going to add to that.
+Ладно, хватит теории. Откройте файл _/etc/asterisk/extensions.conf_ в вашем любимом редакторе, и давайте посмотрим на ваш первый диалплан \(который был создан в [Главе 5](glava-05.md)\). Мы собираемся добавить к нему.
 
 ### Hello World
 
-As is typical in many technology books \(especially computer programming books\), our first example is called “Hello World.”
+Как это обычно бывает во многих технологических книгах \(особенно в книгах по компьютерному программированию\), наш первый пример называется “Hello World.”
 
-In the first priority of our extension, we answer the call. In the second, we play a sound file named hello-world, and in the third we hang up the call. The code we are interested in for this example looks like this:
+В первом приоритете нашего расширения мы отвечаем на вызов. Во втором мы проигрываем звуковой файл с именем _hello-world_, а в третьем вешаем трубку. Код, который нас интересует для этого примера выглядит так:
 
-exten =&gt; 200,1,Answer\(\)
+```text
+exten => 200,1,Answer()
+    same => n,Playback(hello-world)
+    same => n,Hangup()
+```
 
- same =&gt; n,Playback\(hello-world\)
+Если вы следовали в Главе 5, у вас уже будет настроен канал или два, а также пример диалплана, который содержит этот код. Если нет,то вам нужно расширение.файл conf в каталоге /etc / asterisk, содержащий следующий код:
 
- same =&gt; n,Hangup\(\)
+```text
+[general]
+[globals]
+[sets]
+exten => 100,1,Dial(PJSIP/0000f30A0A01) ; Replace 0000f30A0A01 with your device name
+exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
+exten => 102,1,Dial(PJSIP/0000f30B0B02)
+exten => 103,1,Dial(PJSIP/SOFTPHONE_B)
+exten => 200,1,Answer()
+    same => n,Playback(hello-world)
+    same => n,Hangup()
+```
 
-If you followed along in [Chapter 5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch05.html%22%20/l%20%22asterisk-DeviceConfig), you’ll already have a channel or two configured, as well as the sample dialplan that contains this code. If not, what you need is an extensions.conf file in your /etc/asterisk directory that contains the following code:
-
-\[general\]
-
-\[globals\]
-
-\[sets\]
-
-exten =&gt; 100,1,Dial\(PJSIP/0000f30A0A01\) ; Replace 0000f30A0A01 with your device name
-
-exten =&gt; 101,1,Dial\(PJSIP/SOFTPHONE\_A\)
-
-exten =&gt; 102,1,Dial\(PJSIP/0000f30B0B02\)
-
-exten =&gt; 103,1,Dial\(PJSIP/SOFTPHONE\_B\)
-
-exten =&gt; 200,1,Answer\(\)
-
- same =&gt; n,Playback\(hello-world\)
-
- same =&gt; n,Hangup\(\)
-
+{% hint style="info" %}
 **Tip**
 
 If you don’t have any channels configured, now is the time to do so. There is real satisfaction that comes from passing your first call into an Asterisk dialplan on a system that you’ve built from scratch. People get this funny grin on their faces as they realize that they have just created a telephone system. This pleasure can be yours as well, so please, don’t go any further until you have made this little bit of dialplan work. If you have any problems, get back to [Chapter 5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch05.html%22%20/l%20%22asterisk-DeviceConfig) and work through the examples there.
+{% endhint %}
 
 If you don’t have this dialplan code built yet, you’ll need to add it and reload the dialplan with this CLI command:
 
-$ sudo asterisk -rvvvvv \# \('r' attaches to a daemonized Asterisk; 'v's are for verbosity\)
-
-\*CLI&gt; dialplan reload
+```text
+$ sudo asterisk -rvvvvv # ('r' attaches to a daemonized Asterisk; 'v's are for verbosity)
+*CLI> dialplan reload
+```
 
 or you can issue the command directly from the shell with:
 
-$ sudo asterisk -rx "dialplan reload" \# \('rx' execute an Asterisk command and return\)
+```text
+$ sudo asterisk -rx "dialplan reload" # ('rx' execute an Asterisk command and return)
+```
 
 Calling extension 200 from either of your configured phones[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408218280) should reward you with the friendly voice of Allison Smith saying “Hello, World.”
 
 If it doesn’t work, check the Asterisk console for error messages, and make sure your channels are assigned to the sets context.
 
+{% hint style="danger" %}
 **Warning**
 
 We do not recommend that you move forward in this book until you have verified the following:
 
 1. Calls between extension 100 and 101 are working.
 2. Calling extension 200 plays “Hello World.”
+{% endhint %}
 
 Even though this example is very short and simple, it emphasizes the core dialplan concepts of contexts, extensions, priorities, and applications. You now have the fundamental knowledge on which all dialplans are built.
 
+{% hint style="success" %}
 As you build out a dialplan, it will be helpful to have the Asterisk CLI open in a new window. You will be reloading the dialplan often, and while testing your call flow, you will want to see what is happening, as it happens. The Asterisk CLI is useful for both of those things.
 
+```text
 $ sudo asterisk -rvvvvv
-
-\*CLI&gt; dialplan reload \# this Asterisk CLI command reloads the dialplan
+*CLI> dialplan reload # this Asterisk CLI command reloads the dialplan
+```
 
 Best practice, then, would be to edit in one window, and to reload and debug in another.
+{% endhint %}
 
 ## Building an Interactive Dialplan
 
@@ -370,29 +383,29 @@ The dialplan we just built was static; it will always perform the same actions o
 
 As its name implies, the Goto\(\) application is used to send a call to another part of the dialplan. Goto\(\) requires us to pass the destination context, extension, and priority as arguments, like this:
 
- same =&gt; n,Goto\(context,extension,priority\)
+```text
+ same => n,Goto(context,extension,priority)
+```
 
 We’re going to create a new context called TestMenu, and create an extension in our sets context that will pass calls to that context using Goto\(\):
 
-exten =&gt; 200,1,Answer\(\)
-
- same =&gt; n,Playback\(hello-world\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 201,1,Goto\(TestMenu,start,1\) ; add this to the end of the
-
- ; \[sets\] context
-
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
+```text
+exten => 200,1,Answer()
+ same => n,Playback(hello-world)
+ same => n,Hangup()
+exten => 201,1,Goto(TestMenu,start,1) ; add this to the end of the
+ ; [sets] context
+[TestMenu]
+exten => start,1,Answer()
+```
 
 Now, whenever a device enters the \[sets\] context and dials 201, the call will be passed to the start extension in the TestMenu context \(which currently won’t do anything interesting because we still have more code to write\).
 
+{% hint style="info" %}
 **Note**
 
 We used the extension start in this example, but we could have used anything we wanted as an extension name, either numeric or alpha. We prefer to use alpha characters for extensions that are not directly dialable, as this makes the dialplan easier to read. Point being, we could have named our target extension 123 or xyz321, or 99luftballons, or whatever we wanted instead of start. The word start doesn’t mean anything special to the dialplan; it’s simply the name of an extension.
+{% endhint %}
 
 One of the more useful applications in an interactive Asterisk dialplan is the Background\(\)[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408187512) application. Like Playback\(\), it plays a recorded sound file. Unlike Playback\(\), however, when the caller presses a key \(or series of keys\) on their telephone keypad, it interrupts the playback and passes the call to the extension that corresponds with the pressed digit\(s\). If a caller presses 5, for example, Asterisk will stop playing the sound prompt and send control of the call to the first priority of extension 5 \(assuming there is an extension 5 to send the call to\).
 
@@ -400,99 +413,87 @@ The most common use of the Background\(\) application is to create basic voice m
 
 Background\(\) has the same syntax as Playback\(\):
 
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
+```text
+[TestMenu]
+exten => start,1,Answer()
+ same => n,Background(enter-ext-of-person)
+```
 
 If you want Asterisk to wait for input from the caller after the sound prompt has finished playing, you can use WaitExten\(\). The WaitExten\(\) application waits for the caller to enter DTMF digits and is used directly following the Background\(\) application, like this:
 
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(\)
+```text
+[TestMenu]
+exten => start,1,Answer()
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten()
+```
 
 If you’d like the WaitExten\(\) application to wait a specific number of seconds for a response \(instead of using the default timeout\),[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408171000) simply pass the number of seconds as the first argument to WaitExten\(\), like this:
 
- same =&gt; n,WaitExten\(5\) ; We always pass a time argument to WaitExten\(\)
+```text
+ same => n,WaitExten(5) ; We always pass a time argument to WaitExten()
+```
 
 Both Background\(\) and WaitExten\(\) allow the caller to enter DTMF digits. Asterisk then attempts to find an extension in the current context that matches the digits that the caller entered. If Asterisk finds a match, it will send the call to that extension. Let’s demonstrate by adding a few lines to our dialplan example:
 
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(5\)
-
-exten =&gt; 1,1,Playback\(digits/1\)
-
-exten =&gt; 2,1,Playback\(digits/2\)
+```text
+[TestMenu]
+exten => start,1,Answer()
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten(5)
+exten => 1,1,Playback(digits/1)
+exten => 2,1,Playback(digits/2)
+```
 
 After making these changes, save and reload your dialplan:
 
-\*CLI&gt; dialplan reload
+```text
+*CLI> dialplan reload
+```
 
 If you call into extension 201, you should hear a sound prompt that says, “Enter the extension of the person you are trying to reach.” The system will then wait 5 seconds for you to enter a digit. If the digit you press is either 1 or 2, Asterisk will match the relevant extension, and read that digit back to you. Since we didn’t provide any further instructions, your call will then end. You’ll also find that if you enter a different digit \(such as 3\), the dialplan will be unable to proceed.
 
 Let’s embellish things a little. We’re going to use the Goto\(\) application to have the dialplan repeat the greeting after playing back the number:
 
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(5\)
-
-exten =&gt; 1,1,Playback\(digits/1\)
-
- same =&gt; n,Goto\(TestMenu,start,1\)
-
-exten =&gt; 2,1,Playback\(digits/2\)
-
- same =&gt; n,Goto\(TestMenu,start,1\)
+```text
+[TestMenu]
+exten => start,1,Answer()
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten(5)
+exten => 1,1,Playback(digits/1)
+ same => n,Goto(TestMenu,start,1)
+exten => 2,1,Playback(digits/2)
+ same => n,Goto(TestMenu,start,1)
+```
 
 These new lines will send control of the call back to the start extension after playing back the selected number.
 
+{% hint style="info" %}
 **Tip**
 
 If you look up the details of the Goto\(\) application, you’ll find that you can actually pass either one, two, or three arguments to the application. If you pass a single argument, Asterisk will assume it’s the destination priority in the current extension. If you pass two arguments, Asterisk will treat them as the extension and the priority to go to in the current context.
 
 In this example, we’ve passed all three arguments for the sake of clarity, but passing just the extension and priority would have had the same effect, since the destination context is the same as the source context.
+{% endhint %}
 
 ### Handling Invalid Entries and Timeouts
 
 We need an extension for invalid entries. In Asterisk, when a context receives a request for an extension that is not valid within that context \(e.g., pressing 9 in the preceding example\), the call is sent to the i extension. We also need an extension to handle situations when the caller doesn’t give input in time \(the default timeout is 10 seconds\). Calls will be sent to the t extension if the caller takes too long to press a digit after WaitExten\(\) has been called. Here is what our dialplan will look like after we’ve added these two extensions:
 
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(5\)
-
-exten =&gt; 1,1,Playback\(digits/1\)
-
- same =&gt; n,Goto\(TestMenu,start,1\)
-
-exten =&gt; 2,1,Playback\(digits/2\)
-
- same =&gt; n,Goto\(TestMenu,start,1\)
-
-exten =&gt; i,1,Playback\(pbx-invalid\)
-
- same =&gt; n,Goto\(TestMenu,start,1\)
-
-exten =&gt; t,1,Playback\(please-try-again\)
-
- same =&gt; n,Goto\(TestMenu,start,1\)
+```text
+[TestMenu]
+exten => start,1,Answer()
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten(5)
+exten => 1,1,Playback(digits/1)
+ same => n,Goto(TestMenu,start,1)
+exten => 2,1,Playback(digits/2)
+ same => n,Goto(TestMenu,start,1)
+exten => i,1,Playback(pbx-invalid)
+ same => n,Goto(TestMenu,start,1)
+exten => t,1,Playback(please-try-again)
+ same => n,Goto(TestMenu,start,1)
+```
 
 Using the i[11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408142552) and t extensions makes our menu a little more robust and user-friendly. That being said, it is still quite limited, because outside callers still have no way of connecting to a live person. To do that, we’ll need to learn about the Dial\(\) application.
 
@@ -504,7 +505,9 @@ The syntax of the Dial\(\) application is more complex than that of the other ap
 
 The syntax of Dial\(\) looks like this:
 
-Dial\(Technology/Resource\[&Technology2/Resource2\[&...\]\]\[,timeout\[,options\[,URL\]\]\]\)
+```text
+Dial(Technology/Resource[&Technology2/Resource2[&...]][,timeout[,options[,URL]]])
+```
 
 Put simply, you tell Dial\(\) what channel[12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408129896) you want to send the call out to, and set a few options to tweak the behavior. The use of Dial\(\) can get complex, but at its most basic, it’s that simple.
 
@@ -512,61 +515,68 @@ Put simply, you tell Dial\(\) what channel[12](https://learning.oreilly.com/libr
 
 The first argument is the destination you’re attempting to call, which \(in its simplest form\) is made up of a technology \(or transport\) across which to make the call, a forward slash, and the address of the remote endpoint or resource.
 
+{% hint style="info" %}
 **Note**
 
 These days, you’re most likely to be using PJSIP as your channel type, but in the not-too-distant past, common technology types also included DAHDI \(for analog and T1/E1/J1 channels\), the old SIP channel \(prior to PJSIP\), and IAX2.[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408125064) If you’re looking at an older dialplan, you may see some of these other protocols represented. Going forward, only PJSIP and DAHDI are recommended and maintained.
+{% endhint %}
 
 Let’s assume that we want to call one of our PJSIP channels named SOFTPHONE\_B. The technology is PJSIP, and the resource \(or channel\) identifier is SOFTPHONE\_B. Similarly, a call to a DAHDI device \(defined in chan\_dahdi.conf\) might have a destination of DAHDI/14169671111. If we wanted Asterisk to ring the PJSIP/SOFTPHONE\_B channel when extension 103 is reached in the dialplan, we’d add the following extension:
 
-exten =&gt; 101,1,Dial\(PJSIP/SOFTPHONE\_A\)
-
-exten =&gt; 103,1,Dial\(PJSIP/SOFTPHONE\_B\)
-
-exten =&gt; 200,1,Answer\(\)
+```text
+exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
+exten => 103,1,Dial(PJSIP/SOFTPHONE_B)
+exten => 200,1,Answer()
+```
 
 We can also dial multiple channels at the same time, by concatenating the destinations with an ampersand \(&\), like this:
 
-exten =&gt; 101,1,Dial\(PJSIP/SOFTPHONE\_A\)
-
-exten =&gt; 103,1,Dial\(PJSIP/SOFTPHONE\_B\)
-
-exten =&gt; 110,1,Dial\(PJSIP/0000f30A0A01&PJSIP/SOFTPHONE\_A&PJSIP/SOFTPHONE\_B\)
-
-exten =&gt; 200,1,Answer\(\)
+```text
+exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
+exten => 103,1,Dial(PJSIP/SOFTPHONE_B)
+exten => 110,1,Dial(PJSIP/0000f30A0A01&PJSIP/SOFTPHONE_A&PJSIP/SOFTPHONE_B)
+exten => 200,1,Answer()
+```
 
 The Dial\(\) application will ring all of the specified destinations simultaneously, and bridge the inbound call with whichever destination channel answers first \(the other channels will immediately stop ringing\). If the Dial\(\) application can’t contact any of the destinations, Asterisk will set a variable called DIALSTATUS with the reason that it couldn’t dial the destinations, and continue with the next priority in the extension.[14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-3)
 
 The Dial\(\) application also allows you to connect to a remote VoIP endpoint not previously defined in one of the channel configuration files. The full syntax is:
 
-Dial\(technology/user\[:password\]@remote\_host\[:port\]\[/remote\_extension\]\)
+```text
+Dial(technology/user[:password]@remote_host[:port][/remote_extension])
+```
 
 The full syntax for the Dial\(\) application is slightly different for DAHDI channels:
 
-Dial\(DAHDI/\[gGrR\]channel\_or\_group\[/remote\_extension\]\)
+```text
+Dial(DAHDI/[gGrR]channel_or_group[/remote_extension])
+```
 
 For example, here is how you would dial 1-800-555-1212 on DAHDI channel number 4:[15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408102536)
 
-exten =&gt; 501,1,Dial\(DAHDI/4/18005551212\)
+```text
+exten => 501,1,Dial(DAHDI/4/18005551212)
+```
 
 #### Argument 2: timeout
 
 The second argument to the Dial\(\) application is a timeout, specified in seconds. If a timeout is given, Dial\(\) will attempt to call the specified destination\(s\) for that number of seconds before giving up and moving on to the next priority in the extension. If no timeout is specified, Dial\(\) will continue to dial the called channel\(s\) until someone answers or the caller hangs up. Let’s add a timeout of 10 seconds to our extension:
 
-exten =&gt; 101,1,Dial\(PJSIP/SOFTPHONE\_A\)
-
-exten =&gt; 102,1,Dial\(PJSIP/0000f30B0B02,10\)
-
-exten =&gt; 103,1,Dial\(PJSIP/SOFTPHONE\_B\)
+```text
+exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
+exten => 102,1,Dial(PJSIP/0000f30B0B02,10)
+exten => 103,1,Dial(PJSIP/SOFTPHONE_B)
+```
 
 If the call is answered before the timeout, the channels are bridged and the dialplan is done. If the destination simply does not answer, is busy, or is otherwise unavailable, Asterisk will set a variable called DIALSTATUS and then continue on with the next priority in the extension.
 
 Let’s put what we’ve learned so far into another example:
 
-exten =&gt; 102,1,Dial\(PJSIP/0000f30B0B02,10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 102,1,Dial(PJSIP/0000f30B0B02,10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+```
 
 As you can see, this example will play the vm-nobodyavail.gsm sound file if the call goes unanswered \(and then hang up\). Note that this doesn’t actually provide voicemail; we’re just playing a prompt, which could have been any valid prompt. We’ll cover sending calls to voicemail later.
 
@@ -574,11 +584,11 @@ As you can see, this example will play the vm-nobodyavail.gsm sound file if the 
 
 The third argument to Dial\(\) is an option string. It may contain one or more characters that modify the behavior of the Dial\(\) application. While the list of possible options is too long to cover here, one of the most popular is the m option. If you place the letter m as the third argument, the calling party will hear hold music instead of ringing while the destination channel is being called \(assuming, of course, that music on hold has been configured correctly\). To add the m option to our last example, we simply change the first line:
 
-exten =&gt; 102,1,Dial\(PJSIP/0000f30B0B02,10,m\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 102,1,Dial(PJSIP/0000f30B0B02,10,m)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+```
 
 #### Argument 4: URI
 
@@ -588,51 +598,36 @@ The fourth and final argument to the Dial\(\) application is a URI. If the desti
 
 Let’s modify extensions 1 and 2 in our menu to use the Dial\(\) application, and add extensions 3 and 4 just for good measure:
 
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(5\)
-
-exten =&gt; 1,1,Dial\(PJSIP/0000f30A0A01,10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 2,1,Dial\(PJSIP/0000f30B0B02,10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 3,1,Dial\(PJSIP/SOFTPHONE\_A,10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 4,1,Dial\(PJSIP/SOFTPHONE\_B,10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; i,1,Playback\(pbx-invalid\)
-
- same =&gt; n,Goto\(TestMenu,start,1\)
-
-exten =&gt; t,1,Playback\(vm-goodbye\)
-
- same =&gt; n,Hangup\(\)
+```text
+[TestMenu]
+exten => start,1,Answer()
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten(5)
+exten => 1,1,Dial(PJSIP/0000f30A0A01,10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 2,1,Dial(PJSIP/0000f30B0B02,10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 3,1,Dial(PJSIP/SOFTPHONE_A,10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 4,1,Dial(PJSIP/SOFTPHONE_B,10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => i,1,Playback(pbx-invalid)
+ same => n,Goto(TestMenu,start,1)
+exten => t,1,Playback(vm-goodbye)
+ same => n,Hangup()
+```
 
 #### Blank arguments
 
 Note that the second, third, and fourth arguments may be left blank; only the first argument is required. For example, if you want to specify an option but not a timeout, simply leave the timeout argument blank, like this:
 
-exten =&gt; 4,1,Dial\(SIP/SOFTPHONE\_B,,m\)
+```text
+exten => 4,1,Dial(SIP/SOFTPHONE_B,,m)
+```
 
 ### Using Variables
 
@@ -642,25 +637,23 @@ A variable is a named container that can hold a value. Think of it like a post o
 
 There are two ways to reference a variable. To reference the variable’s name, simply type the name of the variable. If, on the other hand, you want to reference the value of the variable, you must type a dollar sign, an opening curly brace, the name of the variable, and a closing curly brace. So, to use the post office box analogy, you refer to the box itself by simply using its name, and you refer to the contents with the use of the ${} wrapper. A variable named MyVar is referred to as MyVar, and its contents are accessed with ${MyVar}. Here’s how we might use a variable inside the Dial\(\) application:[16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408063256)
 
-exten =&gt; 203,1,Noop\(say some digits\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Set\(SomeDigits=123\)
-
- same =&gt; n,SayDigits\(${SomeDigits}\)
-
- same =&gt; n,Wait\(.25\)
-
- same =&gt; n,Set\(SomeDigits=543\)
-
- same =&gt; n,SayDigits\(${SomeDigits}\)
+```text
+exten => 203,1,Noop(say some digits)
+ same => n,Answer()
+ same => n,Set(SomeDigits=123)
+ same => n,SayDigits(${SomeDigits})
+ same => n,Wait(.25)
+ same => n,Set(SomeDigits=543)
+ same => n,SayDigits(${SomeDigits})
+```
 
 In our dialplan, whenever we refer to ${SomeDigits}, Asterisk will automatically replace it with whatever value has been assigned to the variable named SomeDigits.
 
+{% hint style="info" %}
 **Tip**
 
 Note that variable names are case-sensitive. A variable named SOMEDIGITS is different from a variable named SomeDigits. You should also be aware that any variables set by Asterisk will be uppercase. Some variables, such as CHANNEL and EXTEN, are reserved by Asterisk. You should not attempt to set these variables. It is popular to write global variables in uppercase and channel variables in Pascal/Camel case, but it is not strictly required.
+{% endhint %}
 
 There are three types of variables we can use in our dialplan: global variables, channel variables, and environment variables. Let’s take a moment to look at each type.
 
@@ -672,15 +665,13 @@ On the other hand, if you had defined a global variable that contained the value
 
 Global variables should be declared in the \[globals\] context at the beginning of the extensions.conf file. As an example, we will create a few global variables that store the channel identifiers of our devices. These variables are set at the time Asterisk parses the dialplan:
 
-\[globals\]
-
-UserA\_DeskPhone=PJSIP/0000f30A0A01
-
-UserA\_SoftPhone=PJSIP/SOFTPHONE\_A
-
-UserB\_DeskPhone=PJSIP/0000f30B0B02
-
-UserB\_SoftPhone=PJSIP/SOFTPHONE\_B
+```text
+[globals]
+UserA_DeskPhone=PJSIP/0000f30A0A01
+UserA_SoftPhone=PJSIP/SOFTPHONE_A
+UserB_DeskPhone=PJSIP/0000f30B0B02
+UserB_SoftPhone=PJSIP/SOFTPHONE_B
+```
 
 We’ll come back to these later.
 
@@ -690,17 +681,14 @@ A channel variable is a variable that is associated only with a particular call.
 
 There are many predefined channel variables available for use within the dialplan, which are explained in the [Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Channel+Variables). You define a channel variable with extension 203 and the Set\(\) application:
 
-exten =&gt; 203,1,Noop\(say some digits\)
-
- same =&gt; n,Set\(SomeDigits=123\)
-
- same =&gt; n,SayDigits\(${SomeDigits}\)
-
- same =&gt; n,Wait\(.25\)
-
- same =&gt; n,Set\(SomeDigits=543\)
-
- same =&gt; n,SayDigits\(${SomeDigits}\)
+```text
+exten => 203,1,Noop(say some digits)
+ same => n,Set(SomeDigits=123)
+ same => n,SayDigits(${SomeDigits})
+ same => n,Wait(.25)
+ same => n,Set(SomeDigits=543)
+ same => n,SayDigits(${SomeDigits})
+```
 
 You’re going to be seeing a lot more channel variables. Read on.
 
@@ -712,121 +700,76 @@ Environment variables are a way of accessing Unix environment variables from wit
 
 Now that we’ve learned about variables, let’s put them to work in our dialplan. We’re going to add three global variables that will associate a variable name to a channel name:
 
-\[general\]
-
-\[globals\]
-
-UserA\_DeskPhone=PJSIP/0000f30A0A01
-
-UserA\_SoftPhone=PJSIP/SOFTPHONE\_A
-
-UserB\_DeskPhone=PJSIP/0000f30B0B02
-
-UserB\_SoftPhone=PJSIP/SOFTPHONE\_B
-
-\[sets\]
-
-exten =&gt; 100,1,Dial\(${UserA\_DeskPhone}\)
-
-exten =&gt; 101,1,Dial\(${UserA\_SoftPhone}\)
-
-exten =&gt; 102,1,Dial\(${UserB\_DeskPhone},10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 103,1,Dial\(${UserB\_SoftPhone}\)
-
-exten =&gt; 110,1,Dial\(${UserA\_DeskPhone}&${UserA\_SoftPhone}&${UserB\_SoftPhone}\)
-
-exten =&gt; 200,1,Answer\(\)
-
+```text
+[general]
+[globals]
+UserA_DeskPhone=PJSIP/0000f30A0A01
+UserA_SoftPhone=PJSIP/SOFTPHONE_A
+UserB_DeskPhone=PJSIP/0000f30B0B02
+UserB_SoftPhone=PJSIP/SOFTPHONE_B
+[sets]
+exten => 100,1,Dial(${UserA_DeskPhone})
+exten => 101,1,Dial(${UserA_SoftPhone})
+exten => 102,1,Dial(${UserB_DeskPhone},10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 103,1,Dial(${UserB_SoftPhone})
+exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
+exten => 200,1,Answer()
 Let’s update the test menu as well:
-
-\[TestMenu\]
-
-exten =&gt; start,1,Answer\(\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(5\)
-
-exten =&gt; 1,1,Dial\(${UserA\_DeskPhone},10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 2,1,Dial\(${UserA\_SoftPhone},10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 3,1,Dial\(${UserB\_DeskPhone},10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 4,1,Dial\(${UserB\_SoftPhone},10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; i,1,Playback\(pbx-invalid\)
+[TestMenu]
+exten => start,1,Answer()
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten(5)
+exten => 1,1,Dial(${UserA_DeskPhone},10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 2,1,Dial(${UserA_SoftPhone},10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 3,1,Dial(${UserB_DeskPhone},10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 4,1,Dial(${UserB_SoftPhone},10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => i,1,Playback(pbx-invalid)
+```
 
 It rarely makes sense to hardcode data in a dialplan. It’s almost always better to use a variable.
 
 Make sure you test this out to ensure you don’t have any typos, and also to see what it looks like when executed on the Asterisk CLI:
 
-\# asterisk -rvvvvvv
-
-\*CLI&gt; dialplan reload
-
- -- Executing \[201@sets:1\] Goto\("PJSIP/0000f30A0A01", "TestMenu,start,1"\)
-
- -- Goto \(TestMenu,start,1\)
-
- -- Exec \[start@TestMenu:1\] Answer\("PJSIP/0000f30A0A01", ""\)
-
- -- Exec \[start@TestMenu:2\] BackGround\("PJSIP/0000f30A0A01", "enter-ext-of-person"\)
-
- -- &lt;PJSIP/0000f30A0A01&gt; Playing 'enter-ext-of-person.slin' \(language 'en'\)
-
- -- Exec \[1@TestMenu:1\] Dial\("PJSIP/0000f30A0A01", "PJSIP/0000f30A0A01,10"\)
-
+```text
+# asterisk -rvvvvvv
+*CLI> dialplan reload
+ -- Executing [201@sets:1] Goto("PJSIP/0000f30A0A01", "TestMenu,start,1")
+ -- Goto (TestMenu,start,1)
+ -- Exec [start@TestMenu:1] Answer("PJSIP/0000f30A0A01", "")
+ -- Exec [start@TestMenu:2] BackGround("PJSIP/0000f30A0A01", "enter-ext-of-person")
+ -- <PJSIP/0000f30A0A01> Playing 'enter-ext-of-person.slin' (language 'en')
+ -- Exec [1@TestMenu:1] Dial("PJSIP/0000f30A0A01", "PJSIP/0000f30A0A01,10")
  -- Called PJSIP/0000f30A0A01
-
  -- PJSIP/0000f30A0A01-00000011 is ringing
-
- == Spawn extension \(TestMenu, 1, 1\) exited non-zero on 'PJSIP/0000f30A0A01'
+ == Spawn extension (TestMenu, 1, 1) exited non-zero on 'PJSIP/0000f30A0A01'
+```
 
 #### Variable concatenation
 
 To concatenate variables, simply place them together, like this:
 
-exten =&gt; 204,1,Answer\(\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Set\(ONETWO=12\)
-
- same =&gt; n,Set\(THREEFOUR=34\)
-
- same =&gt; n,SayDigits\(${ONETWO}${THREEFOUR}\) ; easy peasy
-
- same =&gt; n,Wait\(0.2\)
-
- same =&gt; n,Set\(NOTFIVE=${THREEFOUR}${ONETWO}\) ; peasy easy
-
- same =&gt; n,SayNumber\(${NOTFIVE}\) ; see what we did here?
-
- same =&gt; n,Wait\(0.2\)
-
- same =&gt; n,SayDigits\(2${ONETWO}3\) ; you can concatenate literals and variables
+```text
+exten => 204,1,Answer()
+ same => n,Answer()
+ same => n,Set(ONETWO=12)
+ same => n,Set(THREEFOUR=34)
+ same => n,SayDigits(${ONETWO}${THREEFOUR}) ; easy peasy
+ same => n,Wait(0.2)
+ same => n,Set(NOTFIVE=${THREEFOUR}${ONETWO}) ; peasy easy
+ same => n,SayNumber(${NOTFIVE}) ; see what we did here?
+ same => n,Wait(0.2)
+ same => n,SayDigits(2${ONETWO}3) ; you can concatenate literals and variables
+```
 
 #### Inheriting channel variables
 
@@ -840,15 +783,21 @@ Setting channel variables for inheritance simply requires you to prefix the chan
 
 Here’s an example of setting a channel variable for single transfer inheritance:
 
-exten =&gt; example,1,Set\(\_MyVariable=thisValue\)
+```text
+exten => example,1,Set(_MyVariable=thisValue)
+```
 
 Here’s an example of setting a channel variable for infinite transfer inheritance:
 
-exten =&gt; example,1,Set\(\_\_MyVariable=thisValue\)
+```text
+exten => example,1,Set(__MyVariable=thisValue)
+```
 
 When you wish to read the value of the channel variable, you do not use the underscore\(s\):
 
-exten =&gt; example,1,Verbose\(1,Value of MyVariable is: ${MyVariable}\)
+```text
+exten => example,1,Verbose(1,Value of MyVariable is: ${MyVariable})
+```
 
 ### Pattern Matching
 
@@ -970,29 +919,20 @@ Note the period on the end. This pattern matches any number that starts with 011
 
 Outside of North America, there is wide variance in how numbering is handled; however, some patterns are common. Here are a few simple examples:
 
+```text
 ; UK, Germany, Italy, China, etc.
-
-exten =&gt; \_00X.,1,noop\(\) ; international dialing code
-
-exten =&gt; \_0X.,1,noop\(\) ; national dialing prefix
-
-exten =&gt; 112,1,Noop\(--==\[ Emergency call \]==--\)
-
+exten => _00X.,1,noop() ; international dialing code
+exten => _0X.,1,noop() ; national dialing prefix
+exten => 112,1,Noop(--==[ Emergency call ]==--)
 ; Australia
-
-exten =&gt; \_0011X.,1,noop\(\) ; international dialing code
-
-exten =&gt; \_0X.,1,noop\(\) ; national dialing prefix
-
-; Dutch Caribbean \(Saba\)
-
-exten =&gt; \_00X.,1,noop\(\) ; international
-
-exten =&gt; \_416XXXX,1,noop\(\) ; local \(on-island\)
-
-exten =&gt; \_0\[37\]XXXXXX,1,noop\(\) ; call to country code 599 off-island \(not Curacao\)
-
-exten =&gt; \_09XXXXXXX,1,Noop\(\) ; call to country code 599 off-island \(Curacao\)
+exten => _0011X.,1,noop() ; international dialing code
+exten => _0X.,1,noop() ; national dialing prefix
+; Dutch Caribbean (Saba)
+exten => _00X.,1,noop() ; international
+exten => _416XXXX,1,noop() ; local (on-island)
+exten => _0[37]XXXXXX,1,noop() ; call to country code 599 off-island (not Curacao)
+exten => _09XXXXXXX,1,Noop() ; call to country code 599 off-island (Curacao)
+```
 
 You will need to understand the dialing plan of your region in order to produce a useful pattern match.
 
@@ -1000,25 +940,23 @@ You will need to understand the dialing plan of your region in order to produce 
 
 So what happens if you want to use pattern matching but need to know which digits were actually dialed? Enter the ${EXTEN} channel variable. Whenever you dial an extension, Asterisk sets the ${EXTEN} channel variable to the digits that were received. We used the application SayDigits\(\) to demonstrate this.
 
-exten =&gt; \_4XX,1,Noop\(User Dialed ${EXTEN}\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,SayDigits\(${EXTEN}\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; \_555XXXX,1,Answer\(\)
-
- same =&gt; n,SayDigits\(${EXTEN}\)
+```text
+exten => _4XX,1,Noop(User Dialed ${EXTEN})
+ same => n,Answer()
+ same => n,SayDigits(${EXTEN})
+ same => n,Hangup()
+exten => _555XXXX,1,Answer()
+ same => n,SayDigits(${EXTEN})
+```
 
 In these examples, the SayDigits\(\) application read back to you the extension you dialed.
 
 Often, it’s useful to manipulate the ${EXTEN} by stripping a certain number of digits off the front of the extension. This is accomplished by using the syntax ${EXTEN:x}, where x is where you want the returned string to start, from left to right. For example, if the value of ${EXTEN} is 95551212, ${EXTEN:1} equals 5551212. Let’s try another example:
 
-exten =&gt; \_XXX,1,Answer\(\)
-
- same =&gt; n,SayDigits\(${EXTEN:1}\)
+```text
+exten => _XXX,1,Answer()
+ same => n,SayDigits(${EXTEN:1})
+```
 
 In this example, the SayDigits\(\) application would start at the second digit, and thus read back only the last two digits of the dialed extension.
 
@@ -1045,7 +983,9 @@ Asterisk has an important feature that allows extensions from one context to be 
 
 The include statement takes the following form, where context is the name of the remote context we want to include in the current context:
 
-include =&gt; context
+```text
+include => context
+```
 
 Including one context within another context allows extensions within the included context to be dialable.
 
