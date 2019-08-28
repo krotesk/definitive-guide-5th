@@ -78,33 +78,33 @@ description: Установка Asterisk
 
 ## Установка Linux
 
-Asterisk is developed using Linux, and unless you’re very comfortable with porting software between various platforms, that is what you’re going to want to use.
+Asterisk разрабатывается с использованием Linux, и если вам не очень удобно переносить программное обеспечение между различными платформами, то вам необходимо использовать Linux.
 
-In this book, we’re going to use CentOS as the platform. If you would prefer a different Linux distro, it is expected that you have sufficient Linux skills to understand what some of the differences may be. These days, it’s so easy and cheap to fire up an instance of any common distribution that there’s no real harm in using CentOS to learn, and then migrate to whatever you prefer when you’re ready.
+В этой книге мы будем использовать CentOS в качестве платформы. Если вы предпочитаете другой дистрибутив Linux, ожидается, что у вас есть достаточные навыки его администрирования чтобы понять, что некоторые из различий могут быть. В наши дни так легко и дешево запустить экземпляр любого общего дистрибутива, что нет никакого реального вреда в использовании CentOS для обучения, а затем перейти на то, что предпочтете вы, когда будете готовы.
 
-We recommend installing the Minimal version of CentOS, since the installation process we will be going through handles all the prerequisites. This also ensures you’re not installing anything you don’t need.
+Мы рекомендуем установить минимальную версию CentOS, так как в процессе установки мы будем проходить через обработку всех необходимых условий. Это также гарантирует, что вы не устанавливаете ничего лишнего.
 
-### Choosing Your Platform
+### Выбор вашей платформы
 
-OK, so strictly speaking we’ve already chosen your platform for you, but there are several different ways to get a CentOS server up and running \(see [Table 3-1](3.%20Installing%20Asterisk%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22table03linux)\).
+Итак, строго говоря, мы уже выбрали вашу платформу для вас, но есть несколько различных способов запустить сервер CentOS \(см. [Таблицу 3-1](3.%20Installing%20Asterisk%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22table03linux)\).
 
-Table 3-1. Comparing Linux platforms that are suitable for Asterisk
+Таблица 3-1. Сравнение платформ Linux, подходящих для Asterisk
 
-| Platform | Pros | Cons |
+| Платформа | Перспективы | Учтите |
 | :--- | :--- | :--- |
-| OpenStack \(DigitalOcean, Linode, VULTR, etc.\) | Up and running in minutes. Inexpensive to operate. Doesn’t require any resources on your local system. Accessible from anywhere. Can be used in a production environment. Fantastic for quick prototyping projects. | You pay as long as it’s running. The IP address is only yours for as long as the system is running. Requires some DevOps skills if you want to deploy in production. No firewall in place by default. |
-| VirtualBox \(or other PC-based platform\) | Free to use. No external exposure. Excellent for small lab projects. | Requires more horsepower on your system. Requires storage space on your local system. Not easy to deploy into a production environment. |
-| AWS and/or Lightsail | Inexpensive to operate. Doesn’t require any resources on your local system. Accessible from anywhere. Can be used in a production environment. Scales to enormous sizes. | You pay as long as it’s running. Somewhat more skills required to gather all the resources you need. |
-| Physical hardware | Dedicated platform. Can be shipped and installed anywhere. Complete control over all aspects of environment, hardware, network, and so forth. | Risk of component failure. Power consumption. Noise. Potential costs for hosting. No inherent redundancy. |
-| Other \(really anything that’ll run CentOS 7 should be fine\) | You can use an environment that you’re familiar with. | You’re on your own. |
-| Other Linux \(you don’t actually have to run CentOS\) | You can run the exact environment you want. | You need to have strong Linux admin skills. |
+| OpenStack \(DigitalOcean, Linode, VULTR, etc.\) | Через несколько минут все будет готово. Недорогой в эксплуатации. Не требует никаких ресурсов в вашей локальной системе. Доступен из любой точки мира. Может использоваться в продакшене. Фантастический для быстрого прототипирования проектов. | Вы платите, пока он работает. IP-адрес является вашим только до тех пор, пока система работает. Требуются некоторые навыки DevOps, если вы хотите развернуть в продакшене. По умолчанию брандмауэр отсутствует. |
+| VirtualBox \(or other PC-based platform\) | Бесплатен в использовании. Нет внешнего воздействия. Отлично подходит для небольших лабораторных проектов. | Требует больше лошадиных сил в вашей системе. Требуется место для хранения в локальной системе. Не так просто развернуть в рабочей среде. |
+| AWS and/or Lightsail | Недорогой в эксплуатации. Не требует никаких ресурсов в вашей локальной системе. Доступен из любой точки мира. Может использоваться в производственной среде. Вес до огромных размеров. | Вы платите, пока он работает. Несколько больше навыков требуется, чтобы собрать все необходимые ресурсы. |
+| Физическое оборудование | Выделенная платформа. Может быть загружено и установлено везде. Полный контроль над всеми аспектами окружающей среды, оборудования, сети и так далее. | Риск отказа компонентов. Потребляемая мощность. Шум. Потенциальные затраты на хостинг. Не присуща избыточность. |
+| Другое \(на самом деле все, что будет работать с CentOS 7, должно быть в порядке\) | Вы можете использовать среду, с которой вы знакомы. | Вы сам себе хозяин. |
+| Другие Linux \(на самом деле вам не нужно запускать CentOS\) | Вы можете запустить такую среду, которую захотите. | Вы должны иметь хорошие навыки администрирования Linux. |
 
-For the purposes of learning, we recommend one of two simple ways to get going:
+Для целей обучения мы рекомендуем один из двух простых способов начать работу:
 
-* If you are running Windows as your desktop: Download VirtualBox, then download the CentOS 7 Minimal ISO, and install on your local machine.
-* If you are comfortable working with SSH-based, keyed connections to remote systems: Create a hosted system \(for example, a DigitalOcean CentOS droplet\).
+* Если вы используете Windows в качестве рабочего стола: загрузите VirtualBox, затем загрузите CentOS 7 Minimal ISO и установите на локальном компьютере.
+* Если вам удобно работать с подключениями на основе SSH с ключами к удаленным системам: создайте размещенную систему \(например, DigitalOcean CentOS droplet\).
 
-This book was developed and tested using both VirtualBox and DigitalOcean.
+Эта книга была разработана и протестирована с использованием как VirtualBox, так и DigitalOcean.
 
 ### VirtualBox Steps
 
