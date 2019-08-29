@@ -398,6 +398,7 @@ $ sudo asterisk -rvvvvv
 exten => 200,1,Answer()
  same => n,Playback(hello-world)
  same => n,Hangup()
+ 
 exten => 201,1,Goto(TestMenu,start,1) ; add this to the end of the
  ; [sets] context
 [TestMenu]
@@ -424,7 +425,7 @@ exten => start,1,Answer()
     same => n,Background(enter-ext-of-person)
 ```
 
-If you want Asterisk to wait for input from the caller after the sound prompt has finished playing, you can use WaitExten\(\). The WaitExten\(\) application waits for the caller to enter DTMF digits and is used directly following the Background\(\) application, like this:
+Если вы хотите, чтобы Asterisk ждал ввода от вызывающего абонента после завершения воспроизведения звуковой подсказки, вы можете использовать `WaitExten()`. Приложение `WaitExten()` ожидает пока вызывающий абонент введет цифры DTMF, и используется непосредственно после приложения `Background()`, например:
 
 ```text
 [TestMenu]
@@ -433,76 +434,83 @@ exten => start,1,Answer()
  same => n,WaitExten()
 ```
 
-If you’d like the WaitExten\(\) application to wait a specific number of seconds for a response \(instead of using the default timeout\),[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408171000) simply pass the number of seconds as the first argument to WaitExten\(\), like this:
+Если вы хотите, чтобы приложение `WaitExten()` ждало ввода для ответа определенное количество секунд \(вместо использования таймаута по умолчанию\), [10](https://www.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408171000) просто передайте количество секунд в качестве первого аргумента `WaitExten()`, например:
 
 ```text
- same => n,WaitExten(5) ; We always pass a time argument to WaitExten()
+ same => n,WaitExten(5) ; Мы всегда передаем аргумент времени для WaitExten()
 ```
 
-Both Background\(\) and WaitExten\(\) allow the caller to enter DTMF digits. Asterisk then attempts to find an extension in the current context that matches the digits that the caller entered. If Asterisk finds a match, it will send the call to that extension. Let’s demonstrate by adding a few lines to our dialplan example:
+И `Background()`, и `WaitExten()` позволяют абоненту вводить цифры DTMF. Затем Asterisk пытается найти расширение, которое соответствует цифрам введенным вызывающим абонентом, в текущем контексте. Если Asterisk найдет совпадение, то отправит вызов на этот добавочный номер. Давайте продемонстрируем, добавив несколько строк в наш пример диалплана:
 
 ```text
 [TestMenu]
 exten => start,1,Answer()
- same => n,Background(enter-ext-of-person)
- same => n,WaitExten(5)
+    same => n,Background(enter-ext-of-person)
+    same => n,WaitExten(5)
+    
 exten => 1,1,Playback(digits/1)
 exten => 2,1,Playback(digits/2)
 ```
 
-After making these changes, save and reload your dialplan:
+После внесения этих изменений сохраните и перезагрузите диалплан:
 
 ```text
 *CLI> dialplan reload
 ```
 
-If you call into extension 201, you should hear a sound prompt that says, “Enter the extension of the person you are trying to reach.” The system will then wait 5 seconds for you to enter a digit. If the digit you press is either 1 or 2, Asterisk will match the relevant extension, and read that digit back to you. Since we didn’t provide any further instructions, your call will then end. You’ll also find that if you enter a different digit \(such as 3\), the dialplan will be unable to proceed.
+Если вы звоните в расширение 201, то должны услышать звуковое приглашение, которое говорит: “Enter the extension of the person you are trying to reach". Система будет ждать 5 секунд, пока вы введете цифру. Если вы нажмете 1 или 2, Asterisk будет действовать соответственно расширению и считывать эту цифру обратно к вам. Поскольку мы не предоставили никаких дальнейших инструкций, ваш звонок будет закончен. Вы также обнаружите, что если введете другую цифру \(например, 3\), диалплан не сможет продолжиться.
 
-Let’s embellish things a little. We’re going to use the Goto\(\) application to have the dialplan repeat the greeting after playing back the number:
+Давайте немного приукрасим. Мы собираемся использовать приложение `Goto()`, чтобы заставить диалплан повторить приветствие после воспроизведения номера:
 
 ```text
 [TestMenu]
 exten => start,1,Answer()
  same => n,Background(enter-ext-of-person)
  same => n,WaitExten(5)
+ 
 exten => 1,1,Playback(digits/1)
  same => n,Goto(TestMenu,start,1)
+ 
 exten => 2,1,Playback(digits/2)
  same => n,Goto(TestMenu,start,1)
 ```
 
-These new lines will send control of the call back to the start extension after playing back the selected number.
+Эти новые строки отправят управление вызовом обратно в расширение `start` после воспроизведения набранного номера.
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
-If you look up the details of the Goto\(\) application, you’ll find that you can actually pass either one, two, or three arguments to the application. If you pass a single argument, Asterisk will assume it’s the destination priority in the current extension. If you pass two arguments, Asterisk will treat them as the extension and the priority to go to in the current context.
+Если посмотрите детали приложения `Goto()`, то обнаружите что вы действительно можете передать в приложение один, два или три аргумента. Если передадите один аргумент - Asterisk предположит что это приоритет назначения в текущем расширении. Если передадите два аргумента - Asterisk будет рассматривать их как расширение и приоритет для перехода в текущем контексте.
 
-In this example, we’ve passed all three arguments for the sake of clarity, but passing just the extension and priority would have had the same effect, since the destination context is the same as the source context.
+В этом примере мы передали все три аргумента для ясности, но передача только расширения и приоритета имела бы тот же эффект, поскольку контекст назначения совпадает с исходным контекстом.
 {% endhint %}
 
-### Handling Invalid Entries and Timeouts
+### Обработка неверных значений и тайм-аутов
 
-We need an extension for invalid entries. In Asterisk, when a context receives a request for an extension that is not valid within that context \(e.g., pressing 9 in the preceding example\), the call is sent to the i extension. We also need an extension to handle situations when the caller doesn’t give input in time \(the default timeout is 10 seconds\). Calls will be sent to the t extension if the caller takes too long to press a digit after WaitExten\(\) has been called. Here is what our dialplan will look like after we’ve added these two extensions:
+Нам нужно расширение для недопустимых значений. В Asterisk, когда контекст получает запрос на расширение, которое не является допустимым в этом контексте \(например, нажатие 9 в предыдущем примере\), вызов отправляется на расширение `i`. Нам также нужно расширение для обработки ситуаций, когда вызывающий абонент не делает ввода \(тайм-аут по умолчанию составляет 10 секунд\). Вызовы будут отправлены на расширение `t`, если вызывающий слишком долго нажимает цифру после вызова `WaitExten()`. Вот как будет выглядеть наш диалплан после добавления этих двух расширений:
 
 ```text
 [TestMenu]
 exten => start,1,Answer()
- same => n,Background(enter-ext-of-person)
- same => n,WaitExten(5)
+    same => n,Background(enter-ext-of-person)
+    same => n,WaitExten(5)
+    
 exten => 1,1,Playback(digits/1)
- same => n,Goto(TestMenu,start,1)
+    same => n,Goto(TestMenu,start,1)
+    
 exten => 2,1,Playback(digits/2)
- same => n,Goto(TestMenu,start,1)
+    same => n,Goto(TestMenu,start,1)
+    
 exten => i,1,Playback(pbx-invalid)
- same => n,Goto(TestMenu,start,1)
+    same => n,Goto(TestMenu,start,1)
+    
 exten => t,1,Playback(please-try-again)
- same => n,Goto(TestMenu,start,1)
+    same => n,Goto(TestMenu,start,1)
 ```
 
-Using the i[11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408142552) and t extensions makes our menu a little more robust and user-friendly. That being said, it is still quite limited, because outside callers still have no way of connecting to a live person. To do that, we’ll need to learn about the Dial\(\) application.
+Использование расширений `i` [11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408142552) и `t` делает наше меню более надежным и удобным для пользователя. Но оно по прежнему все еще довольно ограничено, потому что внешние абоненты все еще не имеют возможности соединиться с живым человеком. Для этого нам нужно будет узнать о приложении `Dial()`.
 
-### Using the Dial\(\) Application
+### Использование приложения Dial\(\)
 
 One of Asterisk’s most valuable features is its ability to connect different callers to each other. While Asterisk currently is used mostly for SIP connections, it supports a wide variety of channel types \(from Analog to SS7, and various old VoIP protocols such as MGCP and SCCP\). Asterisk takes much of the hard work out of connecting and translating between disparate networks. All you have to do is learn how to use the Dial\(\) application.
 
