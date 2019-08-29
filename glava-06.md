@@ -512,29 +512,29 @@ exten => t,1,Playback(please-try-again)
 
 ### Использование приложения Dial\(\)
 
-One of Asterisk’s most valuable features is its ability to connect different callers to each other. While Asterisk currently is used mostly for SIP connections, it supports a wide variety of channel types \(from Analog to SS7, and various old VoIP protocols such as MGCP and SCCP\). Asterisk takes much of the hard work out of connecting and translating between disparate networks. All you have to do is learn how to use the Dial\(\) application.
+Одной из наиболее ценных особенностей Asterisk является возможность подключения различных абонентов друг к другу. Хотя Asterisk в настоящее время используется в основном для SIP-соединений, он поддерживает широкий спектр типов каналов \(от аналоговых до SS7 и различных старых протоколов VoIP, таких как MGCP и SCCP\). Asterisk берет на себя большую часть тяжелой работы по подключению и переводу между разрозненными сетями. Все, что вам нужно сделать, это научиться использовать приложение `Dial()`.
 
-The syntax of the Dial\(\) application is more complex than that of the other applications we’ve used so far, but it’s also where much of the magic of Asterisk happens. Dial\(\) takes up to four arguments, which we’ll look at next.
+Синтаксис приложения `Dial()` является более сложным, чем у других приложений, которые мы использовали до этого, но оно является тем, где происходит большая часть магии Asterisk. `Dial()` принимает до четырех аргументов, которые мы рассмотрим далее.
 
-The syntax of Dial\(\) looks like this:
+Синтаксис `Dial()` выглядит следующим образом:
 
 ```text
 Dial(Technology/Resource[&Technology2/Resource2[&...]][,timeout[,options[,URL]]])
 ```
 
-Put simply, you tell Dial\(\) what channel[12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408129896) you want to send the call out to, and set a few options to tweak the behavior. The use of Dial\(\) can get complex, but at its most basic, it’s that simple.
+Проще говоря, вы сообщаете `Dial()`, на какой канал [12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408129896) хотите отправить вызов и устанавливаете несколько параметров для настройки поведения. Использование `Dial()` может быть сложным, но в самом основном оно очень простое.
 
-#### Argument 1: destination
+#### Аргумент 1: назначение
 
-The first argument is the destination you’re attempting to call, which \(in its simplest form\) is made up of a technology \(or transport\) across which to make the call, a forward slash, and the address of the remote endpoint or resource.
+Первый аргумент-это назначение, которое вы пытаетесь вызвать, которое \(в самой простой форме\) состоит из технологии \(или транспорта\), через которую выполняется вызов, косой черты и адреса удаленной конечной точки или ресурса.
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-These days, you’re most likely to be using PJSIP as your channel type, but in the not-too-distant past, common technology types also included DAHDI \(for analog and T1/E1/J1 channels\), the old SIP channel \(prior to PJSIP\), and IAX2.[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408125064) If you’re looking at an older dialplan, you may see some of these other protocols represented. Going forward, only PJSIP and DAHDI are recommended and maintained.
+В эти дни вы, скорее всего, будете использовать PJSIP в качестве типа канала, но в не слишком далеком прошлом общие типы технологий также включали DAHDI \(для аналоговых и T1/E1/J1 каналов\), старый канал SIP \(до PJSIP\) и IAX2.[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408125064) Если вы посмотрите на более старый диалплан, то можете увидеть некоторые из этих представленных протоколов. В дальнейшем рекомендуется и поддерживается только PJSIP и DAHDI.
 {% endhint %}
 
-Let’s assume that we want to call one of our PJSIP channels named SOFTPHONE\_B. The technology is PJSIP, and the resource \(or channel\) identifier is SOFTPHONE\_B. Similarly, a call to a DAHDI device \(defined in chan\_dahdi.conf\) might have a destination of DAHDI/14169671111. If we wanted Asterisk to ring the PJSIP/SOFTPHONE\_B channel when extension 103 is reached in the dialplan, we’d add the following extension:
+Предположим, что мы хотим вызвать один из наших каналов PJSIP с именем `SOFTPHONE_B`. технология - PJSIP,  а идентификатор ресурса \(или канала\) - `SOFTPHONE_B`. Аналогично, вызов устройства DAHDI \(определенного в _chan\_dahdi.conf_\) может иметь пункт назначения `DAHDI/14169671111`. Если бы мы хотели чтобы Asterisk вызывал канал `PJSIP/ SOFTPHONE_B` при достижении расширения `103` в диалплане то добавили бы следующее расширение:
 
 ```text
 exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
@@ -542,7 +542,7 @@ exten => 103,1,Dial(PJSIP/SOFTPHONE_B)
 exten => 200,1,Answer()
 ```
 
-We can also dial multiple channels at the same time, by concatenating the destinations with an ampersand \(&\), like this:
+Мы также можем одновременно набирать несколько каналов, объединяя назначения амперсандом \( `&` \), например:
 
 ```text
 exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
@@ -551,29 +551,29 @@ exten => 110,1,Dial(PJSIP/0000f30A0A01&PJSIP/SOFTPHONE_A&PJSIP/SOFTPHONE_B)
 exten => 200,1,Answer()
 ```
 
-The Dial\(\) application will ring all of the specified destinations simultaneously, and bridge the inbound call with whichever destination channel answers first \(the other channels will immediately stop ringing\). If the Dial\(\) application can’t contact any of the destinations, Asterisk will set a variable called DIALSTATUS with the reason that it couldn’t dial the destinations, and continue with the next priority in the extension.[14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-3)
+Приложение Dial\(\) вызовет все указанные назначения одновременно и соединит входящий вызов с тем каналом назначения, который ответит первым \(другие каналы немедленно прекратят звонить\). Если приложение `Dial()` не может связаться ни с одним из назначений, Asterisk установит переменную с именем `DIALSTATUS` соответственно причине, по которой не может набрать назначение, и продолжит со следующим приоритетом в расширении.\[^14\]
 
-The Dial\(\) application also allows you to connect to a remote VoIP endpoint not previously defined in one of the channel configuration files. The full syntax is:
+Приложение `Dial()` также позволяет подключаться к удаленной конечной точке VoIP, ранее не определенной в одном из файлов конфигурации канала. Полный синтаксис:
 
 ```text
 Dial(technology/user[:password]@remote_host[:port][/remote_extension])
 ```
 
-The full syntax for the Dial\(\) application is slightly different for DAHDI channels:
+Полный синтаксис приложения `Dial()` немного отличается для каналов DAHDI:
 
 ```text
 Dial(DAHDI/[gGrR]channel_or_group[/remote_extension])
 ```
 
-For example, here is how you would dial 1-800-555-1212 on DAHDI channel number 4:[15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408102536)
+Например, вот как бы вы набрали `1-800-555-1212` на канале DAHDI номер 4: \[^15\]
 
 ```text
 exten => 501,1,Dial(DAHDI/4/18005551212)
 ```
 
-#### Argument 2: timeout
+#### Аргумент 2: таймаут
 
-The second argument to the Dial\(\) application is a timeout, specified in seconds. If a timeout is given, Dial\(\) will attempt to call the specified destination\(s\) for that number of seconds before giving up and moving on to the next priority in the extension. If no timeout is specified, Dial\(\) will continue to dial the called channel\(s\) until someone answers or the caller hangs up. Let’s add a timeout of 10 seconds to our extension:
+Вторым аргументом приложения `Dial()` является тайм-аут, заданный в секундах. Если задан тайм-аут, `Dial()` попытается вызвать указанное назначение\(я\) в течение этого количества секунд, прежде чем сдаться и перейти к следующему приоритету в расширении. Если тайм-аут не указан, `Dial()` будет продолжать набирать вызываемый канал\(ы\) пока кто-то не ответит или вызывающий абонент не повесит трубку. Давайте добавим тайм-аут в 10 секунд к нашему расширению:
 
 ```text
 exten => 101,1,Dial(PJSIP/SOFTPHONE_A)
@@ -581,9 +581,9 @@ exten => 102,1,Dial(PJSIP/0000f30B0B02,10)
 exten => 103,1,Dial(PJSIP/SOFTPHONE_B)
 ```
 
-If the call is answered before the timeout, the channels are bridged and the dialplan is done. If the destination simply does not answer, is busy, or is otherwise unavailable, Asterisk will set a variable called DIALSTATUS and then continue on with the next priority in the extension.
+Если на вызов отвечают до истечения тайм-аута, каналы соединяются и диалплан выполняется. Если адресат просто не отвечает, занят или недоступен иным образом, Asterisk установит переменную с именем `DIALSTATUS`, а затем продолжит работу со следующим приоритетом в расширении.
 
-Let’s put what we’ve learned so far into another example:
+Давайте поместим то, что мы узнали ранее, в другой пример:
 
 ```text
 exten => 102,1,Dial(PJSIP/0000f30B0B02,10)
@@ -591,58 +591,64 @@ exten => 102,1,Dial(PJSIP/0000f30B0B02,10)
  same => n,Hangup()
 ```
 
-As you can see, this example will play the vm-nobodyavail.gsm sound file if the call goes unanswered \(and then hang up\). Note that this doesn’t actually provide voicemail; we’re just playing a prompt, which could have been any valid prompt. We’ll cover sending calls to voicemail later.
+Как вы можете видеть, этот пример будет играть звуковой файл _vm-nobodyavail.gsm,_  если вызов остается без ответа \(а затем повесит трубку\). Обратите внимание, что это на самом деле не обеспечивает голосовую почту; мы просто играем подсказку, которая могла бы быть любой действительной подсказкой. Мы рассмотрим отправку звонков на голосовую почту позже.
 
-#### Argument 3: option
+#### Аргумент 3: опции
 
-The third argument to Dial\(\) is an option string. It may contain one or more characters that modify the behavior of the Dial\(\) application. While the list of possible options is too long to cover here, one of the most popular is the m option. If you place the letter m as the third argument, the calling party will hear hold music instead of ringing while the destination channel is being called \(assuming, of course, that music on hold has been configured correctly\). To add the m option to our last example, we simply change the first line:
+Третий аргумент для `Dial()` - это строка параметров. Он может содержать один или несколько символов, которые изменяют поведение приложения `Dial()`. Хотя список возможных вариантов слишком длинный чтобы охватить его здесь, одним из самых популярных является вариант `m`. Если вы поместите букву `m` в качестве третьего аргумента, вызывающая сторона услышит музыку удержания вместо звонка во время вызова канала назначения \(при условии, конечно, что музыка на удержании была настроена правильно\). Чтобы добавить опцию `m` к нашему последнему примеру, мы просто изменим первую строку:
 
 ```text
 exten => 102,1,Dial(PJSIP/0000f30B0B02,10,m)
- same => n,Playback(vm-nobodyavail)
- same => n,Hangup()
+    same => n,Playback(vm-nobodyavail)
+    same => n,Hangup()
 ```
 
-#### Argument 4: URI
+#### Аргумент 4: URI
 
-The fourth and final argument to the Dial\(\) application is a URI. If the destination channel supports receiving a URI at the time of the call, the specified URI will be sent \(for example, if you have an IP telephone that supports receiving a URI, it will appear on the phone’s display; likewise, if you’re using a softphone, the URI might pop up on your computer screen\). This argument is very rarely used.
+Четвертым и последним аргументом приложения `Dial()` является URI. Если канал назначения поддерживает получение URI во время вызова, указанный URI будет отправлен \(например, если у вас есть IP-телефон, который поддерживает получение URI, он появится на дисплее телефона; аналогично, если вы используете софтфон, URI может появиться на экране вашего компьютера\). Этот аргумент используется очень редко.
 
-#### Updating the dialplan
+#### Обновление диалплана
 
-Let’s modify extensions 1 and 2 in our menu to use the Dial\(\) application, and add extensions 3 and 4 just for good measure:
+Давайте изменим расширения 1 и 2 в нашем меню, чтобы использовать приложение `Dial()`, и добавим расширения 3 и 4 просто для хорошей меры:
 
 ```text
 [TestMenu]
 exten => start,1,Answer()
- same => n,Background(enter-ext-of-person)
- same => n,WaitExten(5)
+    same => n,Background(enter-ext-of-person)
+    same => n,WaitExten(5)
+ 
 exten => 1,1,Dial(PJSIP/0000f30A0A01,10)
- same => n,Playback(vm-nobodyavail)
- same => n,Hangup()
+    same => n,Playback(vm-nobodyavail)
+    same => n,Hangup()
+    
 exten => 2,1,Dial(PJSIP/0000f30B0B02,10)
- same => n,Playback(vm-nobodyavail)
- same => n,Hangup()
+    same => n,Playback(vm-nobodyavail)
+    same => n,Hangup()
+    
 exten => 3,1,Dial(PJSIP/SOFTPHONE_A,10)
- same => n,Playback(vm-nobodyavail)
- same => n,Hangup()
+    same => n,Playback(vm-nobodyavail)
+    same => n,Hangup()
+    
 exten => 4,1,Dial(PJSIP/SOFTPHONE_B,10)
- same => n,Playback(vm-nobodyavail)
- same => n,Hangup()
+    same => n,Playback(vm-nobodyavail)
+    same => n,Hangup()
+    
 exten => i,1,Playback(pbx-invalid)
- same => n,Goto(TestMenu,start,1)
+    same => n,Goto(TestMenu,start,1)
+ 
 exten => t,1,Playback(vm-goodbye)
- same => n,Hangup()
+    same => n,Hangup()
 ```
 
-#### Blank arguments
+#### Пустые аргументы
 
-Note that the second, third, and fourth arguments may be left blank; only the first argument is required. For example, if you want to specify an option but not a timeout, simply leave the timeout argument blank, like this:
+Обратите внимание, что второй, третий и четвертый аргументы могут быть оставлены пустыми; требуется только первый аргумент. Например, если вы хотите указать параметр, но не тайм-аут, просто оставьте аргумент timeout пустым, например:
 
 ```text
 exten => 4,1,Dial(SIP/SOFTPHONE_B,,m)
 ```
 
-### Using Variables
+### Использование переменных
 
 If you have programming experience, you already understand what a variable is. If not, we’ll briefly explain what variables are and how they are used. Any dialplan work beyond the very simple examples just given will greatly benefit from the use of variables. They are one of the useful features of a customizable dialplan that you will not find in a typical proprietary PBX.
 
@@ -1006,23 +1012,25 @@ When we include other contexts within our current context, we have to be mindful
 
 We will discuss the include directive more in [Chapter 7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22asterisk-OutsideConn).
 
-## Conclusion
+## Вывод
 
-And there you have it—a basic but functional dialplan. There is still much we have not covered, but you’ve got all of the fundamentals. In the following chapters, we’ll continue to build on this foundation.
+И вот он - базовый, но функциональный диалплан. Есть еще многое что мы не рассмотрели, но у вас есть все основы. В следующих главах мы продолжим строить на этом фундаменте.
 
-If parts of this dialplan don’t make sense, you may want to go back and reread a section or two before continuing on to the next chapter. It’s imperative that you understand these principles and how to apply them, as the next chapters build on this information.
+Если части этого диалплана не имеют смысла, вы можете вернуться и перечитать один или два раздела, прежде чем перейти к следующей главе. Крайне важно, чтобы вы поняли эти принципы и как их применять, поскольку следующие главы основаны на этой информации.
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-1-marker) Please note that the space is conspicuously absent from the list of allowed characters. Don’t use spaces in your context names—you won’t like the result!
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408408152-marker) The default context used to be a popular way to whip up simple configurations, but this proved to be somewhat problematic for security. Best practice these days is to avoid all use of it.
 
-[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408333272-marker) Asterisk permits simple arithmetic within the priority, such as n+200, and the priority s \(for same\), but their usage is somewhat deprecated due to the existence of priority labels. Please note that extension s and priority s are two distinct concepts.
+\[^1\] Обратите внимание, что пробел явно отсутствует в списке разрешенных символов. Не используйте пробелы в именах контекстов — вам не понравится результат!
 
-[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408295288-marker) OK, so feeding the cat isn’t a common use for a telephone system, but through Asterisk, such things are not impossible. Doc Brown would’ve loved this thing.
+\[^2\] Контекст по умолчанию был популярным способом создания простых конфигураций, но это оказалось несколько проблематичным для безопасности. Лучшая практика в эти дни - это избежать любого его использования.
 
-[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408274728-marker) There is another application called Background\(\) that is very similar to Playback\(\), except that it does allow input from the caller. You can read more about this application in Chapters [14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22asterisk-AA) and [16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch16.html%22%20/l%20%22asterisk-IVR).
+\[^3\] Asterisk допускает простую арифметику в пределах приоритета, такого как `n+200` и приоритет `s` \(для same\), но их использование несколько устарело из-за существования меток приоритета. Обратите внимание, что расширения и приоритет `s`- это два разных понятия.
 
-[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-2-marker) Asterisk selects the best file based on translation cost—that is, it selects the file that is the least CPU-intensive to convert to its native audio format. When you start Asterisk, it calculates the translation costs between the different audio formats \(they often vary from system to system\). You can see these translation costs by typing core show translation at the Asterisk CLI. The numbers shown represent how many microseconds it takes Asterisk to transcode one second of audio.
+\[^4\] Хорошо, кормление кошки не является обычным использованием для телефонной системы, но через Asterisk такие вещи не невозможны. Доку Брауну бы это понравилось.
+
+\[^5\]Существует еще одно приложение под названием `Background()`, которое очень похоже на `Playback()` за исключением того, что оно позволяет получать ввод данных от вызывающего абонента. Вы можете прочитать больше об этом приложении в главах [14](glava-14.md) и [16](glava-16.md).
+
+\[^6\]Asterisk выбирает лучший файл на основе затрат на транскодинг — то есть он выбирает файл, который является наименее трудоемким для преобразования в свой собственный аудиоформат. Когда вы запускаете Asterisk, он вычисляет затраты на перевод между различными аудиоформатами \(они часто варьируются от системы к системе\). Вы можете увидеть эти затраты на перевод, набрав `core show translation` в Asterisk CLI. Приведенные цифры показывают, сколько микросекунд требуется Asterisk для перекодирования одной секунды звука.
 
 [7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408218280-marker) If you haven’t configured two phones yet, please consider heading back to [Chapter 5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch05.html%22%20/l%20%22asterisk-DeviceConfig) and getting a couple of phones set up so you can play with them. You can get away with only one phone for testing, but really two is ideal. There are lots of free softphones available, and some of them are rather good.
 
@@ -1038,11 +1046,11 @@ If parts of this dialplan don’t make sense, you may want to go back and reread
 
 [13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408125064-marker) IAX2 \(pronounced “EEKS”\), is the Inter Asterisk Exchange protocol \(v2\). In the early days of Asterisk it was popular for trunking, as it greatly reduced signaling overhead on busy circuits. Bandwidth has become far less expensive, and SIP protocol has become nearly ubiquitous. The IAX2 protocol is no longer actively maintained, but it still retains some popularity for its ability to traverse firewalls, and a few carriers might still support it. However, its use is deprecated, and in fact discouraged.
 
-[14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-3-marker) We’ll cover variables in the section [“Using Variables”](6.%20Dialplan%20Basics%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22asterisk-DP-Basics-SECT-3.5). In future chapters we’ll discuss how to have your dialplan make decisions based on the value of DIALSTATUS.
+\[^14\] We’ll cover variables in the section [“Using Variables”](6.%20Dialplan%20Basics%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22asterisk-DP-Basics-SECT-3.5). In future chapters we’ll discuss how to have your dialplan make decisions based on the value of DIALSTATUS.
 
-[15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408102536-marker) Bear in mind that this assumes that this channel connects to something that knows how to reach external numbers.
+\[^15\] Bear in mind that this assumes that this channel connects to something that knows how to reach external numbers.
 
-[16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408063256-marker) Specifically, what we are setting here is a channel variable.
+\[^16\] Specifically, what we are setting here is a channel variable.
 
 [17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408032008-marker) We’ll get into dialplan functions later. Don’t worry too much about environment variables right now. They are not important to understanding the dialplan.
 
