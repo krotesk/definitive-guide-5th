@@ -650,11 +650,11 @@ exten => 4,1,Dial(SIP/SOFTPHONE_B,,m)
 
 ### Использование переменных
 
-If you have programming experience, you already understand what a variable is. If not, we’ll briefly explain what variables are and how they are used. Any dialplan work beyond the very simple examples just given will greatly benefit from the use of variables. They are one of the useful features of a customizable dialplan that you will not find in a typical proprietary PBX.
+Если у вас есть опыт программирования, вы уже понимаете что такое переменная. Если нет, то мы кратко объясним, что такое переменные и как они используются. Любая работа диалплана за пределами очень простых примеров, только что приведенных, значительно выиграет от использования переменных. Они являются одной из полезных функций настраиваемого диалплана, который вы не найдете в типичной проприетарной АТС.
 
-A variable is a named container that can hold a value. Think of it like a post office box. The advantage of a variable is that its contents may change, but its name does not, which means you can write code that references the variable name and not worry about what the value will be. It is almost impossible to do any sort of useful programming without variables.
+_Переменная_ - это именованный контейнер, который может содержать значение. Думайте о ней как о почтовом ящике. Преимущество переменной заключается в том, что ее содержимое может изменяться, но ее имя не изменяется, что означает - вы можете написать код, который ссылается на имя переменной, и не беспокоиться о том, какое значение будет. Практически невозможно сделать какое-либо полезное программирование без переменных.
 
-There are two ways to reference a variable. To reference the variable’s name, simply type the name of the variable. If, on the other hand, you want to reference the value of the variable, you must type a dollar sign, an opening curly brace, the name of the variable, and a closing curly brace. So, to use the post office box analogy, you refer to the box itself by simply using its name, and you refer to the contents with the use of the ${} wrapper. A variable named MyVar is referred to as MyVar, and its contents are accessed with ${MyVar}. Here’s how we might use a variable inside the Dial\(\) application:[16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408063256)
+Существует два способа ссылки на переменную. Чтобы ссылаться на имя переменной, просто введите имя переменной. Если, с другой стороны, вы хотите ссылаться на значение переменной, необходимо ввести знак доллара, открывающую фигурную скобку, имя переменной и закрывающую фигурную скобку. Итак, чтобы использовать аналогию с почтовым ящиком, вы ссылаетесь на сам ящик, просто используя его имя, и вы ссылаетесь на содержимое с использованием обертки `${}`. Переменная с именем MyVar называется `MyVar`, и доступ к ее содержимому осуществляется с помощью `${MyVar}`. Вот как мы могли бы использовать переменную внутри приложения `Dial()`:\[^16\]
 
 ```text
 exten => 203,1,Noop(say some digits)
@@ -666,23 +666,23 @@ exten => 203,1,Noop(say some digits)
  same => n,SayDigits(${SomeDigits})
 ```
 
-In our dialplan, whenever we refer to ${SomeDigits}, Asterisk will automatically replace it with whatever value has been assigned to the variable named SomeDigits.
+В нашем диалплане всякий раз, когда мы ссылаемся на `${SomeDigits}`, Asterisk автоматически заменит его любым значением, присвоенным переменной с именем `SomeDigits`.
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
-Note that variable names are case-sensitive. A variable named SOMEDIGITS is different from a variable named SomeDigits. You should also be aware that any variables set by Asterisk will be uppercase. Some variables, such as CHANNEL and EXTEN, are reserved by Asterisk. You should not attempt to set these variables. It is popular to write global variables in uppercase and channel variables in Pascal/Camel case, but it is not strictly required.
+Обратите внимание, что имена переменных чувствительны к регистру. Переменная по имени  `SOMEDIGITS` отличается от переменной `SomeDigits`. Вы также должны знать, что любые переменные, заданные Asterisk, будут прописными. Некоторые переменные, такие как `CHANNEL` и `EXTEND`, зарезервированы Asterisk. Вы не должны пытаться установить их. Распространенным является запись глобальных переменных в верхнем регистре и переменных канала в виде Pascal/Camel, но это не является строго обязательным.
 {% endhint %}
 
-There are three types of variables we can use in our dialplan: global variables, channel variables, and environment variables. Let’s take a moment to look at each type.
+Существует три типа переменных, которые мы можем использовать в нашем диалплане: глобальные переменные, переменные канала и переменные среды. Давайте воспользуемся моментом, чтобы посмотреть на каждый тип.
 
-#### Global variables
+#### Глобальные переменные
 
-As their name implies, global variables are visible to all channels at all times. Global variables are useful in that they can be used anywhere within a dialplan to increase readability and manageability. Suppose for a moment that you had a large dialplan and several hundred references to the PJSIP/0000f30A0A01 channel. Now imagine you replaced the phone with a different unit \(perhaps a different MAC address\), and had to go through your dialplan and change all of those references to PJSIP/0000f30A0A01. Not pretty.
+Как следует из их названия, _глобальные_ переменные видны всем каналам в любое время. Глобальные переменные полезны тем, что их можно использовать в любом месте диалплана для повышения читаемости и управляемости. Предположим на мгновение, что у вас есть большой диалплан и несколько сотен ссылок на канал `PJSIP/0000f30A0A01`. Теперь представьте, что вы заменили телефон другим устройством \(возможно, другим MAC-адресом\) и должны теперь пройти через свой диалплан и изменить все эти ссылки на `PJSIP/0000f30A0A01`. Не очень удобно.
 
-On the other hand, if you had defined a global variable that contained the value PJSIP/0000f30A0A01 at the beginning of your dialplan and then referenced that instead, you would have to change only one line of code to affect all places in the dialplan where that channel was used.
+С другой стороны, если бы вы определили глобальную переменную, содержащую значение `PJSIP/0000f30A0A01` в начале вашего диалплана, а затем ссылались на нее, то пришлось бы изменить только одну строку кода, чтобы повлиять на все места в диалплане, где использовался этот канал.
 
-Global variables should be declared in the \[globals\] context at the beginning of the extensions.conf file. As an example, we will create a few global variables that store the channel identifiers of our devices. These variables are set at the time Asterisk parses the dialplan:
+Глобальные переменные должны быть объявлены в контексте `[globals]` в начале _extensions.conf_. В качестве примера мы создадим несколько глобальных переменных, которые хранят идентификаторы каналов наших устройств. Эти переменные задаются во время анализа диалплана Asterisk:
 
 ```text
 [globals]
@@ -692,32 +692,32 @@ UserB_DeskPhone=PJSIP/0000f30B0B02
 UserB_SoftPhone=PJSIP/SOFTPHONE_B
 ```
 
-We’ll come back to these later.
+Мы вернемся к ним позже.
 
-#### Channel variables
+#### Канальные переменные
 
-A channel variable is a variable that is associated only with a particular call. Unlike global variables, channel variables are defined only for the duration of the current call and are available only to the channels participating in that call.
+Переменная _канала_ - это переменная, связанная только с определенным вызовом. В отличие от глобальных переменных, переменные канала определяются только на время текущего вызова и доступны только для каналов, участвующих в этом вызове.
 
-There are many predefined channel variables available for use within the dialplan, which are explained in the [Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Channel+Variables). You define a channel variable with extension 203 and the Set\(\) application:
+Существует множество предопределенных переменных канала, доступных для использования в диалплане, которые описаны в [Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Channel+Variables). Вы определяете переменную канала с расширением 203 и приложением Set\(\) :
 
 ```text
 exten => 203,1,Noop(say some digits)
- same => n,Set(SomeDigits=123)
- same => n,SayDigits(${SomeDigits})
- same => n,Wait(.25)
- same => n,Set(SomeDigits=543)
- same => n,SayDigits(${SomeDigits})
+    same => n,Set(SomeDigits=123)
+    same => n,SayDigits(${SomeDigits})
+    same => n,Wait(.25)
+    same => n,Set(SomeDigits=543)
+    same => n,SayDigits(${SomeDigits})
 ```
 
-You’re going to be seeing a lot more channel variables. Read on.
+Вы увидите гораздо больше переменных канала. Читайте дальше.
 
-#### Environment variables
+#### Переменные среды
 
-Environment variables are a way of accessing Unix environment variables from within Asterisk. These are referenced using the ENV\(\) dialplan function.[17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408032008) The syntax looks like ${ENV\(var\)}, where var is the Unix environment variable you wish to reference. Environment variables aren’t commonly used in Asterisk dialplans, but they are available should you need them.
+Переменные _среды_ - это способ доступа к переменным среды Unix из Asterisk. На них ссылаются с помощью функции диалплана `ENV()` .\[^17\] Синтаксис выглядит как `${ENV(`_`var`_`)}`, где _`var`_- переменная среды Unix, на которую вы хотите ссылаться. Переменные среды обычно не используются в диалплане Asterisk, но они доступны в случае необходимости.
 
-#### Adding variables to our dialplan
+#### Добавление переменных в ваш диалплан
 
-Now that we’ve learned about variables, let’s put them to work in our dialplan. We’re going to add three global variables that will associate a variable name to a channel name:
+Теперь, когда мы узнали о переменных, давайте включим их в наш диалплан. Мы добавим три глобальные переменные, которые свяжут имя переменной с именем канала:
 
 ```text
 [general]
@@ -755,9 +755,9 @@ exten => 4,1,Dial(${UserB_SoftPhone},10)
 exten => i,1,Playback(pbx-invalid)
 ```
 
-It rarely makes sense to hardcode data in a dialplan. It’s almost always better to use a variable.
+Редко имеет смысл жестко кодировать данные в диалплане. Почти всегда лучше использовать переменную.
 
-Make sure you test this out to ensure you don’t have any typos, and also to see what it looks like when executed on the Asterisk CLI:
+Убедитесь, что вы протестировали это чтобы убедиться, что у вас нет никаких опечаток, а также посмотреть, как это выглядит в Asterisk CLI при выполнении:
 
 ```text
 # asterisk -rvvvvvv
@@ -773,144 +773,152 @@ Make sure you test this out to ensure you don’t have any typos, and also to se
  == Spawn extension (TestMenu, 1, 1) exited non-zero on 'PJSIP/0000f30A0A01'
 ```
 
-#### Variable concatenation
+#### Объединение переменных
 
-To concatenate variables, simply place them together, like this:
+Чтобы объединить переменные, просто поместите их вместе, например:
 
 ```text
 exten => 204,1,Answer()
  same => n,Answer()
  same => n,Set(ONETWO=12)
  same => n,Set(THREEFOUR=34)
- same => n,SayDigits(${ONETWO}${THREEFOUR}) ; easy peasy
+ same => n,SayDigits(${ONETWO}${THREEFOUR}) ; проще простого
  same => n,Wait(0.2)
- same => n,Set(NOTFIVE=${THREEFOUR}${ONETWO}) ; peasy easy
- same => n,SayNumber(${NOTFIVE}) ; see what we did here?
+ same => n,Set(NOTFIVE=${THREEFOUR}${ONETWO}) ; легче не бывает
+ same => n,SayNumber(${NOTFIVE}) ; видите, что мы здесь сделали?
  same => n,Wait(0.2)
- same => n,SayDigits(2${ONETWO}3) ; you can concatenate literals and variables
+ same => n,SayDigits(2${ONETWO}3) ; Вы можете объединять постоянные и переменные
 ```
 
-#### Inheriting channel variables
+#### Наследование переменных канала
 
-Channel variables are always associated with the original channel that set them, and are no longer available once the channel is transferred.
+Переменные канала всегда связаны с исходным каналом, который их задает, и больше не доступны после передачи канала.
 
-In order to allow channel variables to follow the channel as it is transferred around the system, you must employ channel variable inheritance. There are two modifiers that can allow the channel variable to follow the channel: single underscore and double underscore.
+Чтобы разрешить переменным канала следовать за каналом при его передаче по системе, необходимо использовать наследование переменных канала. Существует два модификатора, которые позволяют переменной канала следовать за каналом: одиночное подчеркивание и двойное подчеркивание.
 
-The single underscore \(\_\) causes the channel variable to be inherited by the channel for a single transfer, after which it is no longer available for additional transfers. If you use a double underscore \(\_\_\), the channel variable will be inherited throughout the life of that channel.
+Одиночное подчеркивание \(\_\) приводит к тому, что переменная канала наследуется каналом для одной передачи, после чего она больше недоступна для дополнительных передач. Если вы используете двойное подчеркивание \(\_\_\), переменная канала будет наследоваться на протяжении всего срока жизни этого канала.
 
-Setting channel variables for inheritance simply requires you to prefix the channel name with a single or double underscore. The channel variables are then referenced exactly the same as they would be normally.
+Установка переменных канала для наследования просто требует префикса имени канала с одним или двойным подчеркиванием. Затем на переменные канала ссылаются точно так же, как и обычно.
 
-Here’s an example of setting a channel variable for single transfer inheritance:
+Вот пример установки переменной канала для наследования одной передачи:
 
 ```text
 exten => example,1,Set(_MyVariable=thisValue)
 ```
 
-Here’s an example of setting a channel variable for infinite transfer inheritance:
+Вот пример установки переменной канала для бесконечного наследования передачи:
 
 ```text
 exten => example,1,Set(__MyVariable=thisValue)
 ```
 
-When you wish to read the value of the channel variable, you do not use the underscore\(s\):
+Если вы хотите прочитать значение переменной канала, вы не используете подчеркивание\(я\):
 
 ```text
 exten => example,1,Verbose(1,Value of MyVariable is: ${MyVariable})
 ```
 
-### Pattern Matching
+### Совпадения по шаблонамatching
 
-If we want to be able to allow people to dial through Asterisk and have Asterisk connect them to outside resources, we need a way to match on any possible phone number that the caller might dial. For situations like this, Asterisk offers pattern matching. Pattern matching allows you to create one extension in your dialplan that matches many different numbers. This is enormously useful.
+Если мы хотим чтобы люди могли набирать номер через Asterisk и подключаться к внешним ресурсам, нам нужен способ сопоставить любой возможный номер телефона, который может набрать вызывающий абонент. Для таких ситуаций Asterisk предлагает сопоставление шаблонов. Сопоставление шаблонов позволяет создать в диалплане одно расширение, которое соответствует множеству различных номеров. Это чрезвычайно полезно.
 
-#### Pattern-matching syntax
+#### Синтаксис сравнения по шаблонам
 
-When we are using pattern matching, certain letters and symbols represent what we are trying to match. Patterns always start with an underscore \(\_\). This tells Asterisk that we’re matching on a pattern, and not on an explicit extension name.
+Когда мы используем совпадение шаблонов, определенные буквы и символы представляют то, что мы пытаемся сопоставить. Шаблоны всегда начинаются с подчеркивания \(\_\). Это говорит Asterisk, что мы ищем совпадение по шаблону, а не по явному имени расширения.
 
-**Warning**
+{% hint style="danger" %}
+**Предупреждение**
 
-If you forget the underscore at the beginning of your pattern, Asterisk will think it’s just a named extension and won’t do any pattern matching. This is one of the most common mistakes people make when starting to learn Asterisk.
+Если вы забудете подчеркивание в начале вашего шаблона, Asterisk подумает, что это просто именованное расширение и не будет выполнять сопоставление шаблонов. Это одна из самых распространенных ошибок, которые люди делают, когда начинают изучать Asterisk.
+{% endhint %}
 
-After the underscore, you can use one or more of the following characters:
+После подчеркивания можно использовать один или несколько следующих символов:
 
 X
 
-Matches any single digit from 0 to 9.
+Соответствует любой одиночной цифре от 0 до 9.
 
 Z
 
-Matches any single digit from 1 to 9.
+Соответствует любой одиночной цифре от 1 до 9.
 
 N
 
-Matches any single digit from 2 to 9.
+Соответствует любой отдельной цифре от 2 до 9.
 
-**Note**
+{% hint style="info" %}
+**Примечание**
 
-Another common mistake is to try to use the letters X, Z, and N literally in a pattern match; to do that, wrap them in square brackets \(case-insensitive\), such as \_ale\[X\]\[Z\]a\[N\]der.
+Другой распространенной ошибкой является попытка использовать буквы `X`, `Z` и `N` буквально в соответствии с шаблоном; для этого оберните их в квадратные скобки \(без учета регистра\), такие как `_ale[X][Z]A[N]der`.
+{% endhint %}
 
-\[15-7\]
+`[15-7]`
 
-Matches a single character from the range of digits specified. In this case, the pattern matches a single 1, as well as any number in the range 5, 6, 7.
+Соответствует одному символу из указанного диапазона цифр. В этом случае шаблону соответствует один `1`, а также любое число в диапазоне `5, 6, 7`.
 
-. \(period\)
+`.` \(период\)
 
-Wildcard match; matches one or more characters, no matter what they are.
+Совпадение с подстановочным знаком; соответствует одному или нескольким символам, независимо от того, что они собой представляют.
 
-**Warning**
+{% hint style="danger" %}
+**Предупреждение**
 
-If you’re not careful, wildcard matches can make your dialplans do things you’re not expecting \(like matching built-in extensions such as i or h\). You should use the wildcard match in a pattern only after you’ve matched as many other digits as possible. For example, the following pattern match should probably never be used:
+Если вы не будете осторожны, подстановочные совпадения могут заставить ваши диалпланы делать то, что вы не ожидаете \(например, сопоставление встроенных расширений, таких как `i` или `h`\). Вы должны использовать подстановочное соответствие в шаблоне только после того, как вы сопоставили как можно больше других цифр. Например, следующий шаблон никогда не должен использоваться:
 
-\_.
+`_.`
 
-In fact, Asterisk will warn you if you try to use it. Instead, if you really need a catchall pattern match, use this one to match all strings that start with a digit followed by one or more characters \(see ! if you want to be able to match on zero or more characters\):
+На самом деле, Asterisk предупредит вас, если вы попытаетесь его использовать. Вместо этого, если вам действительно нужно всеохватывающее совпадение шаблона, используйте чтобы соответствовать всем строкам, которые начинаются с цифры, за которой следует один или несколько символов \(см. `!` если хотите иметь возможность соответствовать нулю или более символов\):
 
-\_X.
+`_X.`
 
-Or this one, to match any alphanumeric string:
+Или этот, чтобы соответствовать любой буквенно-цифровой строке:
 
-\_\[0-9a-zA-Z\].
+`_[0-9a-zA-Z].`
+{% endhint %}
 
-! \(bang\)
+`!` \(bang\)
 
-Wildcard match; matches zero or more characters, no matter what they are.
+Подстановочные знаки совпадают; соответствует нулю или более символов, независимо от того, что они из себя представляют.
 
-To use pattern matching in your dialplan, simply put the pattern in the place of the extension name \(or number\):
+Чтобы использовать сопоставление шаблонов в вашем диалплане, просто поместите шаблон вместо имени расширения \(или номера\):
 
-exten =&gt; \_4XX,1,Noop\(User Dialed ${EXTEN}\)
+```text
+exten => _4XX,1,Noop(User Dialed ${EXTEN})
+    same => n,Answer()
+    same => n,SayDigits(${EXTEN})
+    same => n,Hangup()
+```
 
- same =&gt; n,Answer\(\)
+В этом примере шаблон соответствует любому трехзначному расширению от 400 до 499.\[^18\]
 
- same =&gt; n,SayDigits\(${EXTEN}\)
+Еще одна важная вещь, которую нужно знать о сопоставлении шаблонов, заключается в том, что если Asterisk найдет более одного шаблона, который соответствует набранному расширению, он будет использовать наиболее конкретный \(слева направо\). Предположим, вы определили следующие два шаблона, и вызывающий абонент набрал 555-1212:
 
- same =&gt; n,Hangup\(\)
+```text
+exten => _555XXXX,1,Answer()
+    same => n,SayDigits(${EXTEN})
+exten => _55512XX,1,Answer()
+    same => n,Playback(tt-monkeys)
+```
 
-In this example, the pattern matches any three-digit extension from 400 through 499.[18](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178407965128)
+В этом случае будет выбрано второе расширение, поскольку оно более конкретно. Загрузите это и сделайте звонки на 5550000, 5550123, 5551212, 5551200, 5551300, 5551299 и так далее чтобы почувствовать, как это работает. Поиграйте с различными совпадениями шаблонов. Например, что будет соответствовать шаблону \_555NNNN? Что будет соответствовать шаблону \_\[0-9\]?
 
-One other important thing to know about pattern matching is that if Asterisk finds more than one pattern that matches the dialed extension, it will use the most specific one \(going from left to right\). Say you had defined the following two patterns, and a caller dialed 555-1212:
+#### Североамериканский план нумерации - примеры совпадений шаблонов
 
-exten =&gt; \_555XXXX,1,Answer\(\)
+Этот шаблон соответствует любому семизначному числу, если первая цифра равна 2 или более:
 
- same =&gt; n,SayDigits\(${EXTEN}\)
+```text
+_NXXXXXX
+```
 
-exten =&gt; \_55512XX,1,Answer\(\)
+Предыдущий шаблон будет совместим с любым североамериканским планом нумерации местного семизначного номера.
 
- same =&gt; n,Playback\(tt-monkeys\)
+В областях с 10-значным набором этот шаблон будет выглядеть следующим образом:
 
-In this case the second extension would be selected, because it is more specific. Load this in and make calls to 5550000, 5550123, 5551212, 5551200, 5551300, 5551299, and so forth to get a feel for how this works. Play around with different pattern matches. For example, what would pattern \_555NNNN match? What would pattern \_\[0-9\]. match?
+```text
+_NXXNXXXXXX
+```
 
-#### North American Numbering Plan—pattern-matching examples
-
-This pattern matches any seven-digit number, as long as the first digit is 2 or higher:
-
-\_NXXXXXX
-
-The preceding pattern would be compatible with any North American Numbering Plan local seven-digit number.
-
-In areas with 10-digit dialing, that pattern would look like this:
-
-\_NXXNXXXXXX
-
-Note that neither of these two patterns would handle long-distance calls. We’ll cover those shortly.
+Обратите внимание, что ни один из этих двух шаблонов не будет обрабатывать междугородние звонки. Мы рассмотрим их в ближайшее время.
 
 **The NANP and Toll Fraud**
 
