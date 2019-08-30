@@ -53,7 +53,7 @@ Asterisk также поставляется с подробным файлом 
 Это очень важное соображение. С традиционными УАТС, как правило, существует набор значений по умолчанию для таких вещей, как прием, что означает, что если вы забудете их определить, они, вероятно, будут работать в любом случае. В Asterisk все наоборот. Если вы не скажете Asterisk, как обрабатывать каждую ситуацию, и он столкнется с чем-то, что не может обработать, вызов, как правило, будет отклонен.
 {% endhint %}
 
-Контексты определяются в файле _extensions.conf_, помещая имя контекста в квадратные скобки \(\[\]\). Имя может состоять из букв A - Z \(верхний и нижний регистр\), чисел от 0 до 9, а также дефиса и подчеркивания.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#asterisk-DP-Basics-FN-1) Контекст для входящих вызовов от оператора связи может быть назван так:
+Контексты определяются в файле _extensions.conf_, помещая имя контекста в квадратные скобки \(\[\]\). Имя может состоять из букв A - Z \(верхний и нижний регистр\), чисел от 0 до 9, а также дефиса и подчеркивания.\[^1\] Контекст для входящих вызовов от оператора связи может быть назван так:
 
 ```text
 [incoming]
@@ -79,7 +79,7 @@ Asterisk также поставляется с подробным файлом 
 
 Все инструкции, помещенные после определения контекста, являются частью этого контекста, пока не будет определен следующий контекст.
 
-В начале диалплана есть два специальных раздела с именами `[general]` и `[globals]`. Раздел `[general]` содержит список общих настроек абонентской группы \(о которых вам, вероятно, никогда не придется беспокоиться\), а контекст `[globals]`мы вскоре обсудим. На данный момент важно только знать, что эти две метки не являются контекстами, несмотря на использование синтаксиса контекста. Не используйте `[general]`, `[globals]` и `[default]`[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408408152) в качестве имен контекста, но в противном случае называйте свои контексты как угодно.
+В начале диалплана есть два специальных раздела с именами `[general]` и `[globals]`. Раздел `[general]` содержит список общих настроек абонентской группы \(о которых вам, вероятно, никогда не придется беспокоиться\), а контекст `[globals]`мы вскоре обсудим. На данный момент важно только знать, что эти две метки не являются контекстами, несмотря на использование синтаксиса контекста. Не используйте `[general]`, `[globals]` и `[default]`\[^2\] в качестве имен контекста, но в противном случае называйте свои контексты как угодно.
 
 Контексты в типичном файле _extensions.conf_ могут быть структурированы примерно так:
 
@@ -192,7 +192,7 @@ exten => 123,n,do one last thing
 exten => 123,n,Hangup()
 ```
 
-Внутри Asterisk будет вычислять следующий номер приоритета каждый раз, когда он сталкивается с `n`.[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408333272) Теперь, если мы хотим добавить новый элемент в приоритет 3, мы просто вводим новую строку, где она нам нужна, и не требуется перенумерация.
+Внутри Asterisk будет вычислять следующий номер приоритета каждый раз, когда он сталкивается с `n`.\[^3\] Теперь, если мы хотим добавить новый элемент в приоритет 3, мы просто вводим новую строку, где она нам нужна, и не требуется перенумерация.
 
 ```text
 exten => 123,1,Answer()
@@ -251,7 +251,7 @@ exten => 123,n(label),application()
 
 ### Приложения
 
-Приложения — это рабочие лошадки диалплана. Каждое приложение выполняет определённое действие в текущем канале, такое как — воспроизведение звука, приём набора сигналов DTMF, поиск чего-то в базе данных, выполнение вызова в канал, завершение вызова, кормление кошки или что-то иное.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408295288) В предыдущем примере мы показали два простых приложения: `Answer()` и `Hangup()`. Очевидно что они делают, но также очевидно что сами по себе они не очень полезны.
+Приложения — это рабочие лошадки диалплана. Каждое приложение выполняет определённое действие в текущем канале, такое как — воспроизведение звука, приём набора сигналов DTMF, поиск чего-то в базе данных, выполнение вызова в канал, завершение вызова, кормление кошки или что-то иное.\[^4\] В предыдущем примере мы показали два простых приложения: `Answer()` и `Hangup()`. Очевидно что они делают, но также очевидно что сами по себе они не очень полезны.
 
 Некоторые приложения, включая `Answer()` и `Hangup()` не требуют дополнительных инструкций для выполнения своей задачи. Но большинству приложений требуется дополнительная информация. Эти дополнительные элементы или аргументы передаются в приложения чтобы повлиять на выполнение действий. Чтобы передать аргументы приложению, поместите их между круглыми скобками, которые следуют за именем приложения, разделяя запятыми. 
 
@@ -265,7 +265,7 @@ exten => 123,n(label),application()
 Иногда полезно иметь возможность передавать информацию обратно в сеть перед ответом на вызов. Приложение `Progress()` пытается предоставить информацию о ходе выполнения вызова исходному каналу. Некоторые операторы связи ожидают этого, и таким образом вы можете решить странные проблемы с сигнализацией, вставив `Progress()` в диалплан, куда поступают ваши входящие вызовы. С точки зрения биллинга, использование `Progress()` позволяет поставщику услуг знать, что вы обрабатываете вызов, не запуская счетчик биллинга.
 {% endhint %}
 
-Приложение `Playback()` используется для воспроизведения ранее записанного звукового файла по каналу. Ввод от пользователя игнорируется, что означает невозможность использования `Playback()` в автосекретаре, например если не хотите принимать ввод в этот момент.[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408274728)
+Приложение `Playback()` используется для воспроизведения ранее записанного звукового файла по каналу. Ввод от пользователя игнорируется, что означает невозможность использования `Playback()` в автосекретаре, например если не хотите принимать ввод в этот момент.\[^5\]
 
 {% hint style="info" %}
 **Подсказка**
@@ -287,7 +287,7 @@ Playback(/home/john/sounds/filename)
 Playback(custom/filename)
 ```
 
-В этом примере будет воспроизводиться _filename.wav_ из подкаталога _custom_ каталога звуков по умолчанию \(возможно _/var/lib/asterisk/sounds/en/custom/filename.wav_\). Если указанный каталог содержит более одного файла с этим именем, но с разными расширениями, Asterisk автоматически воспроизведёт лучший.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#asterisk-DP-Basics-FN-2)
+В этом примере будет воспроизводиться _filename.wav_ из подкаталога _custom_ каталога звуков по умолчанию \(возможно _/var/lib/asterisk/sounds/en/custom/filename.wav_\). Если указанный каталог содержит более одного файла с этим именем, но с разными расширениями, Asterisk автоматически воспроизведёт лучший.\[^6\]
 
 Приложение `Hangup()` делает именно то, что следует из его названия: оно завершает активный канал. Вы должны использовать это приложение в конце контекста, когда хотите завершить текущий вызов, чтобы убедиться, что абоненты не продолжают выполнение диалплана таким образом, который вы, возможно, не ожидали. Приложение `Hangup()` не требует никаких аргументов, но вы можете передать код причины ISDN если захотите, например `Hangup(16)` и он будет переведен в сопоставимое сообщение SIP и отправлено на дальний конец.
 
@@ -413,9 +413,9 @@ exten => start,1,Answer()
 Мы использовали расширение `start` в этом примере, но могли бы использовать все что угодно в качестве имени расширения, либо числовое, либо буквенное. Мы предпочитаем использовать буквенные-символы для расширений, которые не доступны напрямую, так как это упрощает чтение диалплана. Суть в том, что можно было бы назвать нашей целью расширения `123` или `xyz321`, или  `99luftballons`, или всё что угодно чтобы начать. Слово _start_ не означает ничего особенного для диалплана; это просто имя расширения.
 {% endhint %}
 
-Одним из наиболее полезных приложений в интерактивном диалплане Asterisk является приложение `Background()`[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408187512). Как и `Playback()`, оно воспроизводит записанный звуковой файл. Однако в отличие от функции `Playback()`, когда вызывающий абонент нажимает клавишу \(или серию клавиш\) на клавиатуре своего телефона, он прерывает воспроизведение и передает вызов на добавочный номер, соответствующий нажатой цифре\(цифрам\). Если вызывающий абонент нажимает 5, например, Asterisk прекратит воспроизведение звуковой подсказки и отправит управление вызовом на первый приоритет расширения 5 \(при условии, что расширение 5 существует для отправки вызова\).
+Одним из наиболее полезных приложений в интерактивном диалплане Asterisk является приложение `Background()`\[^8\]. Как и `Playback()`, оно воспроизводит записанный звуковой файл. Однако в отличие от функции `Playback()`, когда вызывающий абонент нажимает клавишу \(или серию клавиш\) на клавиатуре своего телефона, он прерывает воспроизведение и передает вызов на добавочный номер, соответствующий нажатой цифре\(цифрам\). Если вызывающий абонент нажимает 5, например, Asterisk прекратит воспроизведение звуковой подсказки и отправит управление вызовом на первый приоритет расширения 5 \(при условии, что расширение 5 существует для отправки вызова\).
 
-Наиболее распространенным использованием приложения `Background()` является создание основных голосовых меню \(часто называемых _автосекретарями_, _IVR_,[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408181448) или _телефонными деревьями_\). Многие компании используют голосовые меню для направления абонентов на соответствующие добавочные номера, тем самым освобождая своих администраторов от необходимости отвечать на каждый вызов.
+Наиболее распространенным использованием приложения `Background()` является создание основных голосовых меню \(часто называемых _автосекретарями_, _IVR_,\[^9\] или _телефонными деревьями_\). Многие компании используют голосовые меню для направления абонентов на соответствующие добавочные номера, тем самым освобождая своих администраторов от необходимости отвечать на каждый вызов.
 
 Background\(\) имеет тот же синтаксис как и Playback\(\):
 
@@ -434,7 +434,7 @@ exten => start,1,Answer()
  same => n,WaitExten()
 ```
 
-Если вы хотите, чтобы приложение `WaitExten()` ждало ввода для ответа определенное количество секунд \(вместо использования таймаута по умолчанию\), [10](https://www.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408171000) просто передайте количество секунд в качестве первого аргумента `WaitExten()`, например:
+Если вы хотите, чтобы приложение `WaitExten()` ждало ввода для ответа определенное количество секунд \(вместо использования таймаута по умолчанию\),\[^10\] просто передайте количество секунд в качестве первого аргумента `WaitExten()`, например:
 
 ```text
  same => n,WaitExten(5) ; Мы всегда передаем аргумент времени для WaitExten()
@@ -508,7 +508,7 @@ exten => t,1,Playback(please-try-again)
     same => n,Goto(TestMenu,start,1)
 ```
 
-Использование расширений `i` [11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408142552) и `t` делает наше меню более надежным и удобным для пользователя. Но оно по прежнему все еще довольно ограничено, потому что внешние абоненты все еще не имеют возможности соединиться с живым человеком. Для этого нам нужно будет узнать о приложении `Dial()`.
+Использование расширений `i` \[^11\] и `t` делает наше меню более надежным и удобным для пользователя. Но оно по прежнему все еще довольно ограничено, потому что внешние абоненты все еще не имеют возможности соединиться с живым человеком. Для этого нам нужно будет узнать о приложении `Dial()`.
 
 ### Использование приложения Dial\(\)
 
@@ -522,7 +522,7 @@ exten => t,1,Playback(please-try-again)
 Dial(Technology/Resource[&Technology2/Resource2[&...]][,timeout[,options[,URL]]])
 ```
 
-Проще говоря, вы сообщаете `Dial()`, на какой канал [12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408129896) хотите отправить вызов и устанавливаете несколько параметров для настройки поведения. Использование `Dial()` может быть сложным, но в самом основном оно очень простое.
+Проще говоря, вы сообщаете `Dial()`, на какой канал\[^12\] хотите отправить вызов и устанавливаете несколько параметров для настройки поведения. Использование `Dial()` может быть сложным, но в самом основном оно очень простое.
 
 #### Аргумент 1: назначение
 
@@ -531,7 +531,7 @@ Dial(Technology/Resource[&Technology2/Resource2[&...]][,timeout[,options[,URL]]]
 {% hint style="info" %}
 **Примечание**
 
-В эти дни вы, скорее всего, будете использовать PJSIP в качестве типа канала, но в не слишком далеком прошлом общие типы технологий также включали DAHDI \(для аналоговых и T1/E1/J1 каналов\), старый канал SIP \(до PJSIP\) и IAX2.[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html#idm46178408125064) Если вы посмотрите на более старый диалплан, то можете увидеть некоторые из этих представленных протоколов. В дальнейшем рекомендуется и поддерживается только PJSIP и DAHDI.
+В эти дни вы, скорее всего, будете использовать PJSIP в качестве типа канала, но в не слишком далеком прошлом общие типы технологий также включали DAHDI \(для аналоговых и T1/E1/J1 каналов\), старый канал SIP \(до PJSIP\) и IAX2.\[^13\] Если вы посмотрите на более старый диалплан, то можете увидеть некоторые из этих представленных протоколов. В дальнейшем рекомендуется и поддерживается только PJSIP и DAHDI.
 {% endhint %}
 
 Предположим, что мы хотим вызвать один из наших каналов PJSIP с именем `SOFTPHONE_B`. технология - PJSIP,  а идентификатор ресурса \(или канала\) - `SOFTPHONE_B`. Аналогично, вызов устройства DAHDI \(определенного в _chan\_dahdi.conf_\) может иметь пункт назначения `DAHDI/14169671111`. Если бы мы хотели чтобы Asterisk вызывал канал `PJSIP/ SOFTPHONE_B` при достижении расширения `103` в диалплане то добавили бы следующее расширение:
@@ -565,7 +565,7 @@ Dial(technology/user[:password]@remote_host[:port][/remote_extension])
 Dial(DAHDI/[gGrR]channel_or_group[/remote_extension])
 ```
 
-Например, вот как бы вы набрали `1-800-555-1212` на канале DAHDI номер 4: \[^15\]
+Например, вот как бы вы набрали `1-800-555-1212` на канале DAHDI номер 4:\[^15\]
 
 ```text
 exten => 501,1,Dial(DAHDI/4/18005551212)
@@ -818,7 +818,7 @@ exten => example,1,Set(__MyVariable=thisValue)
 exten => example,1,Verbose(1,Value of MyVariable is: ${MyVariable})
 ```
 
-### Совпадения по шаблонамatching
+### Совпадения по шаблонам
 
 Если мы хотим чтобы люди могли набирать номер через Asterisk и подключаться к внешним ресурсам, нам нужен способ сопоставить любой возможный номер телефона, который может набрать вызывающий абонент. Для таких ситуаций Asterisk предлагает сопоставление шаблонов. Сопоставление шаблонов позволяет создать в диалплане одно расширение, которое соответствует множеству различных номеров. Это чрезвычайно полезно.
 
@@ -920,105 +920,114 @@ _NXXNXXXXXX
 
 Обратите внимание, что ни один из этих двух шаблонов не будет обрабатывать междугородние звонки. Мы рассмотрим их в ближайшее время.
 
-**The NANP and Toll Fraud**
+{% hint style="success" %}
+**NANP и мошенничество**
 
-The North American Numbering Plan \(NANP\) is a shared telephone numbering scheme used by 19 countries in North America and the Caribbean. All of these countries share country code 1.
+Североамериканский план нумерации \(NANP\) - это общая схема нумерации телефонов, используемая 19 странами Северной Америки и Карибского бассейна. Все эти страны имеют общий код страны 1.
 
-In the United States and Canada, there is sufficient competition that you can place a long-distance call to most numbers in country code 1 and expect to pay a reasonable toll. However, many people don’t realize that 17 other countries, many of which have very different telecom regulations, [share the NANP](http://www.nanpa.com/). Some of these places are quite expensive to call.
+В США и Канаде существует достаточная конкуренция, что вы можете сделать междугородний звонок на большинство номеров в коде страны 1 и ожидать разумной платы. Однако многие люди не понимают, что 17 других стран, многие из которых имеют очень разные правила телекоммуникаций, [разделяют NANP](http://www.nanpa.com/). В некоторые из этих мест довольно дорого звонить.
 
-One popular scam using the NANP tries to trick naïve North Americans into calling expensive per-minute toll numbers in a Caribbean country; the callers believe that since they dialed 1-NPA-NXX-XXXX to reach the number, they’ll be paying their standard national long-distance rate for the call. Since the country in question may have regulations that allow for this form of extortion, the caller is ultimately held responsible for the call charges.
+Одна популярная афера с использованием NANP - попытка обмануть наивных североамериканцев в вызове дорогих поминутных платных номеров в карибской стране; абоненты считают, что, поскольку они набрали 1-NPA-NXX-XXXX, чтобы добраться до номера, они будут платить по своему стандартному национальному междугороднему тарифу. Поскольку в рассматриваемой стране могут быть правила, допускающие такую форму вымогательства, абонент в конечном итоге несет ответственность за оплату вызова.
 
-It may be prudent to block calls to area codes to NANP countries outside the US and Canada until you’ve had a chance to review your toll rates to those countries. Wikipedia has [a good reference](http://bit.ly/2Ztku7l) for the basics of what you need to know about NANP, including what NPAs \(area codes\) belong to what country.
+Возможно, будет разумно блокировать звонки на коды регионов в страны NANP за пределами США и Канады, пока у вас не будет возможности пересмотреть свои тарифы на вызовы в эти страны. Википедия имеет [хорошую ссылку](http://bit.ly/2Ztku7l) на основы того, что вам нужно знать о NANP, в том числе какие NPA \(коды регионов\) принадлежат к какой стране.
+{% endhint %}
 
-Let’s try another:
+Давайте попробуем другой:
 
-\_1NXXNXXXXXX
+```text
+_1NXXNXXXXXX
+```
 
-This one will match the number 1, followed by an area code between 200 and 999, then any seven-digit number that does not start with 0 or 1. In the NANP calling area, you would use this pattern to match any long-distance number.[19](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-8)
+Этот номер будет соответствовать номеру с 1, за которым следует код города между 200 и 999, а затем любое семизначное число, которое не начинается с 0 или 1. В области вызова NANP этот шаблон будет использоваться для сопоставления любого междугороднего номера.\[^19\]
 
-And finally this one:
+И, наконец, этот:
 
-\_011.
+```text
+_011.
+```
 
-Note the period on the end. This pattern matches any number that starts with 011 and has at least one more digit. In the NANP, this indicates an international phone number. \(We’ll be using these patterns in the next section to add outbound dialing capabilities to our dialplan.\)
+Обратите внимание на период в конце. Этот шаблон соответствует любому числу, которое начинается с 011 и имеет по крайней мере еще одну цифру. В NANP это указывает на международный номер телефона. \(Мы будем использовать такие шаблоны в следующем разделе, чтобы добавить возможности исходящего набора в нашем диалплане.\)
 
-#### Common global pattern matches
+#### Общие глобальные совпадения шаблонов
 
-Outside of North America, there is wide variance in how numbering is handled; however, some patterns are common. Here are a few simple examples:
+За пределами Северной Америки существует большое различие в том, как обрабатывается нумерация; однако некоторые шаблоны являются общими. Вот несколько простых примеров:
 
 ```text
 ; UK, Germany, Italy, China, etc.
-exten => _00X.,1,noop() ; international dialing code
-exten => _0X.,1,noop() ; national dialing prefix
-exten => 112,1,Noop(--==[ Emergency call ]==--)
-; Australia
-exten => _0011X.,1,noop() ; international dialing code
-exten => _0X.,1,noop() ; national dialing prefix
-; Dutch Caribbean (Saba)
-exten => _00X.,1,noop() ; international
-exten => _416XXXX,1,noop() ; local (on-island)
-exten => _0[37]XXXXXX,1,noop() ; call to country code 599 off-island (not Curacao)
-exten => _09XXXXXXX,1,Noop() ; call to country code 599 off-island (Curacao)
+exten => _00X.,1,noop() ; международный телефонный код
+exten => _0X.,1,noop() ; национальный префикс набора номера
+exten => 112,1,Noop(--==[ Экстренный вызов ]==--)
+; Австралия
+exten => _0011X.,1,noop() ; международный телефонный код
+exten => _0X.,1,noop() ; национальный префикс набора номера
+; Голландский Карибский Бассейн (Саба)
+exten => _00X.,1,noop() ; международный
+exten => _416XXXX,1,noop() ; локальный (островной)
+exten => _0[37]XXXXXX,1,noop() ; звонок на код страны 599 неостровной (не Кюрасао)
+exten => _09XXXXXXX,1,Noop() ; звонок на код страны 599 неостровной (Кюрасао)
 ```
 
-You will need to understand the dialing plan of your region in order to produce a useful pattern match.
+Вам нужно будет понять план набора номера вашего региона, чтобы произвести полезное совпадение шаблона.
 
-#### Using the ${EXTEN} channel variable
+#### Использование канальной переменной ${EXTEN}
 
-So what happens if you want to use pattern matching but need to know which digits were actually dialed? Enter the ${EXTEN} channel variable. Whenever you dial an extension, Asterisk sets the ${EXTEN} channel variable to the digits that were received. We used the application SayDigits\(\) to demonstrate this.
+Итак, что произойдет, если вы хотите использовать сопоставление шаблонов, но должны знать, какие цифры были фактически набраны? Введите переменную канала `${EXTEN}`. Всякий раз, когда вы набираете расширение, Asterisk записывает полученные цифры в переменную канала `${EXTEN}` . Мы использовали приложение `SayDigits()`, чтобы продемонстрировать это.
 
 ```text
 exten => _4XX,1,Noop(User Dialed ${EXTEN})
- same => n,Answer()
- same => n,SayDigits(${EXTEN})
- same => n,Hangup()
+    same => n,Answer()
+    same => n,SayDigits(${EXTEN})
+    same => n,Hangup()
+    
 exten => _555XXXX,1,Answer()
- same => n,SayDigits(${EXTEN})
+    same => n,SayDigits(${EXTEN})
 ```
 
-In these examples, the SayDigits\(\) application read back to you the extension you dialed.
+В этих примерах, приложение `SayDigits()` читает номер расширения, которое вы набрали.
 
-Often, it’s useful to manipulate the ${EXTEN} by stripping a certain number of digits off the front of the extension. This is accomplished by using the syntax ${EXTEN:x}, where x is where you want the returned string to start, from left to right. For example, if the value of ${EXTEN} is 95551212, ${EXTEN:1} equals 5551212. Let’s try another example:
+Часто бывает полезно манипулировать `${EXTEN}`, удаляя определенное количество цифр с передней части расширения. Это достигается с помощью синтаксиса `${EXTEN:`_`x`_`}`, где _`x`_-это позиция начала возвращаемой строки слева направо. Например, если значение `${EXTEN}` равно `95551212`, `${EXTEN:1}` равно `5551212`. Давайте попробуем другой пример:
 
 ```text
 exten => _XXX,1,Answer()
- same => n,SayDigits(${EXTEN:1})
+    same => n,SayDigits(${EXTEN:1})
 ```
 
-In this example, the SayDigits\(\) application would start at the second digit, and thus read back only the last two digits of the dialed extension.
+В этом примере приложение `SayDigits()` будет начинать со второй цифры и, таким образом, считывать только последние две цифры набранного добавочного номера.
 
-**More Advanced Digit Manipulation**
+{% hint style="success" %}
+**Продвинутые возможности манипуляций с цифрами**
 
-The ${EXTEN} variable properly has the syntax ${EXTEN:x:y}, where x is the starting position and y is the number of digits to return. Given the following dial string:
+Переменная `${EXTEN}` в общем случае имеет синтаксис `${EXTEN:`_`x`_`:`_`y`_`}`, где _`x`_- начальная позиция, а _`y`_ - количество возвращаемых цифр. Учитывая следующую строку набора :
 
-94169671111
+`94169671111`
 
-we can extract the following digit strings using the ${EXTEN:x:y} construct:
+мы можем извлечь следующие строки цифр, используя конструкцию `${EXTENT:`_`x`_`:`_`y`_`}` :
 
-* ${EXTEN:1:3} would contain 416
-* ${EXTEN:4:7} would contain 9671111
-* ${EXTEN:-4:4} would start four digits from the end and return four digits, giving us 1111
-* ${EXTEN:2:-4} would start two digits in and exclude the last four digits, giving us 16967
-* ${EXTEN:-6:-4} would start six digits from the end and exclude the last four digits, giving us 67
-* ${EXTEN:1} would give us everything after the first digit, or 4169671111 \(if the number of digits to return is left blank, it will return the entire remaining string\)
+* `${EXTEN:1:3}` будет содержать `416`
+* `${EXTEN:4:7}` будет содержать `9671111`
+* `${EXTEN:-4:4}` начнетсяс 4 цифры с конца и вернет 4 цифры, давая нам `1111`
+* `${EXTEN:2:-4}` начнет со второй цифры и исключит последние четыре цифры, давая нам `16967`
+* `${EXTEN:-6:-4}` начнет с шестой цифры с конца и исключит последние четыре цифры, давая `67`
+* `${EXTEN:1}` даст нам все цифры после первой или `4169671111` \(если количество цифр для возврата оставлено пустым, то вернет всю оставшуюся строку\)
 
-This is a very powerful construct, but most of these variations are not very common in normal use. For the most part, you will be using ${EXTEN} \(or perhaps ${EXTEN:1} if you need to strip off an external access code, such as a prepended 9\).
+Это очень мощная конструкция, но большинство из этих вариаций не очень распространены в обычном использовании. По большей части вы будете использовать `${EXTEN}` \(или, возможно `${EXTEN:1}` если вам нужно удалить внешний код доступа, например приставку 9\).
+{% endhint %}
 
-### Includes
+### Включения \(Includes\)
 
-Asterisk has an important feature that allows extensions from one context to be available from within another context. This is accomplished through use of the include directive, which allows us to control access to different sections of the dialplan.
+Asterisk имеет важную функцию, которая позволяет расширениям одного контекста быть доступными из другого контекста. Это достигается за счет использования директивы `include`, которая позволяет нам контролировать доступ к различным разделам диалплана.
 
-The include statement takes the following form, where context is the name of the remote context we want to include in the current context:
+Оператор `include` принимает следующую форму, где _`context`_ - это имя удаленного контекста, который мы хотим включить в текущий:
 
 ```text
 include => context
 ```
 
-Including one context within another context allows extensions within the included context to be dialable.
+Включение одного контекста в другой позволяет набирать расширения в пределах включенного контекста.
 
-When we include other contexts within our current context, we have to be mindful of the order in which we are including them. Asterisk will first try to match the dialed extension in the current context. If unsuccessful, it will then try the first included context \(including any contexts included in that context\), and then continue to the other included contexts in the order in which they were included.
+Когда мы включаем другие контексты в наш текущий контекст, мы должны помнить о порядке, в котором мы их включаем. Asterisk сначала попытается сопоставить набранное расширение в текущем контексте. В случае неудачи он затем попытается использовать первый включенный контекст \(включая любые контексты, включенные в этот контекст\), а затем продолжит работу с другими включенными контекстами в том порядке, в котором они были включены.
 
-We will discuss the include directive more in [Chapter 7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22asterisk-OutsideConn).
+Мы обсудим директиву include подробнее в [Главе 7](glava-07.md).
 
 ## Вывод
 
@@ -1040,29 +1049,29 @@ We will discuss the include directive more in [Chapter 7](https://learning.oreil
 
 \[^6\]Asterisk выбирает лучший файл на основе затрат на транскодинг — то есть он выбирает файл, который является наименее трудоемким для преобразования в свой собственный аудиоформат. Когда вы запускаете Asterisk, он вычисляет затраты на перевод между различными аудиоформатами \(они часто варьируются от системы к системе\). Вы можете увидеть эти затраты на перевод, набрав `core show translation` в Asterisk CLI. Приведенные цифры показывают, сколько микросекунд требуется Asterisk для перекодирования одной секунды звука.
 
-[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408218280-marker) If you haven’t configured two phones yet, please consider heading back to [Chapter 5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch05.html%22%20/l%20%22asterisk-DeviceConfig) and getting a couple of phones set up so you can play with them. You can get away with only one phone for testing, but really two is ideal. There are lots of free softphones available, and some of them are rather good.
+\[^7\] Если вы еще не настроили два телефона, пожалуйста, вернитесь к [Главе 5](glava-05.md) и установите несколько телефонов, чтобы вы могли играть с ними. Вы можете уйти только с одним телефоном для тестирования, но на самом деле два идеально подходит. Есть много бесплатных софтфонов, и некоторые из них довольно хороши.
 
-[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408187512-marker) It should be noted that some people expect that Background\(\), due to its name, will continue onward through the next steps in the dialplan while the sound is being played. In reality, its name refers to the fact that it is playing a sound in the background, while waiting for DTMF in the foreground.
+\[^8\] Следует отметить, что некоторые люди ожидают, что `Background()` из-за его названия, будет продолжаться дальше через следующие шаги в диалплане во время воспроизведения звука. На самом деле, его название относится к тому, что он воспроизводит звук в фоновом режиме, ожидая DTMF на переднем плане.
 
-[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408181448-marker) More information about auto attendants and IVR can be found in [Chapter 14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22asterisk-AA).
+\[^9\] Дополнительную информацию об автосекретарях и IVR можно найти в [Главе 14](glava-14.md).
 
-[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408171000-marker) See the dialplan function TIMEOUT\(\) for information on how to change the default timeouts. See [Chapter 10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-DP-Deeper) for information on what dialplan functions are.
+\[^10\] Смотри функцию диалплана `TIMEOUT()` для получения информации о том, как изменить тайм-ауты по умолчанию. См. [Главу 10](glava-10.md) для получения информации о том, что такое функции диалплана.
 
-[11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408142552-marker) The i extension is for catching invalid entries supplied to a dialplan application such as Background\(\). It is not used for matching on invalidly dialed extensions or nonmatching pattern matches.
+\[^11\] Расширение `i` предназначено для перехвата недопустимых значений, предоставленных приложением диалплана, например `Background()`. Он не используется для сопоставления на неверно набранные номера или несовпадения шаблонов.
 
-[12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408129896-marker) Or channels, if you want to ring more than one at a time.
+\[^12\] Или каналов, если вы хотите звонить более чем по одному за раз.
 
-[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408125064-marker) IAX2 \(pronounced “EEKS”\), is the Inter Asterisk Exchange protocol \(v2\). In the early days of Asterisk it was popular for trunking, as it greatly reduced signaling overhead on busy circuits. Bandwidth has become far less expensive, and SIP protocol has become nearly ubiquitous. The IAX2 protocol is no longer actively maintained, but it still retains some popularity for its ability to traverse firewalls, and a few carriers might still support it. However, its use is deprecated, and in fact discouraged.
+\[^13\] IAX2 \(произносится как "EEKS"\), является протоколом обмена между Asterisk \(v2\). В первые дни Asterisk он был популярен для транкинга, поскольку значительно уменьшил накладные расходы сигнализации на занятых линиях. Пропускная способность стала намного меньше, а протокол SIP стал почти повсеместным. Протокол IAX2 больше не поддерживается активно, но он по-прежнему сохраняет некоторую популярность за свою способность пересекать брандмауэры, и поддержку нескольких медиапотоков. Тем не менее, его использование является устаревшим, и на самом деле не рекомендуется.
 
-\[^14\] We’ll cover variables in the section [“Using Variables”](6.%20Dialplan%20Basics%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22asterisk-DP-Basics-SECT-3.5). In future chapters we’ll discuss how to have your dialplan make decisions based on the value of DIALSTATUS.
+\[^14\] Мы рассмотрим переменные в разделе “[Использование переменных](glava-06.md#ispolzovanie-peremennykh)”. В следующих главах мы обсудим, как заставить ваш диалплан принимать решения, основанные на значении `DIALSTATUS`.
 
-\[^15\] Bear in mind that this assumes that this channel connects to something that knows how to reach external numbers.
+\[^15\] Имейте в виду, что это предполагает, что этот канал подключается к чему-то, что знает, как достичь внешних чисел.
 
-\[^16\] Specifically, what we are setting here is a channel variable.
+\[^16\] В частности, то, что мы устанавливаем здесь, является переменной канала.
 
-[17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178408032008-marker) We’ll get into dialplan functions later. Don’t worry too much about environment variables right now. They are not important to understanding the dialplan.
+\[^17\] Позже мы перейдем к функциям диалплана. Не беспокойтесь слишком о переменных окружения прямо сейчас. Они не важны для понимания диалплана.
 
-[18](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22idm46178407965128-marker) We’ve used the EXTEN channel variable without introducing it. Read on, as it will be covered later in this chapter.
+\[^18\] Мы использовали переменную канала EXTEN, без введения в неё. Читайте дальше, как это будет рассмотрено ниже в этой главе.
 
-[19](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics-FN-8-marker) If you grew up in North America, you may believe that the 1 you dial before a long-distance call is “the long-distance code.” This is not completely correct. The number 1 is also the international country code for NANP. Keep this in mind if you send your phone number to someone in another country. The recipient may not know your country code, and thus be unable to call you with just your area code and phone number. Your full phone number with country code is +1 NPA NXX XXXX \(where NPA is your area code\)—for example, +1 416 555 1212. This is also known as E.164 format \([Wikipedia](http://bit.ly/2ImniNO) can tell you all about E.164\).
+\[^19\] Если вы выросли в Северной Америке, то можете полагать, что 1, которую вы набираете перед междугородним звонком - это “междугородний код.” Это не совсем правильно. Число 1 также является международным кодом страны для NANP. Имейте это в виду, если отправляете свой номер телефона кому-то в другой стране. Получатель может не знать код вашей страны, и поэтому не сможет позвонить вам только с вашим кодом города и номером телефона. Ваш полный номер телефона с кодом страны +1 NPA NXX XXXX \(где NPA - ваш код города\) - например, +1 416 555 1212. Это также известно как формат E. 164 \([Wikipedia](http://bit.ly/2ImniNO) может рассказать вам все о E.164\).
 

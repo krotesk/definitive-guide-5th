@@ -1,5 +1,11 @@
 # Важные изменения
 
+## 30.08.19
+
+Закончил перевод [6 главы](glava-06.md).
+
+Возьмусь за 7 и остальные понемногу.
+
 ## 26.08.19
 
 Закончил перевод [5 главы](glava-05.md), доступно на [atsip.ru](http://atsip.ru/pomoshch/kniga-asterisk-4-redaktsiya/353-glava-5-konfiguratsiya-polzovatelskikh-ustrojstv)
