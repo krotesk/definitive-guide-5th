@@ -2,7 +2,7 @@
 
 ## 30.08.19
 
-Закончил перевод [6 главы](glava-06.md).
+Закончил перевод [6 главы](glava-06.md) - доступна на [atsip.ru](http://atsip.ru/pomoshch/kniga-asterisk-4-redaktsiya/354-glava-6-osnovy-dialplana).
 
 Возьмусь за 7 и остальные понемногу.
 
