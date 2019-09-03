@@ -8,28 +8,18 @@ description: Архитектура Asterisk
 >
 > -- Доктор Кто
 
-Asterisk is very different from other, more traditional, PBXs in that the dialplan in Asterisk treats all incoming channels in essentially the same manner, rather than separating them into stations, trunks, peripheral modules, and so forth.
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 2-1. &#x410;&#x440;&#x445;&#x438;&#x442;&#x435;&#x43A;&#x442;&#x443;&#x440;&#x430; Asterisk &#x43F;&#x440;&#x43E;&#x442;&#x438;&#x432; &#x423;&#x410;&#x422;&#x421;](.gitbook/assets/0%20%288%29.png)
 
-In a traditional PBX, there is a logical difference between stations \(telephone sets\) and trunks \(resources that connect to the outside world\). This limitation makes creative routing in traditional PBXs very difficult or impossible.
+## Модули
 
-Asterisk, on the other hand, does not have an internal concept of trunks or stations. In Asterisk, everything that comes into or goes out of the system passes through a channel of some sort. There are many different kinds of channels; however, the Asterisk dialplan handles all channels in a similar manner, which means that, for example, an internal user can exist on the end of an external trunk \(e.g., a cell phone\) and be treated by the dialplan in exactly the same manner as that user would be if they were on an internal extension. Unless you have worked with a traditional PBX, it may not be immediately obvious how powerful and liberating this is. [Figure 2-1](Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition/2.%20Asterisk%20Architecture%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Architecture_id264520) illustrates the differences between the two architectures.
+Asterisk очень отличается от других, более традиционных УАТС тем, что диалплан в Asterisk обрабатывает все входящие каналы по существу одинаково, а не разделяет их на станции, транки, периферийные модули и т.д.
 
-![Figure 2-1. Asterisk versus PBX architecture](.gitbook/assets/0%20%288%29.png)
+В традиционной АТС существует логическое различие между станциями \(телефонными аппаратами\) и транками \(магистралями - ресурсами, которые подключаются к внешнему миру\). Это ограничение делает творческую маршрутизацию в традиционных УАТС очень сложной или невозможной.
 
-## Modules
+Asterisk, с другой стороны, не имеет внутреннего понятия транков или станций. В Asterisk все, что входит или выходит из системы, проходит через какой-то канал. Существует множество различных типов каналов; однако диалплан Asterisk обрабатывает все каналы аналогичным образом, что означает, например, внутренний пользователь может существовать на конце внешнего транка \(например, сотовый телефон\) и обрабатываться диалпланом точно так же, как если бы пользователь был на внутреннем номере. Если вы не работали с традиционной АТС, то может быть не сразу очевидно насколько это является мощным и освобождающим. Рисунок 2-1 иллюстрирует различия между этими двумя архитектурами.
 
-Asterisk is built on modules. A module is a loadable component that provides a specific functionality, such as a channel driver \(for example, chan\_pjsip.so\), or a resource that allows connection to an external technology \(such as func\_odbc.so\). Asterisk modules are loaded based on the parameters defined in the /etc/asterisk/modules.conf file. We will discuss the use of many modules in this book, but at this point we just want to introduce the concept of modules, and give you a feel for the types of modules that are available.
-
-It is actually possible to start Asterisk without any modules at all, although in this state it will not be capable of doing anything. It is useful to understand the modular nature of Asterisk in order to appreciate the architecture.
-
-**Note**
-
-You can start Asterisk with no modules loaded by default and load each desired module manually from the console, but this is not something that you’d want to put into production; it would only be useful if you were performance-tuning a system where you wanted to eliminate everything not required by your specific application of Asterisk.
-
-The types of modules in Asterisk include the following:
-
-* Applications—The workhorses of the dialplan, such as Dial\(\), Voicemail\(\), Playback\(\), Queue\(\), and so forth
-* Bridging modules—Mechanisms that connect channels \(calls\) to each other
+* Приложения - рабочие лошадки диалплана, такие как `Dial()`, `Voicemail()`, `Playback()`, `Queue()` и т.д.
+* Мостовые модули - механизмы, которые соединяют каналы\(вызовы\) друг с другом
 * Call detail recording \(CDR\) modules
 * Channel event logging \(CEL\) modules
 * Channel drivers—Various connections into and out of the system; SIP \(Session Initiation Protocol\)messaging uses the PJSIP channel drivers
@@ -37,15 +27,13 @@ The types of modules in Asterisk include the following:
 * Format interpreters—As above, but relating to files stored in the filesystem
 * Dialplan functions—Enhance the capabilities of the dialplan
 * PBX modules
-* Resource modules
-* Add-on modules
-* Test modules
+* Модули ресурсов
+* Дополнительные модули
+* Тестовые модули
 
-In the following sections we have curated a list of modules we feel are important enough to be discussed in this book. You’ll find many other modules in the Asterisk download, but many older modules are either deprecated or have little or no support, and are therefore not recommended for production unless you have access to developers who can maintain them for you.
+Существует официальный список типов статуса поддержки, включенных в menuselect.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178409833272)
 
-There is an official list of support status types included within menuselect.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178409833272)
-
-### Applications
+### Приложения
 
 Dialplan applications are used in extensions.conf to define the various actions that can be applied to a call. The Dial\(\) application, for example, is responsible for making outgoing connections to external resources and is arguably the most important dialplan application. The available applications are listed in [Table 2-1](Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition/2.%20Asterisk%20Architecture%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Architecture_id241441).
 
@@ -83,6 +71,18 @@ Table 2-1. Popular dialplan applications
 
 ### Bridging Modules
 
+Asterisk построен на модулях. Модуль - это загружаемый компонент, который обеспечивает определенную функциональность, такую как драйвер канала \(например, `chan_pjsip.so`\) или ресурс, который позволяет подключиться к внешней технологии \(например `func_odbc.so`\). Модули Asterisk загружаются на основе параметров, определенных в файле _/etc/asterisk/modules.conf_. Мы обсудим использование многих модулей в этой книге, но на этом этапе мы просто хотим представить концепцию модулей и дать вам представление о типах модулей, которые доступны.
+
+На самом деле можно запустить Asterisk вообще без каких-либо модулей, хотя в этом состоянии он ничего не сможет сделать. Это бывает полезно, чтобы понять модульную природу Asterisk для оценки архитектуры.
+
+{% hint style="info" %}
+**Примечание**
+
+Вы можете запустить Asterisk без модулей, загружаемых по умолчанию и загружать каждый нужный модуль вручную из консоли, но это не то, что вы хотели бы запустить в продакшен; это было бы полезно только в том случае, если бы вы настраивали производительность системы, в которой хотели убрать все, что не требуется вашим конкретным приложением Asterisk.
+{% endhint %}
+
+Типы модулей в Asterisk включают следующее:
+
 Bridging modules perform the actual bridging of channels. These modules, listed in [Table 2-2](Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition/2.%20Asterisk%20Architecture%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Architecture_id291798), are currently only used for \(and are essential to\) app\_confbridge.
 
 Table 2-2. Bridging modules
@@ -93,6 +93,8 @@ Table 2-2. Bridging modules
 | bridge\_multiplexed | Performs complex multiplexing, as would be required in a large conference room \(multiple participants\). Currently only used by app\_confbridge. |
 | bridge\_simple | Performs simple channel-to-channel bridging. |
 | bridge\_softmix | Performs simple multiplexing, as would be required in a large conference room \(multiple participants\). Currently only used by app\_confbridge. |
+
+В следующих разделах мы рассмотрели список модулей, которые, по нашему мнению, достаточно важны для обсуждения в этой книге. Вы найдете много других модулей в загрузке Asterisk, но многие старые модули либо устарели, либо имеют небольшую поддержку или не поддерживаются, и поэтому не рекомендуются для производства, если у вас нет доступа к разработчикам, которые могут поддерживать их для вас.
 
 ### Call Detail Recording Modules
 

@@ -106,521 +106,121 @@ Asterisk разрабатывается с использованием Linux, �
 
 Эта книга была разработана и протестирована с использованием как VirtualBox, так и DigitalOcean.
 
-### VirtualBox Steps
+### Шаги для VirtualBox
 
-Grab a copy of VirtualBox from the [platform’s website](https://www.virtualbox.org/wiki/Downloads) and install it.
+Загрузите Minimal ISO с веб-сайта [Centos](https://www.centos.org/download/).
 
-Download the Minimal ISO from the [Centos](https://www.centos.org/download/) website.
+Возьмите копию VirtualBox с [веб-сайта платформы](https://www.virtualbox.org/wiki/Downloads) и установите ее.
 
-Get yourself a copy of [PuTTY](http://bit.ly/2J0ftwK) if you’re using Windows.
+Загрузите [PuTTY](http://bit.ly/2J0ftwK) если используете Windows.
 
-Create a new virtual machine with the following characteristics:
+* Тип: Linux
+* Версия: Red Hat \(64-bit\)
+* Объем памяти: 2048 MB
+* Жёсткий диск: Создать новый виртуальный жесткий диск
+* Расположение файла: выберите подходящее место для хранения образов виртуальных машин
+* Размер файла: 16 ГБ подходит для наших целей, но для продакшена потребуется куда больше
 
-* Type: Linux
-* Version: Red Hat \(64-bit\)
-* Memory size: 2048 MB
-* Hard disk: Create a virtual hard disk now
-* File location: Pick a good spot for storing your virtual machine images
-* File size: 16 GB is fine for what we’re doing here, but something larger would be needed for production
+Создайте новую виртуальную машину со следующими характеристиками:
 
-Once the basic machine has been defined, you’ll need to tweak it as follows:
+* Носители: под пунктом **Носители, Контроллер: IDE** ...
+  1. Вы должны увидеть крошечный значок диска CD/DVD с надписью **Пусто**.
+  2. Нажмите на него и справа под **Атрибуты** появится еще один значок крошечного диска.
+  3. Нажмите на него, и он попросит вас **выбрать образ оптического диска**.
+  4. Найдите на жестком диске Minimal ISO, загруженный с CentOS и выберите его.
+  5. Теперь трей носителей должен отображать CentOS ISO.
+* Сеть: Адаптер 1
 
-* Storage: Under Storage, Controller: IDE ...
-  1. You should see the CD/DVD has a tiny disc icon labeled Empty.
-  2. Click on it and to the right under Attributes, there’ll be another tiny disc icon.
-  3. Click on that, and it’ll ask you to Choose Optical Virtual Disk File.
-  4. Locate on your hard drive the Minimal ISO you downloaded from CentOS, and choose it.
-  5. The Storage Tree should now show the CentOS ISO.
-* Network: Adaptor 1
+Attached to: **Bridged Adapter**
 
-Attached to: Bridged Adapter
+Как только базовая машина будет определена, вам нужно будет настроить ее следующим образом:
 
-Start up the machine you’ve just created, and it should take you through a basic installation of CentOS. Here are a few items you’ll want to specify \(for anything else, the defaults should do\):
-
-* Date and time: Adjust to your time zone if you wish.
-* Network and host name: Ethernet—toggle from off to on \(it should immediately grab an IP address from your network; if not, set one manually\). Press the Done button.
+* Дата и время: при желании можно настроить часовой пояс.
+* Сеть и имя хоста: **Ethernet** - переключите с off на **on** \(он должен немедленно захватить IP-адрес из вашей сети; если нет, установите вручную\). Нажмите кнопку **Готово**.
 * Installation destination: It may require you to confirm the target, but you shouldn’t need to change anything. Press the Done button.
-* That’s it. Begin Installation.
+* Вот и все. **Начать установку**.
 
-While the installation is taking place, set the root password, and also create a user named astmin. Make the astmin user an administrator.
-
-The installation will take a few minutes. Grab a coffee!
-
-Once the install is done, the installer will ask you to Reboot. The reboot should only take 15 seconds or so.
-
-Congratulations, your system is ready. Log in as root.
+Запустите только что созданную машину, и она проведет вас через базовую установку CentOS. Вот несколько элементов, которые вы хотите указать \(для всего остального, оставляйте значения по умолчанию\):
 
 ### Linux \(OpenStack\) Host
 
-You’ll obviously need an account with a hosted Linux provider if you’re going to use this method \(we’ve found OpenStack-based offerings to be the cheapest, relative to the quality/performance/simplicity offered\). We’ve been using DigitalOcean for many years, but have also found Linode and VULTR to be strong providers in this space.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409086616) Once you’ve got that sorted, you can log in and create a new system something like the following:
-
-* CentOS 7 \(lastest version, 64-bit\)
-* 4 GB 2vCPUs \(we don’t really need the 4 GB RAM, but it is good to have the 2xCPUs; you can probably get away with 2 GB 1vCPU, if you’re really cost-conscious\)
+* CentOS 7 \(последняя версия, 64-бит\)
+* 4 Гб 2vCPU \(нам действительно не нужно 4 ГБ оперативной памяти, но хорошо иметь 2xCPU; вы, вероятно, можете уйти с 2 ГБ 1xCPU, если вы действительно сознательны в расходах\)
 * Data center closest to you
 
-Once that’s up and running, log in as the default user \(as of this writing, it’s centos\).
+## Зависимости
 
-**Warning**
+Во время установки установите пароль root, а также создайте пользователя с именем `astmin`. Сделать `astmin` администратором.
 
-Note that DigitalOcean instances do not have a firewall by default. Instead, they provide a firewall as a part of their environment. The system you build will therefore not have any native firewall in place, and will be subject to external attacks shortly after you complete configuration \(you’ll see this on the Asterisk console\). Different providers will have different firewall policies. You are responsible for making sure your firewalling is working correctly. We’ll be discussing security and anti-fraud in more detail later on in this book.
+Установка займет несколько минут. Бери кофе!
 
-## Dependencies
+После завершения установки программа установки попросит вас перезагрузиться. Перезагрузка должна занять всего 15 секунд или около того.
 
-The system you’ve just built isn’t really much more than a basic bootstrapped system. In order to prepare it for an Asterisk installation, there are a few things we’ll need to install first.
+Поздравляем, ваша система готова. Войдите в систему как `root`.
 
-The following commands can be typed from the command line, or added to a simple shell script and run that way.
+Очевидно, вам понадобится учетная запись с хостингом поставщика услуг Linux, если вы собираетесь использовать этот метод \(мы обнаружили, что предложения на основе OpenStack являются самыми дешевыми с предлагаемыми качеством/производительностью/простотой\). Мы использовали DigitalOcean в течение многих лет, но также обнаружили, что Linode и VULTR являются сильными поставщиками в этом пространстве.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409086616) После сортировки вы можете войти в систему и создать новую систему примерно следующим образом:
 
+Как только это будет запущено, войдите в систему как пользователь по умолчанию \(на момент написания этой статьи это `centos`\).
+
+{% hint style="danger" %}
+**Предупреждение**
+
+Обратите внимание, что экземпляры DigitalOcean по умолчанию не имеют брандмауэра. Вместо этого они предоставляют брандмауэр как часть своей среды. Таким образом, система, которую вы создаете, не будет иметь собственного брандмауэра и будет подвергаться внешним атакам вскоре после завершения настройки \(вы увидите это в консоли Asterisk\). У разных провайдеров будут разные политики брандмауэра. Вы несете ответственность за то, чтобы ваш брандмауэр работал правильно. Мы обсудим безопасность и борьбу с мошенничеством более подробно позже в этой книге.
+{% endhint %}
+
+1. Установка dnf, vim, wget, и MySQL-python.
+2. Установка репозитория MySQL community-edition.
+3. Установка mysql-server.
+4. Настройка некоторых переменных при установке mysql-server.
+5. Запуск демона mysql-server.
+6. Изменение некоторых данных MySQL \(создание пользователей, установка паролей\).
+7. Создание базы данных/схемы MySQL для использования в Asterisk.
+8. Применение некоторых рекомендаций по безопасности \(удаление анонимного пользователя, тестовая база данных и т.д.\).
+9. Создание пользователя asterisk.
+10. Создание пользователя astmin.
+11. Установка зависимостей для ODBC.
+12. Установка некоторых диагностических инструментов.
+13. Настройка брандмауэра для разрешения трафика SIP и RTP.
+14. Редактирование некоторых файлов конфигурации ODBC.
+
+Создайте план Ansible в файле _~/ansible/playbooks/starfish.yml_.
+
+Вот тебе план:
+
+Система, которую вы только что построили, на самом деле не намного больше, чем базовая загрузочная система. Для того, чтобы подготовить её к установке Asterisk, есть несколько вещей, которые нам нужно будет установить в первую очередь.
+
+Следующие команды можно ввести из командной строки или добавить в простой скрипт оболочки и выполнить таким образом.
+
+```text
 sudo yum -y update &&
-
 sudo yum -y install epel-release &&
-
 sudo yum -y install python-pip &&
-
 sudo yum -y install vim wget dnf&&
-
 sudo pip install alembic ansible &&
-
 sudo pip install --upgrade pip &&
-
 sudo mkdir /etc/ansible &&
-
 sudo chown astmin:astmin /etc/ansible &&
-
-sudo echo "\[starfish\]" &gt;&gt; /etc/ansible/hosts &&
-
-sudo echo "localhost ansible\_connection=local" &gt;&gt; /etc/ansible/hosts &&
-
+sudo echo "[starfish]" >> /etc/ansible/hosts &&
+sudo echo "localhost ansible_connection=local" >> /etc/ansible/hosts &&
 mkdir -p ~/ansible/playbooks
+```
 
-We’ve installed Ansible simply because it’s a quick and easy way to get all the dependencies met. We’ve written a playbook to perform the following operations:
+Мы установили Ansible просто потому, что это быстрый и простой способ получить выполнение всех зависимостей. Мы написали план для выполнения следующих операций:
 
-1. Install dnf, vim, wget, and MySQL-python.
-2. Install the MySQL community-edition repository.
-3. Install mysql-server.
-4. Tweak some variables in the mysql-server installation.
-5. Start the mysql-server daemon.
-6. Modify some MySQL credentials \(create users, set passwords\).
-7. Create a MySQL database/schema for Asterisk to use.
-8. Apply some security best practices \(remove anonymous user, test database, etc.\).
-9. Create asterisk user.
-10. Create astmin user.
-11. Install dependencies for ODBC.
-12. Install some diagnostic tools.
-13. Tweak the firewall to allow SIP and RTP traffic.
-14. Edit some ODBC config files.
+Все это можно сделать вручную, но это просто много для набора и Ansible действительно хорош в оптимизации этого процесса.
 
-This can all be done manually, but it’s just a lot of typing, and Ansible is really good at streamlining this process.
+{% hint style="info" %}
+**Примечание**
 
-Create an Ansible playbook in the file ~/ansible/playbooks/starfish.yml.
+Файл libmyodbc8a.so является версионным, поэтому, если у вас нет версии 8 UnixODBC:
 
-**Note**
+1. Запустите playbook в первый раз \(чтобы установить библиотеку UnixODBC\).
+2. Узнайте, какой файл был установлен в _/usr/lib64/libmyodbc&lt;version&gt;a.so_.
+3. Отредактируйте playbook соответствующим образом \(укажите правильное имя файла\).
+4. Сохраните и повторно запустите playbook \(который затем обновит файлы конфигурации, чтобы указать на правильную библиотеку\).
+{% endhint %}
 
-The libmyodbc8a.so file is versioned, so, if you don’t have version 8 of UnixODBC:
-
-1. Run the playbook the first time \(to install the UnixODBC library\).
-2. Find out what file was installed at /usr/lib64/libmyodbc&lt;version&gt;a.so.
-3. Edit the playbook as appropriate \(provide the correct filename\).
-4. Save and rerun the playbook \(which will then update the configuration files to point to the correct library\).
-
-Here’s the playbook:
-
----
-
-- hosts: starfish
-
- become: yes
-
- vars:
-
-\# Use these on the first run of this playbook
-
- current\_mysql\_root\_password: ""
-
- updated\_mysql\_root\_password: "YouNeedAReallyGoodPassword"
-
- current\_mysql\_asterisk\_password: ""
-
- updated\_mysql\_asterisk\_password: "YouNeedAReallyGoodPasswordHereToo"
-
-\# Comment the above out after the first run
-
-\# Uncomment these for subsequent runs
-
-\# current\_mysql\_root\_password: "YouNeedAReallyGoodPassword"
-
-\# updated\_mysql\_root\_password: "{{ current\_mysql\_root\_password }}"
-
-\# current\_mysql\_asterisk\_password: "YouNeedAReallyGoodPasswordHereToo"
-
-\# updated\_mysql\_asterisk\_password: "{{ current\_mysql\_asterisk\_password }}"
-
- tasks:
-
- - name: Install epel-release
-
- dnf:
-
- name: epel-release
-
- state: present
-
- - name: Install dependencies
-
- dnf:
-
- name: \['vim', 'wget', 'MySQL-python'\]
-
- state: present
-
- - name: Install the MySQL repo.
-
- dnf:
-
- name: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
-
- state: present
-
- - name: Install mysql-server
-
- dnf:
-
- name: mysql-server
-
- state: present
-
- - name: Override variables for MySQL \(RedHat\).
-
- set\_fact:
-
- mysql\_daemon: mysqld
-
- mysql\_packages: \['mysql-server'\]
-
- mysql\_log\_error: /var/log/mysqld.err
-
- mysql\_syslog\_tag: mysqld
-
- mysql\_pid\_file: /var/run/mysqld/mysqld.pid
-
- mysql\_socket: /var/lib/mysql/mysql.sock
-
- when: ansible\_os\_family == "RedHat"
-
- - name: Ensure MySQL server is running
-
- service:
-
- name: mysqld
-
- state: started
-
- enabled: yes
-
- - name: update mysql root pass for localhost root account from local servers
-
- mysql\_user:
-
- login\_user: root
-
- login\_password: "{{ current\_mysql\_root\_password }}"
-
- name: root
-
- host: "{{ item }}"
-
- password: "{{ updated\_mysql\_root\_password }}"
-
- with\_items:
-
- - localhost
-
- - name: update mysql root password for all other local root accounts
-
- mysql\_user:
-
- login\_user: root
-
- login\_password: "{{ updated\_mysql\_root\_password }}"
-
- name: root
-
- host: "{{ item }}"
-
- password: "{{ updated\_mysql\_root\_password }}"
-
- with\_items:
-
- - "{{ inventory\_hostname }}"
-
- - 127.0.0.1
-
- - ::1
-
- - localhost.localdomain
-
- - name: create asterisk database
-
- mysql\_db:
-
- login\_user: root
-
- login\_password: "{{ updated\_mysql\_root\_password }}"
-
- name: asterisk
-
- state: present
-
- - name: asterisk mysql user
-
- mysql\_user:
-
- login\_user: root
-
- login\_password: "{{ updated\_mysql\_root\_password }}"
-
- name: asterisk
-
- host: "{{ item }}"
-
- password: "{{ updated\_mysql\_asterisk\_password }}"
-
- priv: "asterisk.\*:ALL"
-
- with\_items:
-
- - "{{ inventory\_hostname }}"
-
- - 127.0.0.1
-
- - ::1
-
- - localhost
-
- - localhost.localdomain
-
- - name: remove anonymous user
-
- mysql\_user:
-
- login\_user: root
-
- login\_password: "{{ updated\_mysql\_root\_password }}"
-
- name: ""
-
- state: absent
-
- host: "{{ item }}"
-
- with\_items:
-
- - localhost
-
- - "{{ inventory\_hostname }}"
-
- - 127.0.0.1
-
- - ::1
-
- - localhost.localdomain
-
- - name: remove test database
-
- mysql\_db:
-
- login\_user: root
-
- login\_password: "{{ updated\_mysql\_root\_password }}"
-
- name: test
-
- state: absent
-
- - user:
-
- name: asterisk
-
- state: present
-
- createhome: yes
-
- - group:
-
- name: asterisk
-
- state: present
-
- - user:
-
- name: astmin
-
- groups: asterisk,wheel
-
- state: present
-
- - name: Install other dependencies
-
- dnf:
-
- name:
-
- - unixODBC
-
- - unixODBC-devel
-
- - mysql-connector-odbc
-
- - MySQL-python
-
- - tcpdump
-
- - ntp
-
- - ntpdate
-
- - jansson
-
- - bind-utils
-
- state: present
-
-\# Tweak the firewall for UDP/SIP
-
- - firewalld:
-
- port: 5060/udp
-
- permanent: true
-
- state: enabled
-
-\# Tweak firewall for UDP/RTP
-
- - firewalld:
-
- port: 10000-20000/udp
-
- permanent: true
-
- state: enabled
-
- - name: Ensure NTP is running
-
- service:
-
- name: ntpd
-
- state: started
-
- enabled: yes
-
-\# The libmyodbc8a.so file is versioned, so if you don't have version 8, see what the
-
-\# /usr/lib64/libmyodbc&lt;version&gt;a.so file is, and refer to that instead
-
-\# on your 'Driver64' line, and then run the playbook again
-
- - name: update odbcinst.ini
-
- lineinfile:
-
- dest: /etc/odbcinst.ini
-
- regexp: "{{ item.regexp }}"
-
- line: "{{ item.line }}"
-
- state: present
-
- with\_items:
-
- - regexp: "^Driver64"
-
- line: "Driver64 = /usr/lib64/libmyodbc8a.so"
-
- - regexp: "^Setup64"
-
- line: "Setup64 = /usr/lib64/libodbcmyS.so"
-
- - name: create odbc.ini
-
- blockinfile:
-
- path: /etc/odbc.ini
-
- create: yes
-
- block: \|
-
- \[asterisk\]
-
- Driver = MySQL
-
- Description = MySQL connection to 'asterisk' database
-
- Server = localhost
-
- Port = 3306
-
- Database = asterisk
-
- UserName = asterisk
-
- Password = {{ updated\_mysql\_asterisk\_password }}
-
- \#Socket = /var/run/mysqld/mysqld.sock
-
- Socket = /var/lib/mysql/mysql.sock
-
-...
-
-Run the playbook with the following command:
-
-$ ansible-playbook ~/ansible/playbooks/starfish.yml
-
-Sit back and watch the magic happen.
-
-Once Ansible has completed the assigned tasks, verify that ODBC can connect to the database using the asterisk user credentials.
-
-$ echo "select 1" \| isql -v asterisk asterisk password
-
-You should see a result something like this:
-
-+---------------------------------------+
-
-\| Connected! \|
-
-\| sql-statement \|
-
-\| help \[tablename\] \|
-
-\| quit \|
-
-+---------------------------------------+
-
-SQL&gt; select 1
-
-+---------------------+
-
-\| 1 \|
-
-+---------------------+
-
-\| 1 \|
-
-+---------------------+
-
-SQLRowCount returns 1
-
-1 rows fetched
-
-If you do not see the Connected! message, you need to troubleshoot your database and ODBC installation. The first thing you should do is make sure you can log into the database from the command line using the asterisk user \(mysql -u asterisk -p\). Most ODBC problems tend to end up being credentials problems \(i.e., wrong password or username\), so work backward to ensure all the credentials work as they should, and double-check that you didn’t get any problem messages from Ansible.
-
-As of this writing, the version of jansson installed from the EPEL repo is an older version than the one Asterisk requires, so we’ll have to install that manually.
-
-The system is now prepared, and we’re ready to download and install Asterisk.
-
-## Asterisk Installation
+## Установка Asterisk
 
 Asterisk is officially delivered in a tarball \(as source code\), and it must be downloaded, extracted, and compiled.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409043048) This is not difficult to do, so long as you have all the dependencies correct. Between the writing of this book and your reading of it, there may have been some changes to the various dependencies, so your install process may have to be run slightly differently. It’s often difficult to know the difference between an error message that can safely be ignored, and one that is indicating a critical problem; however, in general, you should have identified and resolved any errors in the previous processes before arriving at this step. If your dependencies are sorted, the Asterisk install will tend to go smoothly.
 
@@ -1082,6 +682,246 @@ protocol=udp
 bind=0.0.0.0
 
 Finally, let’s log into the database, and define some sample configurations for PJSIP:
+
+```text
+---
+- hosts: starfish
+  become: yes
+  vars:
+# Use these on the first run of this playbook
+    current_mysql_root_password: ""
+    updated_mysql_root_password: "YouNeedAReallyGoodPassword"
+    current_mysql_asterisk_password: ""
+    updated_mysql_asterisk_password: "YouNeedAReallyGoodPasswordHereToo"
+# Comment the above out after the first run
+
+# Uncomment these for subsequent runs
+#    current_mysql_root_password: "YouNeedAReallyGoodPassword"
+#    updated_mysql_root_password: "{{ current_mysql_root_password }}"
+#    current_mysql_asterisk_password: "YouNeedAReallyGoodPasswordHereToo"
+#    updated_mysql_asterisk_password: "{{ current_mysql_asterisk_password }}"
+
+  tasks:
+
+  - name: Install epel-release
+    dnf:
+      name: epel-release
+      state: present
+
+  - name: Install dependencies
+    dnf:
+      name: ['vim', 'wget', 'MySQL-python']
+      state: present
+
+  - name: Install the MySQL repo.
+    dnf:
+      name: http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+      state: present
+
+  - name: Install mysql-server
+    dnf:
+      name: mysql-server
+      state: present
+
+  - name: Override variables for MySQL (RedHat).
+    set_fact:
+      mysql_daemon: mysqld
+      mysql_packages: ['mysql-server']
+      mysql_log_error: /var/log/mysqld.err
+      mysql_syslog_tag: mysqld
+      mysql_pid_file: /var/run/mysqld/mysqld.pid
+      mysql_socket: /var/lib/mysql/mysql.sock
+    when: ansible_os_family == "RedHat"
+
+  - name: Ensure MySQL server is running
+    service:
+      name: mysqld
+      state: started
+      enabled: yes
+
+  - name: update mysql root pass for localhost root account from local servers
+    mysql_user:
+      login_user: root
+      login_password: "{{ current_mysql_root_password }}"
+      name: root
+      host: "{{ item }}"
+      password: "{{ updated_mysql_root_password }}"
+    with_items:
+        - localhost
+
+  - name: update mysql root password for all other local root accounts
+    mysql_user:
+      login_user: root
+      login_password: "{{ updated_mysql_root_password }}"
+      name: root
+      host: "{{ item }}"
+      password: "{{ updated_mysql_root_password }}"
+    with_items:
+        - "{{ inventory_hostname }}"
+        - 127.0.0.1
+        - ::1
+        - localhost.localdomain
+
+  - name: create asterisk database
+    mysql_db:
+      login_user: root
+      login_password: "{{ updated_mysql_root_password }}"
+      name: asterisk
+      state: present
+
+  - name: asterisk mysql user
+    mysql_user:
+      login_user: root
+      login_password: "{{ updated_mysql_root_password }}"
+      name: asterisk
+      host: "{{ item }}"
+      password: "{{ updated_mysql_asterisk_password }}"
+      priv: "asterisk.*:ALL"
+    with_items:
+        - "{{ inventory_hostname }}"
+        - 127.0.0.1
+        - ::1
+        - localhost
+        - localhost.localdomain
+
+  - name: remove anonymous user
+    mysql_user:
+      login_user: root
+      login_password: "{{ updated_mysql_root_password }}"
+      name: ""
+      state: absent
+      host: "{{ item }}"
+    with_items:
+        - localhost
+        - "{{ inventory_hostname }}"
+        - 127.0.0.1
+        - ::1
+        - localhost.localdomain
+
+  - name: remove test database
+    mysql_db:
+      login_user: root
+      login_password: "{{ updated_mysql_root_password }}"
+      name: test
+      state: absent
+
+  - user:
+      name: asterisk
+      state: present
+      createhome: yes
+
+  - group:
+      name: asterisk
+      state: present
+
+  - user:
+      name: astmin
+      groups: asterisk,wheel
+      state: present
+
+  - name: Install other dependencies
+    dnf:
+      name: 
+      - unixODBC
+      - unixODBC-devel
+      - mysql-connector-odbc
+      - MySQL-python
+      - tcpdump
+      - ntp
+      - ntpdate
+      - jansson
+      - bind-utils
+    state: present
+
+#   Tweak the firewall for UDP/SIP
+  - firewalld:
+      port: 5060/udp
+      permanent: true
+      state: enabled
+
+#   Tweak firewall for UDP/RTP
+  - firewalld:
+      port: 10000-20000/udp
+      permanent: true
+      state: enabled
+
+  - name: Ensure NTP is running
+    service:
+      name: ntpd
+      state: started
+      enabled: yes
+
+# The libmyodbc8a.so file is versioned, so if you don't have version 8, see what the
+# /usr/lib64/libmyodbc<version>a.so file is, and refer to that instead 
+# on your 'Driver64' line, and then run the playbook again
+  - name: update odbcinst.ini
+    lineinfile:
+      dest: /etc/odbcinst.ini
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+      state: present
+    with_items:
+      - regexp: "^Driver64"
+        line: "Driver64 = /usr/lib64/libmyodbc8a.so"
+      - regexp: "^Setup64"
+        line: "Setup64 = /usr/lib64/libodbcmyS.so"
+
+  - name: create odbc.ini
+    blockinfile:
+      path: /etc/odbc.ini
+      create: yes
+      block: |
+        [asterisk]
+        Driver = MySQL
+        Description = MySQL connection to 'asterisk' database
+        Server = localhost
+        Port = 3306
+        Database = asterisk
+        UserName = asterisk
+        Password = {{ updated_mysql_asterisk_password }}
+        #Socket = /var/run/mysqld/mysqld.sock
+        Socket = /var/lib/mysql/mysql.sock
+...
+```
+
+Запустите playbook с помощью следующей команды:
+
+```text
+$ ansible-playbook ~/ansible/playbooks/starfish.yml
+```
+
+Сядьте поудобнее и наблюдайте, как происходит волшебство.
+
+Как только Ansible выполнит назначенные задачи, убедитесь что ODBC может подключиться к базе данных с использованием учетных данных пользователя `asterisk`.
+
+```text
+$ echo "select 1" | isql -v asterisk asterisk password
+```
+
+Вы должны увидеть результат что-то вроде этого:
+
+```text
++---------------------------------------+
+| Connected!                            |
+| sql-statement                         |
+| help [tablename]                      |
+| quit                                  |
++---------------------------------------+
+SQL> select 1
++---------------------+
+| 1                   |
++---------------------+
+| 1                   |
++---------------------+
+SQLRowCount returns 1
+1 rows fetched
+```
+
+Если вы не видите сообщение `Connected!`, вам необходимо устранить неполадки в вашей базе данных и установке ODBC. Первое, что вы должны сделать, это убедиться, что можете войти в базу данных из командной строки с помощью пользователя `asterisk` \(`mysql -u asterisk -p`\). Большинство проблем ODBC, как правило, заканчиваются проблемами с учетными данными \(т.е. неправильным паролем или именем пользователя\), поэтому вернитесь назад, чтобы убедиться, что все учетные данные работают так, как должны, и дважды проверьте, что вы не получили никаких проблемных сообщений от Ansible.
+
+На момент написания этой статьи версия _jansson_, установленная из репозитория EPEL, является более старой версией, чем требуется для Asterisk, поэтому придется установить ее вручную.
+
+Теперь система готова, и мы готовы загрузить и установить Asterisk.
 
 $ mysql -D asterisk -u asterisk -p
 
