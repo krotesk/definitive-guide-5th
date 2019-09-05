@@ -4,11 +4,9 @@ description: ARI
 
 # Глава 19
 
-## Chapter 19. Asterisk REST Interface
-
-People who think they know everything are a great annoyance to those of us who do.
-
-Isaac Asimov
+> People who think they know everything are a great annoyance to those of us who do.
+>
+> Isaac Asimov
 
 The Asterisk REST Interface \(ARI\) was created to address the limitations inherent in developing external or enhanced functionality outside Asterisk. While AGI allows you to trigger external applications, and AMI allows you to externally supervise and control calls in progress, any attempt to integrate both into a complete external application quickly becomes complex and kludgy. ARI allows developers to build a stand-alone and complete application, using Asterisk as the underlying engine.
 
@@ -30,51 +28,51 @@ In this quick-start section we will be using a very simple HTTP access layer. Yo
 
 You should already have the Asterisk web server running, so you simply need to verify that your /etc/asterisk/http.conf file looks similar to the following:
 
-\[general\]
-
+```text
+[general]
 enabled = yes
-
 bindaddr = 127.0.0.1
+```
 
 Next, a simple /etc/asterisk/ari.conf file is needed:
 
-\[general\]
-
+```text
+[general]
 enabled = yes
-
 pretty = yes
-
-\[asterisk\]
-
+[asterisk]
 type = user
-
-read\_only = no
-
+read_only = no
 password = whateveryoudodontusethispassword
+```
 
 OK, let’s load the ari module now:
 
-$ sudo asterisk -rx 'module load res\_ari.so'
-
-Loaded res\_ari.so =&gt; \(Asterisk RESTful Interface\)
+```text
+$ sudo asterisk -rx 'module load res_ari.so'
+Loaded res_ari.so => (Asterisk RESTful Interface)
+```
 
 Then, into our /etc/asterisk/extensions.conf file we need an extension to trigger the Stasis\(\) dialplan app:[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396697256)
 
-exten =&gt; 242,1,Noop\(\)
-
- same =&gt; n,Stasis\(zarniwoop\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 242,1,Noop()
+ same => n,Stasis(zarniwoop)
+ same => n,Hangup()
+```
 
 Reload your dialplan with
 
+```text
 $ sudo asterisk -rx 'dialplan reload'
-
 Dialplan reloaded.
+```
 
 At this point it might be worthwhile to simply reload Asterisk:
 
+```text
 $ sudo service asterisk restart
+```
 
 There are just a few steps left, and you’re ready to test your ARI environment.
 
@@ -82,121 +80,88 @@ There are just a few steps left, and you’re ready to test your ARI environment
 
 Since ARI depends on WebSockets, we’ll need a tool to allow us to test from the command line. The Node.js package manager \(npm\) will allow us to find and install the wscat tool we’ll use for our tests.
 
+```text
 $ sudo yum -y install npm
-
 $ sudo npm install -g wscat
-
-/usr/bin/wscat -&gt; /usr/lib/node\_modules/wscat/bin/wscat
-
+/usr/bin/wscat -> /usr/lib/node_modules/wscat/bin/wscat
 /usr/lib
-
 +-- wscat@2.2.1
-
  +-- commander@2.15.1
-
  +-- read@1.0.7
-
  ¦ +-- mute-stream@0.0.8
-
  +-- ws@5.2.2
-
  +-- async-limiter@1.0.0
+```
 
 Now let’s light it up and see what we get!
 
-$ wscat -c "ws://localhost:8088/ari/events?api\_key= \
-
+```text
+$ wscat -c "ws://localhost:8088/ari/events?api_key= \
  asterisk:whateveryoudodontusethispassword&app=zarniwoop"
-
-connected \(press CTRL+C to quit\)
-
-&gt;
+connected (press CTRL+C to quit)
+>
+```
 
 So far, so good. Let’s place a call to our Stasis\(\) app and see what happens.
 
 Open up a new SSH window \(leave the other one as is so you can see what happens in the wscat session\). Connect to the Asterisk CLI in that new shell session:
 
+```text
 $ sudo asterisk -rvvvv
+```
 
 Using one of your lab telephones, place a call to 242.
 
 On the Asterisk CLI, you should see this:
 
-\*CLI&gt;
-
+```text
+*CLI>
  == Setting global variable 'SIPDOMAIN' to '172.29.1.57'
-
- -- Executing \[242@sets:1\] NoOp\("PJSIP/SOFTPHONE\_A-00000001", ""\) in new stack
-
- -- Executing \[242@sets:2\] Stasis\("PJSIP/SOFTPHONE\_A-00000001", "zarniwoop"\) in new stack
+ -- Executing [242@sets:1] NoOp("PJSIP/SOFTPHONE_A-00000001", "") in new stack
+ -- Executing [242@sets:2] Stasis("PJSIP/SOFTPHONE_A-00000001", "zarniwoop") in new stack
+```
 
 And on the wscat session, you should see this:
 
-&gt;
-
-&lt; {
-
+```text
+>
+< {
  "type": "StasisStart",
-
  "timestamp": "2019-01-27T21:43:43.720-0500",
-
- "args": \[\],
-
+ "args": [],
  "channel": {
-
  "id": "1548643423.2",
-
- "name": "PJSIP/SOFTPHONE\_A-00000002",
-
+ "name": "PJSIP/SOFTPHONE_A-00000002",
  "state": "Ring",
-
  "caller": {
-
  "name": "101",
-
- "number": "SOFTPHONE\_A"
-
+ "number": "SOFTPHONE_A"
  },
-
  "connected": {
-
  "name": "",
-
  "number": ""
-
  },
-
  "accountcode": "",
-
  "dialplan": {
-
  "context": "sets",
-
  "exten": "242",
-
  "priority": 2
-
  },
-
  "creationtime": "2019-01-27T21:43:43.709-0500",
-
  "language": "en"
-
  },
-
- "asterisk\_id": "08:00:27:27:bf:0e",
-
+ "asterisk_id": "08:00:27:27:bf:0e",
  "application": "zarniwoop"
-
 }
-
-&gt;
+>
+```
 
 OK, now we’re going to open yet another shell session[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396682696) so we can interact with this connection we’ve created. From this new shell, issue the following command:
 
+```text
 $ curl -v -u asterisk:whateveryoudodontusethispassword -X POST \
-
  "http://localhost:8088/ari/channels/1548643423.2/play?media=sound:believe-its-free" sd
+```
 
 Note the "id" from the JSON returned on the wscat session must be used following the 'channels/' portion of the curl command. In other words, you must match the channel identifier in your command to the channel identifier associated with your call. In this manner, you can of course wrangle many calls simultaneously.
 
@@ -206,35 +171,31 @@ Asterisk’s ARI has been developed to be compatible with the OpenAPI Specificat
 
 First up, we’ll need to expose our Asterisk HTTP server to the local network \(currently it’s only allowing connections from 127.0.0.1\). In your /etc/asterisk/http.conf file you’ll bind the HTTP server to the local IP address of your Asterisk machine:
 
+```text
 $ sudo vim /etc/asterisk/http.conf
-
 ; Enable the built-in HTTP server, and only listen for connections on localhost.
-
-\[general\]
-
+[general]
 enabled = yes
-
 ;bindaddr = 127.0.0.1 ; comment this out
-
 bindaddr = 172.29.1.57 ; LAN IP OF YOUR ASTERISK SERVER
+```
 
 Next, we’ll need to add a line to your /etc/asterisk/ari.conf file:
 
+```text
 $ sudo vim /etc/asterisk/ari.conf
-
-\[general\]
-
+[general]
 enabled = yes
-
 pretty = yes
-
-allowed\_origins=http://ari.asterisk.org
-
+allowed_origins=http://ari.asterisk.org
 ...
+```
 
 Save and reload the http and ari modules in Asterisk:
 
+```text
 $ sudo asterisk -rx 'module reload http' ; sudo asterisk -rx 'module reload ari'
+```
 
 Now, from your development desktop, open up your browser and navigate to [http://ari.asterisk.org](http://ari.asterisk.org/).
 
