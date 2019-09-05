@@ -1,5 +1,5 @@
 ---
-description: ARI
+description: Asterisk REST Interface
 ---
 
 # Глава 19
@@ -201,23 +201,21 @@ Now, from your development desktop, open up your browser and navigate to [http:/
 
 You’ll see a web page similar to [Figure 19-1](19.%20Asterisk%20REST%20Interface%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1901).
 
-![](.gitbook/assets/0%20%285%29.png)
+![Figure 19-1. Swagger UI for ARI](.gitbook/assets/0%20%285%29.png)
 
-#### Figure 19-1. Swagger UI for ARI
+#### 
 
 Replace localhost with the LAN IP address of your Asterisk server, and in the api\_key field, put your ARI user:password from /etc/asterisk/ari.conf \(for example, asterisk:whateveryoudodontusethispassword\). If you’ve got all the configuration correct, you will be rewarded with the results in [Figure 19-2](19.%20Asterisk%20REST%20Interface%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1902).
 
-![](.gitbook/assets/1%20%285%29.png)
+![Figure 19-2. ARI Swagger](.gitbook/assets/1%20%285%29.png)
 
-#### Figure 19-2. ARI Swagger
+#### 
 
 You are looking at comprehensive documentation for your ARI module, and you can actually pass queries to it as well. This is a massively useful debugging aid, and kudos to the Digium folks for it.
 
 As an example of what this is good for, select the endpoints:Endpoint resources item, press the GET button beside /endpoints, and you will see the screen shown in [Figure 19-3](19.%20Asterisk%20REST%20Interface%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1903).
 
-![](.gitbook/assets/2%20%284%29.png)
-
-#### Figure 19-3. Get endpoints
+![Figure 19-3. Get endpoints](.gitbook/assets/2%20%284%29.png)
 
 Well, go ahead—press the “Try it out!” button.
 
