@@ -8,11 +8,11 @@ description: Внешние подключения
 >
 > -- Уэйн Дайер
 
-In the previous chapters, we have covered a lot of important information that is essential to a working Asterisk system. However, we have yet to discuss something that is vital to any useful PBX: namely, connecting it to the outside world. In this chapter we will discuss outside connectivity.
+В предыдущих главах мы рассмотрели много важной информации, которая необходима для работы системы Asterisk. Однако нам еще предстоит обсудить то, что жизненно важно для любой АТС: а именно, подключение ее к внешнему миру. В этой главе мы обсудим внешние подключения.
 
-The groundbreaking architecture of Asterisk was significant due in large part to the fact that it treats all channel types as equal. This is in contrast to a traditional PBX, where trunks \(which connect to the outside world\) and extensions \(which connect to users and resources\) are logically separated. The fact that the Asterisk dialplan treats all channels in a similar manner means that in an Asterisk system you can accomplish very easily things that are much more difficult \(or impossible\) to achieve on a traditional PBX.
+Новаторская архитектура Asterisk была знаменатлеьной в значительной степени из-за того, что она рассматривает все типы каналов как равные. Это отличается от традиционной АТС, где транки \(которые соединяют с внешним миром\) и расширения \(которые соединяются с пользователями и ресурсами\) логически разделены. Тот факт, что диалплан Asterisk обрабатывает все каналы аналогичным образом означает, что в системе Asterisk вы можете очень легко выполнить то, что гораздо сложнее \(или невозможно\) достичь на традиционной АТС.
 
-This flexibility does come with a price, however. Since the system does not inherently know the difference between an internal resource \(such as a telephone set\) and an external resource \(such as a telco circuit\), it is up to you to ensure that your dialplan handles each type of resource appropriately.
+Однако, эта гибкость имеет цену. Поскольку система по своей сути не знает разницы между внутренним ресурсом \(например, телефонным аппаратом\) и внешним \(например, каналом телефонной связи\), вы должны убедиться, что ваш диалплан обрабатывает каждый тип ресурса соответствующим образом.
 
 ## The Basics of Trunking
 
