@@ -4,19 +4,21 @@ description: Погружение в диалплан
 
 # Глава 10
 
-For a list of all the ways technology has failed to improve the quality of life, please press three.
+> _Для получения списка всех способов, которыми технология не смогла улучшить качество жизни, нажмите три._
+>
+> -- Элис Кан
 
-Alice Kahn
+Хорошо. Основы диалплана позади, но вы знаете что это еще не все. Если вы еще не разобрались с [Главой 6](glava-06.md), пожалуйста, вернитесь и прочтите ее еще раз. Мы собираемся перейти к более сложным темам.
 
-Alrighty. You’ve got the basics of dialplans down, but you know there’s more to come. If you don’t have [Chapter 6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics) sorted out yet, please go back and give it another read. We’re about to get into more advanced topics.
-
-## Expressions and Variable Manipulation
+## Выражения и манипуляяции с переменными
 
 As we begin our dive into the deeper aspects of dialplans, it is time to introduce you to a few tools that will greatly add to the power you can exercise in your dialplan. These constructs add incredible intelligence to your dialplan by enabling it to make decisions based on different criteria you define. Put on your thinking cap, and let’s get started.
 
+{% hint style="info" %}
 **Note**
 
 Throughout this chapter we use best practices that have been developed over the years in dialplan creation. The primary one you’ll notice is that all the first priorities start with the NoOp\(\) application \(which simply means No Operation; nothing functional will happen\). The other one is that all following lines will start with same =&gt; n, which is a shortcut that says, “Use the same extension as was just previously defined.” Additionally, the indentation is two spaces.
+{% endhint %}
 
 ### Basic Expressions
 
@@ -24,25 +26,26 @@ Expressions are combinations of variables, operators, and values that you string
 
 In Asterisk, expressions always begin with a dollar sign and an opening square bracket and end with a closing square bracket, as shown here:
 
-$\[expression\]
+```text
+$[expression]
+```
 
 Thus, we would write our two examples like this:
 
-$\[${COUNT} + 1\]
-
-$\[${COUNT} / 2\]
+```text
+$[${COUNT} + 1]
+$[${COUNT} / 2]
+```
 
 When Asterisk encounters an expression in a dialplan, it replaces the entire expression with the resulting value. It is important to note that this takes place after variable substitution. To demonstrate, let’s look at the following code:[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-1)
 
-exten =&gt; 321,1,NoOp\(\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Set\(COUNT=3\)
-
- same =&gt; n,Set\(NEWCOUNT=$\[${COUNT} + 1\]\)
-
- same =&gt; n,SayNumber\(${NEWCOUNT}\)
+```text
+exten => 321,1,NoOp()
+ same => n,Answer()
+ same => n,Set(COUNT=3)
+ same => n,Set(NEWCOUNT=$[${COUNT} + 1])
+ same => n,SayNumber(${NEWCOUNT})
+```
 
 In the second priority, we assign the value of 3 to the variable named COUNT.
 
@@ -116,9 +119,11 @@ This operator works the same as the : operator, except that it is not anchored t
 
 Dialplan functions allow you to add more power to your expressions; you can think of them as intelligent variables. Dialplan functions allow you to calculate string lengths, dates and times, MD5 checksums, and so on, all from within a dialplan expression.
 
+{% hint style="info" %}
 **Note**
 
 You’ll see usage of Playback\(silence/1\) throughout the examples in this chapter. We are doing this as it will answer the line if it hasn’t already been answered for us, and plays back some silence on the line. This allows other applications such as SayNumber\(\) to play back audio without gaps.
+{% endhint %}
 
 ### Syntax
 
@@ -144,57 +149,50 @@ As you’ve probably already figured out, you must be very careful about making 
 
 Functions are often used in conjunction with the Set\(\) application to either get or set the value of a variable. As a simple example, let’s look at the LEN\(\) function. This function calculates the string length of its argument:
 
-exten =&gt; 205,1,Answer\(\)
-
- same =&gt; n,SayDigits\(123\)
-
- same =&gt; n,SayNumber\(123\)
-
- same =&gt; n,SayNumber\(${LEN\(123\)}\)
+```text
+exten => 205,1,Answer()
+ same => n,SayDigits(123)
+ same => n,SayNumber(123)
+ same => n,SayNumber(${LEN(123)})
+```
 
 Let’s look at another simple example. If we wanted to set one of the various channel timeouts, we could use the TIMEOUT\(\) function. The TIMEOUT\(\) function accepts one of three arguments: absolute, digit, and response. To set the digit timeout with the TIMEOUT\(\) function, we could use the Set\(\) application, like so:
 
-exten =&gt; 206,1,Answer\(\)
-
- same =&gt; n,Set\(TIMEOUT\(response\)=1\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(\) ; TIMEOUT\(\) has set this to 1
-
- same =&gt; n,Playback\(like\_to\_tell\_valid\_ext\)
-
- same =&gt; n,Set\(TIMEOUT\(response\)=5\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(\) ; Should be 5 seconds now
-
- same =&gt; n,Playback\(like\_to\_tell\_valid\_ext\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 206,1,Answer()
+ same => n,Set(TIMEOUT(response)=1)
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten() ; TIMEOUT() has set this to 1
+ same => n,Playback(like_to_tell_valid_ext)
+ same => n,Set(TIMEOUT(response)=5)
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten() ; Should be 5 seconds now
+ same => n,Playback(like_to_tell_valid_ext)
+ same => n,Hangup()
+```
 
 Notice the lack of ${ } surrounding the assignment using the function. Just as if we were assigning a value to a variable, we assign a value to a function without the use of the ${ } encapsulation; however, if we want to use the value returned by the function, then we need the encapsulation.
 
-exten =&gt; 207,1,Answer\(\)
-
- same =&gt; n,Set\(TIMEOUT\(response\)=1\)
-
- same =&gt; n,SayNumber\(${TIMEOUT\(response\)}\)
-
- same =&gt; n,Set\(TIMEOUT\(response\)=5\)
-
- same =&gt; n,SayNumber\(${TIMEOUT\(response\)}\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 207,1,Answer()
+ same => n,Set(TIMEOUT(response)=1)
+ same => n,SayNumber(${TIMEOUT(response)})
+ same => n,Set(TIMEOUT(response)=5)
+ same => n,SayNumber(${TIMEOUT(response)})
+ same => n,Hangup()
+```
 
 You can get a list of all active functions with the following CLI command:
 
-\*CLI&gt; core show functions
+```text
+*CLI> core show functions
+```
 
 Or, to see a specific function such as CALLERID\(\), the command is:
 
-\*CLI&gt; core show function CALLERID
+```text
+*CLI> core show function CALLERID
+```
 
 Near the end of this chapter, we explore a handful of functions you will want to experiment with. Later in the book we’ll show you how to create database-based functions using func\_odbc.
 
@@ -208,7 +206,9 @@ The key to conditional branching is the GotoIf\(\) application. GotoIf\(\) evalu
 
 GotoIf\(\) uses a special syntax, often called the conditional syntax:
 
-GotoIf\(expression?destination1:destination2\)
+```text
+GotoIf(expression?destination1:destination2)
+```
 
 If the expression evaluates to true, the caller is sent to destination1. If the expression evaluates to false, the caller is sent to the second destination. So, what is true and what is false? An empty string and the number 0 evaluate as false. Anything else evaluates as true.
 
@@ -220,23 +220,21 @@ The destinations can each be one of the following:
 
 Let’s use GotoIf\(\) in an example. Here’s a little coin toss application. Call it several times to properly test.
 
-exten =&gt; 209,1,Noop\(Test use of conditional branching to labels\)
+```text
+exten => 209,1,Noop(Test use of conditional branching to labels)
+ same => n,GotoIf($[ ${RAND(0,1)} = 1 ]?weasels:iguanas)
+; same => n,GotoIf(${RAND(0,1)}?weasels:iguanas) ; works too, but won't in every situation
+ same => n(weasels),Playback(weasels-eaten-phonesys) ; NOTE THIS IS SAME EXTENSION
+ same => n,Hangup()
+ same => n(iguanas),Playback(office-iguanas) ; STILL THE SAME EXTENSION
+ same => n,Hangup()
+```
 
- same =&gt; n,GotoIf\($\[ ${RAND\(0,1\)} = 1 \]?weasels:iguanas\)
-
-; same =&gt; n,GotoIf\(${RAND\(0,1\)}?weasels:iguanas\) ; works too, but won't in every situation
-
- same =&gt; n\(weasels\),Playback\(weasels-eaten-phonesys\) ; NOTE THIS IS SAME EXTENSION
-
- same =&gt; n,Hangup\(\)
-
- same =&gt; n\(iguanas\),Playback\(office-iguanas\) ; STILL THE SAME EXTENSION
-
- same =&gt; n,Hangup\(\)
-
+{% hint style="info" %}
 **Note**
 
 You will notice that we have used the Hangup\(\) application following each use of the Playback\(\) application. This is done so that when we jump to the weasels label, the call stops before execution gets to the office-iguanas sound file. It is becoming increasingly common to see extensions broken up into multiple components \(protected from each other by the Hangup\(\) command\), each one a distinct sequence of steps executed following a GotoIf\(\).
+{% endhint %}
 
 #### Providing Only a False Conditional Path
 
@@ -244,17 +242,14 @@ Either of the destinations may be omitted \(but not both\). If an expression eva
 
 We could have crafted the preceding example like this:
 
-exten =&gt; 209,1,Noop\(Test use of conditional branching\)
-
- same =&gt; n,GotoIf\($\[ ${RAND\(0,1\)} = 1 \]?:iguanas\)
-
- same =&gt; n,Playback\(weasels-eaten-phonesys\) ; No weasels label anymore
-
- same =&gt; n,Hangup\(\)
-
- same =&gt; n\(iguanas\),Playback\(office-iguanas\) ; NOTE THIS IS THE SAME EXTEN
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 209,1,Noop(Test use of conditional branching)
+ same => n,GotoIf($[ ${RAND(0,1)} = 1 ]?:iguanas)
+ same => n,Playback(weasels-eaten-phonesys) ; No weasels label anymore
+ same => n,Hangup()
+ same => n(iguanas),Playback(office-iguanas) ; NOTE THIS IS THE SAME EXTEN
+ same => n,Hangup()
+```
 
 There’s nothing between the ? and the : so if the statement evaluates to true, execution will continue at the next step. Since that’s what we want, a label isn’t needed.
 
@@ -262,37 +257,28 @@ We don’t really recommend doing this, because it’s hard to read. Nevertheles
 
 Rather than using labels, we could also send the call to different extensions. Since they’re not dialable, we can use alphabet characters rather than digits for the extension “numbers.” In this example, the conditional branch sends the call to completely different extensions within the same context. The result is otherwise the same.
 
-exten =&gt; 210,1,Noop\(Test use of conditional branching to extensions\)
-
- same =&gt; n,GotoIf\($\[ ${RAND\(0,1\)} = 1 \]?weasels,1:iguanas,1\)
-
-exten =&gt; weasels,1,Playback\(weasels-eaten-phonesys\) ; DIFFERENT EXTENSION
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; iguanas,1,Playback\(office-iguanas\) ; ALSO A DIFFERENT EXTEN
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 210,1,Noop(Test use of conditional branching to extensions)
+ same => n,GotoIf($[ ${RAND(0,1)} = 1 ]?weasels,1:iguanas,1)
+exten => weasels,1,Playback(weasels-eaten-phonesys) ; DIFFERENT EXTENSION
+ same => n,Hangup()
+exten => iguanas,1,Playback(office-iguanas) ; ALSO A DIFFERENT EXTEN
+ same => n,Hangup()
+```
 
 Let’s look at another example of conditional branching. This time, we’ll use both Goto\(\) and GotoIf\(\) to count down from 5 and then hang up:
 
-exten =&gt; 211,1,NoOp\(\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Set\(COUNT=5\)
-
- same =&gt; n\(start\),GotoIf\($\[ ${COUNT} &gt; 0 \]?:goodbye\)
-
- same =&gt; n,SayNumber\(${COUNT}\)
-
- same =&gt; n,Set\(COUNT=$\[ ${COUNT} - 1 \]\)
-
- same =&gt; n,Goto\(start\)
-
- same =&gt; n\(goodbye\),Playback\(vm-goodbye\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 211,1,NoOp()
+ same => n,Answer()
+ same => n,Set(COUNT=5)
+ same => n(start),GotoIf($[ ${COUNT} > 0 ]?:goodbye)
+ same => n,SayNumber(${COUNT})
+ same => n,Set(COUNT=$[ ${COUNT} - 1 ])
+ same => n,Goto(start)
+ same => n(goodbye),Playback(vm-goodbye)
+ same => n,Hangup()
+```
 
 Let’s analyze this example. In the second priority, we set the variable COUNT to 5. Next, we check to see if COUNT is greater than 0. If it is, we move on to the next priority. \(Don’t forget that if we omit a destination in the GotoIf\(\) application, control goes to the next priority.\) From there, we speak the number, subtract 1 from COUNT, and go back to priority label start. Again, if COUNT is less than or equal to 0, control goes to priority label goodbye; otherwise, we run through the loop one more time.
 
@@ -324,39 +310,35 @@ The examples we’ve used to show you how conditional branching works are not in
 
 In Asterisk, strings do not need to be double- or single-quoted like in many programming languages. In fact, if you use a double or single quote, it is a literal construct in the string. If we look at the following snippets of an extension...
 
- same =&gt; n,Set\(TEST\_1=foo\)
+```text
+same => n,Set(TEST_1=foo)
+ same => n,Set(TEST_2='foo')
+ same => n,NoOp(Are TEST_1 and TEST_2 equiv? $[${TEST_1} = ${TEST_2}])
+```
 
- same =&gt; n,Set\(TEST\_2='foo'\)
-
- same =&gt; n,NoOp\(Are TEST\_1 and TEST\_2 equiv? $\[${TEST\_1} = ${TEST\_2}\]\)
-
-...we need to note that the value returned by our comparison in the NoOp\(\) will not be a value of 1 \(values match; or true\) the return value will be 0 \(values do not match; or false\).
+ ...we need to note that the value returned by our comparison in the NoOp\(\) will not be a value of 1 \(values match; or true\) the return value will be 0 \(values do not match; or false\).
 
 We can use this to our advantage when performing comparisons by wrapping our channel variables in single or double quotes. By doing this we make sure even when the channel variable might not be set, our comparison will be valid syntax.
 
 In the following example, we would get an error:
 
-exten =&gt; 212,1,NoOp\(\)
-
- same =&gt; n,GotoIf\($\[ ${TEST} != valid \]?error\_handling\)
-
- same =&gt; n,Hangup\(\) ; We're getting an error and ending up here
-
- same =&gt; n\(error\_handling\),Playback\(goodbye\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 212,1,NoOp()
+ same => n,GotoIf($[ ${TEST} != valid ]?error_handling)
+ same => n,Hangup() ; We're getting an error and ending up here
+ same => n(error_handling),Playback(goodbye)
+ same => n,Hangup()
+```
 
 However, we can circumvent this by wrapping what we’re comparing in extra characters \(in this case quotes\). The same example, but made valid:
 
-exten =&gt; 213,1,NoOp\(\)
-
- same =&gt; n,GotoIf\($\[ "${TEST}" != "valid" \]?error\_handling\)
-
- same =&gt; n,Hangup\(\)
-
- same =&gt; n\(error\_handling\),Playback\(goodbye\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 213,1,NoOp()
+ same => n,GotoIf($[ "${TEST}" != "valid" ]?error_handling)
+ same => n,Hangup()
+ same => n(error_handling),Playback(goodbye)
+ same => n,Hangup()
+```
 
 Even if ${TEST} hasn’t been set \(in other words it does not exist and therefore has no value\), we’re still doing a comparison of something:
 
@@ -378,17 +360,14 @@ The classic example of conditional branching is affectionately known as the “p
 
 This example uses the CALLERID\(\) function, which allows us to retrieve the caller ID information on the inbound call. Let’s assume for the sake of this example that the victim’s phone number is 888-555-1212:[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406809256)
 
-exten =&gt; 214,1,NoOp\(CALLERID\(num\): ${CALLERID\(num\)} CALLERID\(name\): ${CALLERID\(name\)}\)
-
- same =&gt; n,GotoIf\($\[ ${CALLERID\(num\)} = 8885551212 \]?reject:allow\)
-
- same =&gt; n\(allow\),Dial\(${UserA\_DeskPhone}\)
-
- same =&gt; n,Hangup\(\)
-
- same =&gt; n\(reject\),Playback\(abandon-all-hope\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 214,1,NoOp(CALLERID(num): ${CALLERID(num)} CALLERID(name): ${CALLERID(name)})
+ same => n,GotoIf($[ ${CALLERID(num)} = 8885551212 ]?reject:allow)
+ same => n(allow),Dial(${UserA_DeskPhone})
+ same => n,Hangup()
+ same => n(reject),Playback(abandon-all-hope)
+ same => n,Hangup()
+```
 
 In priority 1, we call the GotoIf\(\) application. It tells Asterisk to go to priority label reject if the caller ID number matches 8885551212, and otherwise to go to priority label allow \(we could have simply omitted the label name, causing the GotoIf\(\) to fall through\).[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406801064) If the caller ID number matches, control of the call goes to priority label reject, which plays back a subtle hint to the undesired caller. Otherwise, the call attempts to dial the recipient on the channel referenced by the UserA\_DeskPhone global variable.
 
@@ -400,7 +379,9 @@ The most obvious use of this application is to give your callers a different gre
 
 The syntax for the GotoIfTime\(\) application looks like this:
 
-GotoIfTime\(times,days\_of\_week,days\_of\_month,months?label\)
+```text
+GotoIfTime(times,days_of_week,days_of_month,months?label)
+```
 
 In short, GotoIfTime\(\) sends the call to the specified label if the current date and time match the criteria specified by times, days\_of\_week, days\_of\_month, and months. Let’s look at each argument in more detail:
 
@@ -408,17 +389,21 @@ times
 
 This is a list of one or more time ranges, in a 24-hour format. As an example, 9:00 A.M. through 5:00 P.M. would be specified as 09:00-17:00. The day starts at 0:00 and ends at 23:59.
 
+{% hint style="info" %}
 **Note**
 
 It is worth noting that times will properly wrap around. So, if you wish to specify the times your office is closed, you might write 18:00-9:00 in the times parameter, and it will perform as expected. Note that this technique works as well for the other components of GotoIfTime\(\). For example, you can write sat-sun to specify the weekend days.
+{% endhint %}
 
 days\_of\_week
 
 This is a list of one or more days of the week. The days should be specified as mon, tue, wed, thu, fri, sat, and/or sun. Monday through Friday would be expressed as mon-fri. Tuesday and Thursday would be expressed as tue&thu.
 
+{% hint style="info" %}
 **Note**
 
 Note that you can specify a combination of ranges and single days, as in: sun-mon&wed&fri-sat, or, more simply: wed&fri-mon.
+{% endhint %}
 
 days\_of\_month
 
@@ -438,57 +423,44 @@ The label argument can be any of the following:
 
 Now that we’ve covered the syntax, let’s look at a couple of examples. The following example would match from 9:00 A.M. to 5:59 P.M., on Monday through Friday, on any day of the month, in any month of the year:
 
-exten =&gt; s,1,NoOp\(\)
-
- same =&gt; n,GotoIfTime\(09:00-17:59,mon-fri,\*,\*?open,s,1\)
+```text
+exten => s,1,NoOp()
+ same => n,GotoIfTime(09:00-17:59,mon-fri,*,*?open,s,1)
+```
 
 If the caller calls during these hours, the call will be sent to the first priority of the start extension in the context named open. If the call is made outside of the specified times, it will simply carry on with the next priority of the current extension. We’re going to add a new context named \[closed\] right after the pattern match example 55512XX, and modify the \[TestMenu\] context we built in [Chapter 6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics) to handle our new time condition.
 
-exten =&gt; \_55512XX,1,Answer\(\)
-
- same =&gt; n,Playback\(tt-monkeys\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; \*98,1,NoOp\(Access voicemail retrieval.\)
-
- same =&gt; n,VoiceMailMain\(\)
-
-\[closed\]
-
-exten =&gt; start,1,Noop\(after hours handler\)
-
- same =&gt; n,Playback\(go-away2\)
-
- same =&gt; n,Hangup\(\)
-
-\[TestMenu\]
-
-exten =&gt; start,1,Noop\(main autoattendant\)
-
- same =&gt; n,GotoIfTime\(16:59-08:00,mon-fri,\*,\*?closed,start,1\)
-
- same =&gt; n,GotoIfTime\(11:59-09:00,sat,\*,\*?closed,start,1\)
-
- same =&gt; n,GotoIfTime\(00:00-23:59,sun,\*,\*?closed,start,1\)
-
- same =&gt; n,Background\(enter-ext-of-person\)
-
- same =&gt; n,WaitExten\(5\)
-
-exten =&gt; 1,1,Dial\(${UserA\_DeskPhone},10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => _55512XX,1,Answer()
+ same => n,Playback(tt-monkeys)
+ same => n,Hangup()
+exten => *98,1,NoOp(Access voicemail retrieval.)
+ same => n,VoiceMailMain()
+[closed]
+exten => start,1,Noop(after hours handler)
+ same => n,Playback(go-away2)
+ same => n,Hangup()
+[TestMenu]
+exten => start,1,Noop(main autoattendant)
+ same => n,GotoIfTime(16:59-08:00,mon-fri,*,*?closed,start,1)
+ same => n,GotoIfTime(11:59-09:00,sat,*,*?closed,start,1)
+ same => n,GotoIfTime(00:00-23:59,sun,*,*?closed,start,1)
+ same => n,Background(enter-ext-of-person)
+ same => n,WaitExten(5)
+exten => 1,1,Dial(${UserA_DeskPhone},10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+```
 
 ## GoSub
 
 The GoSub\(\) dialplan application allows you to send a call off to a separate section of the dialplan, make something useful happen, and then return the call to the point in the dialplan where it came from. You can pass arguments to GoSub\(\), and also receive a return code back from it. This cranks up the functionality of your dialplan quite a bit.
 
+{% hint style="info" %}
 **Note**
 
 Subroutines are a critical skill in any programming language, and no less so in an Asterisk dialplan. For those new to programming, a subroutine allows you to create a block of generic code that can be reused by different parts of the dialplan to avoid repetition. Think of it like a template in a word processing document, or a blank form, and you’ve got the general idea. Once you see them in operation, it should become clear how useful they can be.
+{% endhint %}
 
 ### Defining Subroutines
 
@@ -498,43 +470,27 @@ Let’s explore an obvious example of where a subroutine would be useful.
 
 As you might have noticed when we were building our sample dialplan for the users we have created, the dialplan logic for each user can require several lines of code.
 
-\[sets\]
-
-exten =&gt; 100,1,Dial\(${UserA\_DeskPhone},12\)
-
- same =&gt; n,Voicemail\(100@default\)
-
- same =&gt; n,GotoIf\($\["${DIALSTATUS}" = "BUSY"\]?busy:unavail\)
-
- same =&gt; n\(unavail\),VoiceMail\(100@default,u\)
-
- same =&gt; n,Hangup\(\)
-
- same =&gt; n\(busy\),VoiceMail\(100@default,b\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 101,1,Dial\(${UserA\_SoftPhone}\)
-
- same =&gt; n,GotoIf\($\["${DIALSTATUS}" = "BUSY"\]?busy:unavail\)
-
- same =&gt; n\(unavail\),VoiceMail\(101@default,u\)
-
- same =&gt; n,Hangup\(\)
-
- same =&gt; n\(busy\),VoiceMail\(101@default,b\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 102,1,Dial\(${UserB\_DeskPhone},10\)
-
- same =&gt; n,Playback\(vm-nobodyavail\)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 103,1,Dial\(${UserB\_SoftPhone}\)
-
- same =&gt; n,Hangup\(\)
+```text
+[sets]
+exten => 100,1,Dial(${UserA_DeskPhone},12)
+ same => n,Voicemail(100@default)
+ same => n,GotoIf($["${DIALSTATUS}" = "BUSY"]?busy:unavail)
+ same => n(unavail),VoiceMail(100@default,u)
+ same => n,Hangup()
+ same => n(busy),VoiceMail(100@default,b)
+ same => n,Hangup()
+exten => 101,1,Dial(${UserA_SoftPhone})
+ same => n,GotoIf($["${DIALSTATUS}" = "BUSY"]?busy:unavail)
+ same => n(unavail),VoiceMail(101@default,u)
+ same => n,Hangup()
+ same => n(busy),VoiceMail(101@default,b)
+ same => n,Hangup()
+exten => 102,1,Dial(${UserB_DeskPhone},10)
+ same => n,Playback(vm-nobodyavail)
+ same => n,Hangup()
+exten => 103,1,Dial(${UserB_SoftPhone})
+ same => n,Hangup()
+```
 
 We’ve only provided two users with actual, working voicemail, and we’ve only defined four phones as extensions, and yet we’ve already got a mess of repetitive code, which is only going to get more and more difficult to maintain and expand. This will quickly become unmanageable if we don’t find a better way.
 
@@ -659,6 +615,10 @@ This is a great time for a subroutine:
 exten =&gt; \_\[a-zA-Z0-9\].,1,Noop\(channel ${ARG1}, pre-delay ${ARG2}, timeout ${ARG3}\)
 
 ; same =&gt; n,Progress\(\) ; Optional; Signals back that the call is proceeding
+
+{% hint style="info" %}
+
+{% endhint %}
 
  same =&gt; n,Wait\(${ARG2}\) ; how long to wait before dialing
 
