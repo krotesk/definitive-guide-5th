@@ -14,146 +14,149 @@ description: Внешние подключения
 
 Однако, эта гибкость имеет цену. Поскольку система по своей сути не знает разницы между внутренним ресурсом \(например, телефонным аппаратом\) и внешним \(например, каналом телефонной связи\), вы должны убедиться, что ваш диалплан обрабатывает каждый тип ресурса соответствующим образом.
 
-## The Basics of Trunking
+## Основы транкинга
 
-The purpose of trunking is to provide a shared connection between two entities. Trees have trunks, and everything that passes between the roots and the leaves happens through the trunk. Railroads use the term “trunk” to refer to a major line that connects feeder lines together.
+Целью _транкинга_ является обеспечение общего соединения между двумя объектами. У деревьев есть стволы \(англ. trunks\), и все, что проходит между корнями и листьями, происходит через ствол. Железные дороги используют термин "магистраль \(trunks\)" для обозначения основной линии, которая соединяет фидерные линии вместе.
 
-In telecommunications, trunking connects two systems together. Carriers use trunks to connect their networks to each other. In a PBX, the circuits that connect the PBX to the outside world are \(from the perspective of the PBX\) usually referred to as trunks \(although the carriers themselves do not generally consider these to be trunks\). From a technical perspective, the definition of a trunk is not as clear as it used to be \(PBX trunks used totally different technology from station circuits, but now both are usually SIP\), but as a concept, trunks are still important. With SIP, everything is technically peer-to-peer, so from a technology perspective there isn’t really such a thing as a trunk anymore \(or perhaps it’s more accurate to say that everything is a trunk\). From a functional perspective it is still useful to be able to differentiate between VoIP resources that connect to the outside world \(trunks, lines, circuits, etc.\) and VoIP resources that connect to user endpoints \(stations, sets, extensions, handsets, telephones, etc.\).
+В телекоммуникациях транк соединяет две системы вместе. Операторы связи используют транки \(магистрали\) для подключения своих сетей друг к другу. В АТС линии, которые соединяют АТС с внешним миром \(с точки зрения АТС\), обычно называются транками \(хотя сами операторы связи обычно не считают их транками\). С технической точки зрения определение транка не так ясно, как это было раньше \(транки АТС использовали совершенно другую технологию от станционных линий, но теперь обе, как правило, являются SIP\), но как концепция, транки по-прежнему важны. С SIP все технически одноранговое, поэтому с точки зрения технологии больше нет такой вещи, как транк \(или, возможно, точнее сказать, что все является транком\). С функциональной точки зрения все еще полезно иметь возможность различать ресурсы VoIP, которые подключаются к внешнему миру \(транки \(магистрали\), схемы и т.д.\) и средства IP-телефонии подключенных конечных пользователей \(радиостанции, устройства, расширения, телефонные трубки, телефоны и т.д.\).
 
-In an Asterisk PBX, you might have trunks that go to your VoIP provider for in-country long-distance calls, trunks for your overseas calls, and trunks that connect your various offices together. These trunks might actually run across the same network connection, but in your dialplan you could treat them quite differently. You can even have a trunk in Asterisk that simply loops back in on itself \(which is usually some kludgy hack that solves some namespace or CDR problem that wasn’t getting solved any other way\).
+В УАТС Asterisk у вас могут быть транки, которые идут к вашему VoIP-провайдеру для междугородних звонков внутри страны, транки для звонков за границу и транки, которые соединяют ваши офисы вместе. Эти транки могут фактически работать через одно и то же сетевое соединение, но в диалплане вы можете относиться к ним совершенно по-разному. У вас даже может быть транк в Asterisk, который просто зацикливается на себе \(обычно это какой-то хитрый хак, который решает некоторую проблему с пространством имен или CDR, которую не удалось решить другим способом\).
 
-## Fundamental Dialplan for Outside Connectivity
+## Фундаментальный диалплан для исходящих соединений
 
-In a traditional PBX, external lines are generally accessed by way of an access code that must be dialed before the number.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407857960) It is common to use the digit 9 for this purpose.
+В традиционной АТС доступ к внешним линиям обычно осуществляется с помощью кода доступа, который необходимо набрать перед номером.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407857960) Для этой цели обычно используется цифра 9.
 
-In Asterisk, it is similarly possible to assign 9 for routing of external calls, but since the Asterisk dialplan is so much more intelligent, it is not really necessary to force your users to dial 9 before placing a call. Typically, you will have an extension range for your system \(say, 100–199\), and a feature code range \(\*00 to \*99\). Anything outside those ranges that matches the dialing pattern for your country or region can be treated as an external call.
+В Asterisk аналогично можно назначить 9 для маршрутизации внешних вызовов, но поскольку диалплан Asterisk намного более интеллектуальный, на самом деле нет необходимости заставлять пользователей набирать 9 перед вызовом. Как правило, у вас будет диапазон номеров для вашей системы \(скажем, 100-199\) и диапазон кодов функций \(от \*00 до _\*_99\). Все, что находится за пределами этих диапазонов и соответствует шаблону набора номера для вашей страны или региона и может рассматриваться как внешний вызов.
 
-If you have one carrier providing all of your external routing, you can handle your external dialing through a few simple pattern matches. The example in this section is valid for the North American Numbering Plan \(NANP\). If your country is not within the NANP \(which serves Canada, the US, and many Caribbean countries\), you will need a different pattern match.
+Если у вас есть один оператор, обеспечивающий всю внешнюю маршрутизацию, то вы можете обрабатывать свой внешний набор через несколько простых совпадений шаблонов. Пример в этом разделе действителен для североамериканского плана нумерации \(NANP\). Если ваша страна не входит в NANP \(который обслуживает Канаду, США и многие страны Карибского бассейна\), вам понадобится другой шаблон соответствия.
 
-The \[globals\] section contains two variables, named LOCAL and TOLL.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407852440) The purpose of these variables is to simplify management of your dialplan should you ever need to change carriers. They allow you to make one change to the dialplan that will affect all places where the specified channel is referenced:
+Раздел `[globals]` содержит две переменные, названные `LOCAL` и `TOLL`.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407852440) Целью этих переменных является упрощение управления вашим диалпланом, если вам когда-либо понадобится изменить провайдера. Они позволяют внести одно изменение в диалплан, которое повлияет на все места, где указан данный канал:
 
 ```text
 [globals]
-; These channels are the same to asterisk as
-; any PJSIP enpoint, so they'll be configured
-; similar to telephone sets.
-; Each carrier will have their own configuration
-; requirements (although they'll all be similar)
+; Эти каналы одинаковы для asterisk, как и любая конечная точка PJSIP, 
+; поэтому они будут настроены аналогично телефонным аппаратам. 
+; Каждый поставщик услуг будет иметь свои собственные требования к конфигурации 
+; (хотя все они будут похожи)
 LOCAL=PJSIP/my-itsp
 TOLL=PJSIP/my-other-itsp
 ```
 
-The \[external\] section contains the actual dialplan code that will recognize the numbers dialed and pass them to the Dial\(\) application:[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407848792)
+Раздел `[external]` содержит фактический код диалплана, который распознает набранные номера и передает их в приложение `Dial()`: [3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407848792)
 
 ```text
 [external]
-exten => _NXXNXXXXXX,1,Dial(${LOCAL}/${EXTEN}) ; 10-digit pattern match for NANP
-exten => _NXXXXXX,1,Dial(${LOCAL}/${EXTEN}) ; 7-digit pattern match for NANP
-exten => _1NXXNXXXXXX,1,Dial(${TOLL}/${EXTEN}) ; Long-distance pattern match
- ; for NANP
-exten => _011.,1,Dial(${TOLL}/${EXTEN}) ; International pattern match for
- ; calls made from NANP
-; This section is functionally the same as the above section.
-; It is for people who like to dial '9' before their calls
+exten => _NXXNXXXXXX,1,Dial(${LOCAL}/${EXTEN}) ; 10-значный шаблон для NANP
+exten => _NXXXXXX,1,Dial(${LOCAL}/${EXTEN}) ; 7-значный шаблон NANP
+exten => _1NXXNXXXXXX,1,Dial(${TOLL}/${EXTEN}) ; шаблон международного направления 
+; для NANP
+exten => _011.,1,Dial(${TOLL}/${EXTEN}) ; Шаблон международного вызова,
+; сделанного из NANP
+; Этот раздел функционально совпадает с приведенным выше разделом.
+; Это для людей, которым нравится набирать '9' для их звонков.
 exten => _9NXXNXXXXXX,1,Dial(${LOCAL}/${EXTEN:1})
 exten => _9NXXXXXX,1,Dial(${LOCAL}/${EXTEN:1})
 exten => _91NXXNXXXXXX,1,Dial(${TOLL}/${EXTEN:1})
 exten => _9011.,1,Dial(${TOLL}/${EXTEN:1})
-In any context that would be used by sets or user devices, you would use an include => directive to allow access to the external context:
+```
+
+В любом контексте, который будет использоваться комплектами или пользовательскими устройствами, вы будете использовать директиву `include=>`, чтобы разрешить доступ к контексту `external`:
+
+```text
 [sets]
 include => external
 ```
 
 {% hint style="warning" %}
-**Warning**
+**Предупреждение**
 
-It is critically important that you do not include access to the external lines in any context that might process an incoming call. The risk here is that a phishing bot could eventually gain access to your outgoing trunks \(you’d be surprised at how common these phishing bots are\).
+Крайне важно, чтобы вы не включали доступ к внешним линиям в любом контексте, который может обрабатывать входящий вызов. Риск здесь заключается в том, что фишинговый бот может в конечном итоге получить доступ к вашим исходящим транкам \(вы будете удивлены тем, насколько эти фишинговые боты распространены\).
 
-We cannot stress enough how important it is that you ensure that no external resource can access your toll lines.
+_**Мы не можем не подчеркнуть, насколько важно, чтобы вы гарантировали, что никакой внешний ресурс не может получить доступ к вашим платным линиям.**_
 {% endhint %}
 
-## The PSTN
+## ТфОП
 
-The public switched telephone network \(PSTN\) has existed for over a century. It is the precursor to many of the technologies that shape our world today, from the internet to MP3 players.
+Телефонная сеть общего пользования \(ТфОП, на англ. PSTN\) существует уже более ста лет. Это предшественник многих технологий, которые формируют наш мир сегодня, от интернета до MP3-плееров.
 
-The use of old-school PSTN circuits in Asterisk systems is no longer common. The technical complexities, costs, and limitations of obsolete technology are only justified in situations where a reliable internet connection is not available \(and even then, traditional circuits will often be a problematic choice\). Even the carriers themselves have largely switched to VoIP for their internal backbones.
+Использование линий ТфОП старой школы в системах Asterisk больше не является распространенным явлением. Технические сложности, затраты и ограничения устаревшей технологии оправданы только в ситуациях, когда надежное подключение к интернету недоступно \(и даже когда традиционные линии являются проблематичным выбором\). Даже сами операторы связи в значительной степени перешли на VoIP для своих внутренних транков.
 
 {% hint style="info" %}
-**The PSTN Has Retired**
+**ТфОП пора на пенсию**
 
-More than any technical factor, perhaps the most significant nail in the PSTNs coffin is the fact that most of the technical experts in the field of traditional telephony are near or past retirement age, and the new kids have no interest in this sort of thing. Point being: you will increasingly find that carriers no longer have the skilled staff required to deploy traditional PSTN services. All the cool kids are learning VoIP \(which is ultimately just a networking technology\), and all the carriers put their best and brightest on the VoIP/SIP side of the business.
+Больше, чем любой технический фактор, пожалуй, самым значительным гвоздем в гробу ТфОП является тот факт, что большинство технических экспертов в области традиционной телефонии близки или достигли пенсионного возраста, и современные дети не интересуются такими вещами. Суть в том, что вы все чаще обнаружите, что поставщики услуг больше не имеют квалифицированного персонала, необходимого для развертывания традиционных услуг ТфОП. Все крутые ребята изучают VoIP \(который в конечном счете является просто сетевой технологией\), и все операторы связи делают все возможное и самое яркое в сфере бизнеса VoIP/SIP.
 
-So, while it used to be true that you couldn’t beat a PRI circuit for reliability, that is no longer the case. In fact, many companies deliver PRI circuits across a SIP connection, which is a kludge Asterisk has no use for.
+Таким образом, хоть раньше и было правдой, что вы не можете обойти схему PRI для надежности, это уже не так. На самом деле, многие компании поставляют схемы PRI через SIP-соединение, которое кладж Asterisk не использует.
 {% endhint %}
 
-Where the PSTN might still hold sway for a few years more is in telephone numbers. If VoIP had been invented without the PSTN preceding it, it’s unlikely that something like a phone number would have ever been invented. Still, we’ve got them, and we use them, and the reason we do so is perhaps not so much due to any usefulness they provide, but rather due to the fact that they are managed by a complex, multinational consortium of standards bodies and curators who ensure the integrity of the global call routing plan.
+Там, где ТфОП все еще может оставаться в силе в течение нескольких лет - это телефонные номера. Если бы VoIP был изобретен без предшествующего ему ТфОП маловероятно, что когда-либо было бы изобретено что-то вроде телефонного номера. Тем не менее, они у нас есть, и мы их используем, и причина, по которой мы делаем это, возможно, не столько из-за какой-либо полезности, которую они обеспечивают, а скорее из-за того, что они управляются сложным, многонациональным консорциумом органов по стандартизации и кураторами, которые обеспечивают целостность глобального плана маршрутизации вызовов.
 
-To put the value of this in perspective, it might be worth considering that if the internet had designed the telephone network \(and phone calls were as free as email\), all our SIP phones would likely be ringing all day long with one spammy call after another. That still happens, but it’s greatly reduced by the fact that a phone call costs money, and even if it costs just pennies, that’s enough to keep much of the exceedingly mindless spam out of the game.
+Чтобы оценить это в перспективе, возможно, стоит подумать о том, что если бы интернет разработал телефонную сеть \(а телефонные звонки были такими же бесплатными, как электронная почта\), все наши SIP-телефоны, вероятно, звонили бы весь день с одним спам-звонком за другим. Это все еще происходит, но значительно уменьшается из-за того, что телефонный звонок стоит денег, и даже если он стоит всего лишь копейки, этого достаточно, чтобы не допустить попадания в игру большей части бессмысленного спама.
 
-Another feature the PSTN offers is standards compliance and interoperability. If you look at any internet-based voice product, they are either proprietary walled gardens, or they are community-driven and have failed to gain any useful traction. It is our belief that this will not change until some sort of trust mechanism exists that ensures the identities of incoming callers have been verified by some widely recognized authority.
+Еще одной особенностью ТфОП является соответствие стандартам и совместимость. Если вы посмотрите на любой интернет-голосовой продукт, он либо является проприетарным, огороженным садами, либо управляется сообществом и не сможет получить какую-либо полезную тягу. Мы считаем, что это не изменится до тех пор, пока не будет создан какой-то механизм доверия, который гарантирует проверку личности входящих абонентов каким-то широко признанным органом.
 
-### Traditional PSTN Trunks
+### Традиционные транки ТфОП
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-This section has been written as a nod to the telecommunications industry, and to the history of Asterisk itself. It is in part because Asterisk could talk to so many different sorts of old-school circuits that it achieved the early success it did. These days, the use of these old circuits has for the most part faded into history.
+Этот раздел был написан как дань уважения телекоммуникационной отрасли и истории самой Asterisk. Отчасти это связано с тем, что раз Asterisk мог взаимодействовать со столькими различными типами линий старой школы, потому он и добился раннего успеха. В наши дни использование этих старых линий по большей части исчезло в истории.
 {% endhint %}
 
-There are two types of fundamental technology that PSTN carriers have used to deliver telephone circuits: analog and digital.
+Существует два типа фундаментальных технологий, которые используются поставщиками услуг ТфОП для предоставления телефонных линий: аналоговые и цифровые.
 
-#### Analog telephony
+#### Аналоговая телефония
 
-The first telephone networks were all analog. The audio signal that you generated with your voice was used to generate an electrical signal, which was carried to the other end. The electrical signal had the same characteristics as the sound being produced.
+Первые телефонные сети были полностью аналоговыми. Звуковой сигнал, который вы сгенерировали своим голосом, использовался для генерации электрического сигнала, который передавался на другой конец провода. Электрический сигнал имел те же характеристики, что и производимый звук.
 
-Analog circuits have several characteristics that differentiate them from other circuits you might wish to connect to Asterisk:
+Аналоговые линии имеют несколько характеристик, отличающих их от других линий, которые вы можете подключить к Asterisk:
 
-* No signaling channel exists—line state signaling is electromechanical, and addressing is done using in-band audio tones.
-* Disconnect supervision is usually delayed by several seconds, and is not completely reliable.
-* Far-end supervision is minimal \(for example, answer supervision is lacking\).
-* Differences in circuits mean that audio characteristics will vary from circuit to circuit and will require tuning.
+* Отсутствует сигнальный канал — сигнализация состояния линии является электромеханической, а адресация осуществляется с использованием внутриполосных звуковых сигналов.
+* Наблюдение за отключением обычно задерживается на несколько секунд и не является полностью надежным.
+* Контроль дальнего конца минимален \(например, контроль ответа отсутствует\).
+* Различия в линиях означают, что звуковые характеристики будут варьироваться от линии к линии и потребуют настройки.
 
-Incoming analog circuits that you wish to connect to your Asterisk system will need to connect to a Foreign eXchange Office \(FXO\) port. Since there is no such thing as an FXO port in any standard computer, an FXO port of some sort must be provided to the system before you can connect traditional analog lines. Companies such as Digium and Sangoma offer such cards, but you can also purchase a SIP device that provides such ports.
+Входящие аналоговые линии, которые вы захотите подключить к системе Asterisk, должны быть подключены к порту Foreign eXchange Office \(FXO\). Поскольку в любом стандартном компьютере не существует такого понятия, как порт FXO, то перед подключением традиционных аналоговых линий системе должен быть предоставлен какой-либо порт FXO. Такие компании, как Digium и Sangoma предлагают такие карты, но вы также можете приобрести устройство SIP, которое предоставляет такие порты.
 
 {% hint style="danger" %}
-**FXO and FXS**
+**FXO и FXS**
 
-For any analog circuit, there are two ends: the office \(typically the central office of the PSTN\) and the station \(typically a phone, but could also be a card such as a modem or line card in a PBX\).
+Для любой аналоговой линии есть два конца: офис \(как правило, центральный офис ТфОП\) и станция \(как правило, телефон, но также может быть карта, такая как модем или линейная карта в АТС\).
 
-The central office is responsible for:
+Центральный офис отвечает за:
 
-* Power on the line \(nominally 48 volts DC\)
-* Ringing voltage \(nominally 90 volts AC\)
-* Providing dialtone
-* Detecting hook state \(off-hook and on-hook\)
-* Sending supplementary signaling such as caller ID
+* Питание на линии \(номинально 48 Вольт постоянного тока\)
+* Напряжение звонка \(номинально 90 Вольт переменного тока\)
+* Предоставление гудка \(сигнала ответа станции\)
+* Обнаружение состояния трубки \(положена или поднята\)
+* Отправка дополнительной сигнализации, такой как идентификатор вызывающего абонента \(Caller ID\)
 
-The station is responsible for:
+Станция отвечает за:
 
-* Providing a ringer \(or at least being able to handle ringing voltage in some manner\)
-* Providing a dialpad \(or some way of sending DTMF\)
-* Providing a hook switch to indicate the status of the line
+* Обеспечение звонка \(или, по крайней мере, возможности каким-то образом обрабатывать напряжение звонка\)
+* Предоставление номеронабирателя \(или какой-либо способ отправки DTMF\)
+* Предоставление рычажного переключателя для указания состояния линии
 
-A Foreign eXchange \(FX\) port is named by what it connects to, not by what it does. So, for example, a Foreign eXchange Office \(FXO\) port is actually a station: it connects to the central office. A Foreign eXchange Station \(FXS\) port is actually a port that provides the services of a central office \(in other words, you would plug an analog set into an FXS port\).
+Порт Foreign eXchange \(FX\) _называется тем, к чему он подключается_, а не тем, что он делает. Так, например, порт Foreign Exchange Office \(FXO\) на самом деле является станцией: он соединяется с центральным офисом. Порт Foreign eXchange Station \(FXS\) - это фактически порт, который предоставляет услуги центрального офиса \(другими словами, вы бы подключили аналоговый аппарат к порту FXS\).
 
-Note that changing from FXO to FXS is not something you can simply do with a settings change. FXO and FXS ports require completely different electronics.
+Обратите внимание, что переход с FXO на FXS - это не то, что вы можете сделать просто изменением настроек. Порты FXO и FXS требуют совершенно другой электроники.
 
-This stuff is old-school, folks. You can run old phones from 100 years ago off an FXS port!
+Это старая школа, ребята. Вы можете запускать старые телефоны возрастом более 100 лет с порта FXS!
 {% endhint %}
 
-We do not recommend the use of analog trunks in an Asterisk system. Their configuration and use is outside of the scope of this book.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407792344)
+Мы не рекомендуем использовать аналоговые транки в системе Asterisk. Их конфигурация и использование выходят за рамки данной книги.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407792344)
 
-#### Digital telephony
+#### Цифровая телефония
 
-Digital telephony was developed in order to overcome many of the limitations of analog. Some of the benefits of digital circuits include:
+Цифровая телефония была разработана для преодоления многих ограничений аналоговой. Некоторые из преимуществ цифровых линий включают:
 
-* No loss of amplitude over long distances
-* Reduced noise on circuits \(especially long-distance circuits\)
-* Ability to carry more than one call per physical circuit
-* Faster call setup and teardown
-* Richer signaling information \(especially if using ISDN\)
-* Lower cost for carriers
-* Lower cost for customers \(at higher densities\)
+* Отсутствие потери амплитуды на больших расстояниях
+* Снижение уровня шума на линиях \(особенно на междугородних дистанциях\)
+* Возможность выполнять более одного вызова через физический канал
+* Более быстрая настройка вызова и разъединение
+* Более богатая сигнальная информация \(особенно при использовании ISDN\)
+* Более низкая стоимость для поставщиков услуг
+* Более низкая цена для клиентов \(на более высоких плотностях\)
 
 There were several fundamental digital circuits that gained wide acceptance in the telecommunications industry:
 
