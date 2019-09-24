@@ -145,9 +145,9 @@ ${FUNCTION_NAME(${FUNCTION_NAME(argument)})}
 
 Как вы, вероятно, уже поняли необходимо быть очень осторожными, чтобы убедиться в наличии соответствующих круглых и фигурных скобок. В предыдущем примере мы обозначили открывающие круглые и фигурные скобки цифрами, а их соответствующие закрывающие аналоги - теми же цифрами.
 
-### Examples of Dialplan Functions
+### Примеры функций диалплана
 
-Functions are often used in conjunction with the Set\(\) application to either get or set the value of a variable. As a simple example, let’s look at the LEN\(\) function. This function calculates the string length of its argument:
+Функции часто используются совместно с приложением `Set()` для получения или установки значения переменной. В качестве простого примера рассмотрим функцию `LEN()`. Эта функция вычисляет длину строки своего аргумента:
 
 ```text
 exten => 205,1,Answer()
@@ -156,22 +156,22 @@ exten => 205,1,Answer()
  same => n,SayNumber(${LEN(123)})
 ```
 
-Let’s look at another simple example. If we wanted to set one of the various channel timeouts, we could use the TIMEOUT\(\) function. The TIMEOUT\(\) function accepts one of three arguments: absolute, digit, and response. To set the digit timeout with the TIMEOUT\(\) function, we could use the Set\(\) application, like so:
+Давайте рассмотрим еще один простой пример. Если бы мы хотели установить один из различных таймаутов канала, мы могли бы использовать функцию `TIMEOUT()`. Функция `TIMEOUT()` принимает три аргумента: `absolute`, `digit` и `response`. Чтобы установить тайм-аут с помощью функции `TIMEOUT()`, мы могли бы использовать приложение `Set()`, например:
 
 ```text
 exten => 206,1,Answer()
  same => n,Set(TIMEOUT(response)=1)
  same => n,Background(enter-ext-of-person)
- same => n,WaitExten() ; TIMEOUT() has set this to 1
+ same => n,WaitExten()  ; TIMEOUT() установлен в значение 1
  same => n,Playback(like_to_tell_valid_ext)
  same => n,Set(TIMEOUT(response)=5)
  same => n,Background(enter-ext-of-person)
- same => n,WaitExten() ; Should be 5 seconds now
- same => n,Playback(like_to_tell_valid_ext)
+ same => n,WaitExten()  ; Теперь должно быть 5 секунд
+ same => n,Playback(укажите_действительный_файл)
  same => n,Hangup()
 ```
 
-Notice the lack of ${ } surrounding the assignment using the function. Just as if we were assigning a value to a variable, we assign a value to a function without the use of the ${ } encapsulation; however, if we want to use the value returned by the function, then we need the encapsulation.
+Обратите внимание на отсутствие `${ }` вокруг назначения с помощью функции. Так же, как если бы мы присваивали значение переменной, мы присваиваем значение функции без использования инкапсуляции `${}`; однако, если мы хотим использовать значение, возвращаемое функцией, то нам нужна инкапсуляция.
 
 ```text
 exten => 207,1,Answer()
@@ -182,58 +182,58 @@ exten => 207,1,Answer()
  same => n,Hangup()
 ```
 
-You can get a list of all active functions with the following CLI command:
+Вы можете получить список всех активных функций с помощью следующей команды CLI:
 
 ```text
 *CLI> core show functions
 ```
 
-Or, to see a specific function such as CALLERID\(\), the command is:
+Или по определенной функции, например `CALLERID()`, команда:
 
 ```text
 *CLI> core show function CALLERID
 ```
 
-Near the end of this chapter, we explore a handful of functions you will want to experiment with. Later in the book we’ll show you how to create database-based functions using func\_odbc.
+Ближе к концу этой главы мы рассмотрим несколько функций, с которыми вы захотите поэкспериментировать. Далее в книге мы покажем вам, как создавать функции на основе баз данных с помощью `func_odbc`.
 
-## Conditional Branching
+## Условное ветвление
 
-The advanced logic provided through expressions and functions will allow your dialplan to make more powerful decisions, which will often result in conditional branching.
+Расширенная логика, предоставляемая через выражения и функции, позволит вашему диалплану принимать более сложные решения, что часто приводит к _условному ветвлению_.
 
-### The GotoIf\(\) Application
+### Приложение GotoIf\(\)
 
-The key to conditional branching is the GotoIf\(\) application. GotoIf\(\) evaluates an expression and sends the caller to a specific destination based on whether the expression evaluates to true or false.
+Ключом к условному ветвлению является приложение `GotoIf()`. `GotoIf()` вычисляет выражение и отправляет вызывающий объект в определенное место назначения в зависимости от того, имеет ли выражение значение истинности или лжи.
 
-GotoIf\(\) uses a special syntax, often called the conditional syntax:
+`GotoIf()` использует специальный синтаксис, часто называемый _условным синтаксисом_:
 
 ```text
 GotoIf(expression?destination1:destination2)
 ```
 
-If the expression evaluates to true, the caller is sent to destination1. If the expression evaluates to false, the caller is sent to the second destination. So, what is true and what is false? An empty string and the number 0 evaluate as false. Anything else evaluates as true.
+Если выражение принимает значение "истина", вызывающий объект отправляется в _`destination1`_. Если выражение принимает значение "ложь", вызывающий объект отправляется в _`destination2`_. Итак, что же такое истина и что такое ложь? Пустая строка и число `0` оцениваются как ложь. Все остальное оценивается как истина.
 
-The destinations can each be one of the following:
+Каждый из пунктов назначения может быть одним из следующих:
 
-* A priority label within the same extension, such as weasels
-* An extension and a priority label within the same context, such as 123,weasels
-* A context, extension, and priority label, such as incoming,123,weasels
+* Метка приоритета в пределах одного расширения, например `weasels`
+* Расширение и метка приоритета в одном контексте, например `123,weasels`
+* Контекст, расширение и метка приоритета, такие как `incoming,123,weasels`
 
-Let’s use GotoIf\(\) in an example. Here’s a little coin toss application. Call it several times to properly test.
+Давайте используем `GotoIf()` в качестве примера. Вот небольшое приложение для подбрасывания монет. Вызовите его несколько раз, чтобы проверить правильность.
 
 ```text
 exten => 209,1,Noop(Test use of conditional branching to labels)
  same => n,GotoIf($[ ${RAND(0,1)} = 1 ]?weasels:iguanas)
-; same => n,GotoIf(${RAND(0,1)}?weasels:iguanas) ; works too, but won't in every situation
- same => n(weasels),Playback(weasels-eaten-phonesys) ; NOTE THIS IS SAME EXTENSION
+; same => n,GotoIf(${RAND(0,1)}?weasels:iguanas) ;тоже работает, но не в каждой ситуации
+ same => n(weasels),Playback(weasels-eaten-phonesys) ; ПРИМЕЧАНИЕ: ТО ЖЕ РАСШИРЕНИЕ
  same => n,Hangup()
- same => n(iguanas),Playback(office-iguanas) ; STILL THE SAME EXTENSION
+ same => n(iguanas),Playback(office-iguanas) ; ВСЕ ТО ЖЕ РАСШИРЕНИЕ
  same => n,Hangup()
 ```
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-You will notice that we have used the Hangup\(\) application following each use of the Playback\(\) application. This is done so that when we jump to the weasels label, the call stops before execution gets to the office-iguanas sound file. It is becoming increasingly common to see extensions broken up into multiple components \(protected from each other by the Hangup\(\) command\), each one a distinct sequence of steps executed following a GotoIf\(\).
+Вы заметите, что мы использовали приложение `Hangup()` после каждого использования приложения `Playback()`. Это делается для того, чтобы при переходе к метке `weasels` вызов останавливался до того, как он попадет на звуковой файл _office-iguanas_. Становится все более распространенным видеть расширения, разбитые на несколько компонентов \(защищенных друг от друга командой `Hangup()`\), каждый из которых представляет собой отдельную последовательность шагов, выполняемых после `GotoIf()`.
 {% endhint %}
 
 #### Providing Only a False Conditional Path
