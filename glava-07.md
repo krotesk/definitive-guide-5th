@@ -158,132 +158,128 @@ _**Мы не можем не подчеркнуть, насколько важн
 * Более низкая стоимость для поставщиков услуг
 * Более низкая цена для клиентов \(на более высоких плотностях\)
 
-There were several fundamental digital circuits that gained wide acceptance in the telecommunications industry:
+Было несколько фундаментальных цифровых линий, которые получили широкое признание в телекоммуникационной отрасли:
 
-T1 \(24 channels\)
+T1 \(24 канала\)
 
-Used in Canada and the United States \(mostly for ISDN-PRI\)[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407778472)
+Используется в Канаде и США \(в основном для ISDN-PRI\)[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407778472)
 
-E1 \(32 channels\)
+E1 \(32 канала\)
 
-Used in the rest of the world \(ISDN-PRI or MFC/R2\)
+Используется в остальном мире \(ISDN-PRI или MFC/R2\)
 
-BRI \(2 channels\)
+BRI \(2 канала\)
 
-Used for ISDN-BRI circuits \(Euro-ISDN\)
+Используется для линий ISDN-BRI \(Евро-ISDN\)
 
-Note that the physical circuit can be further defined by the protocol running on the circuit. For example, a T1 could be used for either ISDN-PRI or CAS, and an E1 could be used for ISDN-PRI, CAS, or MFC/R2.
+Обратите внимание, что физическая линия может быть дополнительно определена протоколом, работающим по схеме. Например, T1 может использоваться для ISDN-PRI или CAS, а E1 может использоваться для ISDN-PRI, CAS или MFC/R2.
 
-It is difficult to justify these circuit types anymore. Relative to VoIP protocols, they have become expensive, complex, and somewhat inflexible. If you need to connect such circuits to an Asterisk system, we recommend some sort of gateway device to convert the circuit into SIP, and then connect via SIP to your Asterisk system. If you want a single-chassis system, companies such as Digium and Sangoma offer digital PSTN cards that can be installed directly into your Asterisk server; they are connected to Asterisk by way of the DAHDI channel driver. The use of this technology is outside of the scope of this book.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407773192)
+Трудно обосновать использование этих типов линий. По сравнению с протоколами VoIP, они стали дорогими, сложными и несколько негибкими. Если вам нужно подключить такие линии к системе Asterisk, мы рекомендуем какое-то шлюзовое устройство для преобразования линии в SIP, а затем подключиться через SIP к вашей системе Asterisk. Если вам нужна система с одним шасси, такие компании как Digium и Sangoma предлагают цифровые карты ТфОП, которые могут быть установлены непосредственно на ваш сервер Asterisk; они подключаются к Asterisk через драйвер канала DAHDI. Использование этой технологии выходит за рамки данной книги.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407773192)
 
 ## VoIP
 
-Compared to the lengthy history of the telecommunications industry,[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407767752) VoIP is still a relatively new concept. For the century or so prior to VoIP, the only way to connect your site to the PSTN was through the use of circuits provided for that purpose by your local telephone company. VoIP now allows for connections between endpoints without the PSTN having to be involved at all \(although in most VoIP scenarios, there will still be a PSTN component at some point, especially if there is a traditional E.164 phone number involved\). The PSTN still controls the phone numbers, and we’ll be using those until somebody comes up with an internet-based addressing mechanism that is not subject to abuse the way email has been.[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407766216)
+По сравнению с длительной историей телекоммуникационной отрасли, [7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407767752) VoIP по-прежнему является относительно новой концепцией. За столетие или около того до появления VoIP единственным способом подключить вас к ТфОП было использование каналов, предоставленных для этой цели вашей местной телефонной компанией. Теперь же VoIP позволяет устанавливать соединения между конечными точками без участия ТфОП \(хотя в большинстве сценариев VoIP в какой-то момент все равно будет присутствовать компонент ТфОП, особенно если используется традиционный телефонный номер E.164\). ТфОП по-прежнему контролирует телефонные номера и мы будем использовать их до тех пор, пока кто-нибудь не придумает механизм адресации на основе интернета, который не будет подвергаться злоупотреблениям, как электронная почта.[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407766216)
 
-### Network Address Translation
+### Преобразование сетевых адресов \(NAT\)
 
-If you are going to be using VoIP across any sort of wide-area network \(such as the internet\), you will be dealing with firewalls, and quite frequently network address translation \(NAT\) as well.[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407758680) A basic understanding of how the SIP and RTP protocols work together to create a VoIP call can be helpful in understanding and debugging functional problems \(such as the “one-way audio” issue NAT configuration errors can often create\). NAT allows a single external IP address to be shared by multiple devices behind a router. Since NAT is typically handled in the firewall, it also forms part of the security layer between a private network and the internet.
+Если вы собираетесь использовать VoIP через любой вид глобальной сети \(например, интернет\), вы будете иметь дело с брандмауэрами и довольно часто с преобразованием сетевых адресов \(NAT\).[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407758680) Базовое понимание того, как протоколы SIP и RTP работают вместе для создания VoIP-вызова может быть полезно в понимании и отладке функциональных проблем \(таких как проблема “односторонней слышимости” часто возникающая при ошибках конфигурации NAT\). NAT позволяет использовать один внешний IP-адрес совместно несколькими устройствами за маршрутизатором. Поскольку NAT обычно обрабатывается в брандмауэре, он также является частью уровня безопасности между частной сетью и интернетом.
 
-A VoIP call using SIP doesn’t consist just of the signaling messages to set up the call \(the SIP part of the connection\). It also requires the RTP streams \(the media\), which carry the actual audio connection,[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407755912) as shown in [Figure 7-1](7.%20Outside%20Connectivity%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22idp220832_ch07).
+VoIP-вызов с использованием SIP не состоит только из сигнальных сообщений для настройки вызова \(часть SIP-соединения\). Он также требует потоков RTP \(медиапотоки\), которые несут фактическое аудио соединение, [10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407755912) как показано на Рисунке 7-1.
 
-![Figure 7-1. SIP and RTP](.gitbook/assets/0%20%283%29.png)
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 7-1. SIP &#x438; RTP](.gitbook/assets/0%20%283%29.png)
 
-The use of separate protocols to carry the audio is what can make NAT traversal troublesome for VoIP connections, especially if the remote phones are behind one NAT, and the PBX is behind a different NAT. The problem is caused by the fact that while the SIP signaling will typically be allowed to pass through the firewalls at both ends, the RTP streams may not be recognized as part of the SIP session taking place, and thus will be ignored or blocked, as shown in [Figure 7-2](7.%20Outside%20Connectivity%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22idp224128_ch07). The effect of one or both of the RTP streams being blocked is that users will complain that they are seeing their calls happen, and can answer them, but cannot hear \(or cannot be heard\).
+Использование отдельного протокола для передачи звука - это то, что может сделать обход NAT трудным для VoIP-соединений, особенно если удаленные телефоны находятся за одним NAT, а УАТС - за другим. Проблема вызвана тем фактом, что в то время как SIP-сигнализация обычно разрешена в брандмауэрах на обоих концах, потоки RTP не могут быть распознаны как часть сеанса SIP, и, таким образом, будут проигнорированы или заблокированы, как показано на Рисунке 7-2. Эффект блокировки одного или обоих потоков RTP заключается в том, что пользователи будут жаловаться, что они видят, что их вызовы проходят, и могут отвечать на них, но не могут слышать \(или не могут быть услышаны\).
 
-![Figure 7-2. RTP blocked by firewall](.gitbook/assets/1%20%282%29.png)
+![Figure 7-2. &#x411;&#x43B;&#x43E;&#x43A;&#x438;&#x440;&#x43E;&#x432;&#x43A;&#x430; RTP &#x431;&#x440;&#x430;&#x43D;&#x434;&#x43C;&#x430;&#x443;&#x44D;&#x440;&#x43E;&#x43C;](.gitbook/assets/1%20%282%29.png)
 
-In this section we will discuss some of the methods you may employ to alleviate issues caused by NAT. There are two different scenarios that need to be considered, each requiring you to define parameters within the pjsip.conf file. NAT issues can be annoying to troubleshoot, as there are many different types of firewalls in production, and many different ways to configure them.
+В этом разделе мы обсудим некоторые методы, которые вы можете использовать для устранения проблем, вызванных NAT. Существует два различных сценария, которые необходимо рассмотреть, каждый из которых требует определения параметров в файле _pjsip.conf_. Проблемы NAT могут быть раздражающими при устранении неполадок, поскольку в продакшене существует множество различных типов брандмауэров и множество различных способов их настройки.
 
-In general, you’re going to want to add the following to the transport sections of your /etc/asterisk/pjsip.conf file:
+В общем, вы захотите добавить следующее в разделы транспорта вашего файла _/etc/asterisk/pjsip.conf_:
 
 ```text
 [transport-udp]
 type=transport
 protocol=udp
 bind=0.0.0.0
-local_net=x.x.x.x/xx ; IP/CIDR of your internal network
-external_media_address=x.x.x.x ; External IP address to use in RTP handling
-external_signaling_address=x.x.x.x ; External address for SIP signalling
+local_net=x.x.x.x/xx ; IP/CIDR вашей внутренней сети
+external_media_address=x.x.x.x ; Внешний IP-адрес для использования в обработке RTP
+external_signaling_address=x.x.x.x ; Внешний адрес для SIP-сигнализации
 ```
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-If you want to find the external address of your PBX, run the following from the shell:
+Если вы хотите узнать внешний адрес вашей УАТС, выполните следующие действия из командной строки:
 
 `$ dig +short myip.opendns.com @resolver1.opendns.com`
 {% endhint %}
 
-\*\*\*\*
+Вероятно, безопасно устанавливать эти параметры для всех сценариев, но будьте готовы экспериментировать, комментируя настройки и перезагружая PJSIP для тестирования различных сценариев.
 
-It is probably safe to set these parameters for all scenarios, but be prepared to experiment by commenting out settings and reloading PJSIP to test different scenarios.
+#### Устройства за NAT
 
-#### Endpoints behind NAT
-
-If your telephone sets are behind a remote NAT, there may be options in the ps\_endpoints table of your database that should be adjusted from the default settings. You will need to experiment with changing the following values between 'yes' and 'no'. There may be many different combinations possible.
+Если ваши телефонные аппараты находятся за удаленным NAT, в таблице `ps_endpoints` вашей базы данных могут быть параметры, которые следует настроить из настроек по умолчанию. Вам нужно будет поэкспериментировать с изменением следующих значений между `yes` и `no`. Там может быть много различных комбинаций возможно.
 
 ```text
 MySQL> update ps_endpoints set rtp_symmetric='yes',force_rport='yes',rewrite_contact='yes'
 ```
 
-Other parameters you may wish to look at include media\_address and direct\_media.
+Другие параметры, которые вы можете посмотреть, включают `media_address` и `direct_media`.
 
-Keep in mind the defaults when you are making changes. If in doubt, set the value of a field you’ve changed to NULL, as that will effectively set it back to the default.
-
-{% hint style="success" %}
-**Keeping a Remote Firewall Open**
-
-Sometimes a problem with a SIP telephone will surface wherein the phone will register and function when it is first booted, but then it will suddenly become unreachable. What is often happening here is that the remote firewall, seeing no activity coming from the set, will close the external connection to the telephone, and thus the PBX will lose the ability to signal to the set. The effect is that if the PBX tries to send a call to the phone, it will fail to connect \(the remote firewall will reject the connection\). If, on the other hand, the user makes a call out, for a few minutes the set will again be able to accept incoming calls. Naturally this can cause a lot of confusion for the users.
-
-A relatively simple solution to this problem[11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407725320) involves setting the registration timer on the remote phone to a low enough value that it will stimulate the connection every minute or so, and thus convince the firewall that this connection can be allowed to exist for a little while longer. It’s a bit of a hack, but it has proven successful. The challenge with proposing a universal solution is that there are many different models of firewalls, from inexpensive consumer-grade units to complex session border controllers, and this is one of the few solutions that seems to address the problem reliably in almost all cases.
-
-This approach is best on smaller systems \(fewer than 100 telephones\). A larger system with hundreds or thousands of phones will not be well served by this solution, as there will be an increased load on the system due to a near-constant flood of registrations from remote phones. In such a case, some more careful thought will need to be given to the overall design \(for example, a dedicated registrar server could be used in place of Asterisk to handle the registration traffic\).
-
-In a perfect world, you would be able to specify a particular model of firewall, and devise a configuration for those firewalls that would ensure your SIP traffic was properly handled. In reality, you will come up against not just different models of firewall, but even different firmware versions for the same model firewall.
-{% endhint %}
-
-#### Asterisk behind NAT
-
-First up, we need to tell you that putting your PBX behind a NAT is not recommended. It’s far better to ensure it is firewalled without a NAT layer \(especially if you have endpoints that are not on the same network as the PBX\).
-
-If you are stuck working with a PBX behind a NAT, you will need to work with your network team to ensure that the NAT components of the network are being correctly handled by your NAT device \(typically your firewall\). If they do not have sufficient skill in this regard, you may require the services of an outside consultant who is skilled in NAT traversal for SIP/RTP traffic. As we said, having your PBX behind NAT is not recommended.
-
-Typically, the endpoints will also be behind NAT, and thus you will have a double-NAT scenario, which is likely to require a few hours of wrangling with various settings, not only in Asterisk but also in the firewall, in order to achieve success. Remember that it is vital that you test audio in both directions; it’s not enough to simply verify that calls can be dialed and answered.
-
-In a scenario where there is no choice but to use a double-NAT, we would recommend finding out whether a VPN can be used between the PBX and the remote endpoints. In many cases this will end up being easier to configure.
-
-We wish we could say there’s a simple, reliable way to ensure NAT works in all cases, but unfortunately there is not.
-
-You could also look into using NAT assisting technologies such as STUN, TURN, and ICE. The details of these are beyond the scope of this book, since they require external servers, but many folks have had success with those protocols where other methods failed.
-
-### PSTN Termination and Origination
-
-Passing calls between a VoIP environment and the PSTN requires some sort of gateway to convert the VoIP \(typically SIP\) signaling into something compatible with PSTN protocols. These processes are referred to as origination and termination \([Figure 7-3](7.%20Outside%20Connectivity%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig0703)\).
-
-![Figure 7-3. PSTN origination and termination](.gitbook/assets/2%20%282%29.png)
-
-People often confuse the terms origination and termination as to which is which. For us, it’s useful to remember that since the PSTN was already there when VoIP came along, the terms evolved in relation to it. Ideally, the processes should probably be called PSTN origination, and PSTN termination, and we encourage you to remember them that way.[12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407704584)
-
-#### PSTN termination
-
-Until VoIP totally replaces the PSTN, there will be a need to connect calls from VoIP networks to the public telephone network. This process is referred to as termination \([Figure 7-4](7.%20Outside%20Connectivity%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig0704)\).
-
-![Figure 7-4. PSTN termination](.gitbook/assets/3.png)
-
-Although you can engineer an Asterisk system to act as a termination gateway \(using some sort of PSTN interfaces\), in practice you’re more likely to use an Internet Telephony Service Provider \(ITSP, also sometimes called a VoIP carrier\) to terminate your phone calls. ITSPs typically have a massive investment in infrastructure, and you’d be hard-pressed to do better without spending a ton of money. ITSPs have made termination inexpensive, so it’s tough to make a business case for doing it yourself.
+При внесении изменений учитывайте значения по умолчанию. Если вы сомневаетесь - установите значение поля, которое вы изменили на `NULL`, так как это фактически вернет его к значению по умолчанию.
 
 {% hint style="success" %}
-If you really need to connect your Asterisk system directly to the PSTN, you’ll need the following:
+**Сохранение удаленного брандмауэра открытым**
 
-* Appropriate circuit\(s\) from a PSTN telco \(analog, BRI, PRI, SS7, MFC/R2, etc.\)
-* Suitable hardware to connect to that circuit \(FXO, BRI, T1, E1, etc.\)
-* Echo cancellation \(hardware or software\)
-* The skills necessary to properly configure your equipment for the carrier you’re dealing with \(there are many flavors of each of these circuit types, and this can be difficult to get right even for those who know the technology well\)[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407692712)
+Иногда возникает проблема с SIP-телефоном, когда телефон регистрируется и функционирует при первой загрузке, но затем он внезапно становится недоступным. Что часто происходит здесь - удаленный брандмауэр, не видя никакой активности, поступающей от устройства, закрывает внешнее соединение с телефоном, и таким образом, АТС теряет возможность подавать сигнал на его вызов. Эффект заключается в том, что если АТС попытается отправить вызов на телефон, он не сможет подключиться \(удаленный брандмауэр отклонит соединение\). Если, с другой стороны, пользователь делает вызов, в течение нескольких минут устройство снова сможет принимать входящие вызовы. Естественно, это может вызвать много путаницы для пользователей.
 
-Beyond that, you will often have to handle a far more complex routing logic, which takes into consideration things like geography, corporate policy, cost, available resources, and so forth.
+Относительно простое решение этой проблемы[11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407725320) включает в себя установку таймера регистрации на удаленном телефоне на достаточно низкое значение, которое будет стимулировать соединение каждую минуту или около того, и, таким образом, убедить брандмауэр, что этому соединению может быть позволено существовать на некоторое время дольше. Это небольшой хак, но он оказался успешным. Проблема с предложением универсального решения заключается в том, что существует множество различных моделей брандмауэров, от недорогих устройств потребительского класса до сложных контроллеров границ сеанса, и это одно из немногих решений, которое, по-видимому, надежно решает проблему почти во всех случаях.
+
+Этот подход лучше всего подходит для небольших систем \(менее 100 телефонов\). Большая система с сотнями или тысячами телефонов не будет хорошо обслуживаться этим решением, так как будет увеличена нагрузка на систему из-за почти постоянного потока регистраций с удаленных телефонов. В таком случае необходимо будет более тщательно продумать общую конструкцию \(например, вместо Asterisk можно было бы использовать выделенный сервер регистратора для обработки регистрационного трафика\).
+
+В идеальном мире вы сможете указать конкретную модель брандмауэра и разработать конфигурацию для этих брандмауэров, которая обеспечит правильную обработку вашего SIP-трафика. На самом деле, вы столкнетесь не только с разными моделями брандмауэров, но даже с разными версиями прошивки для одной и той же модели брандмауэра.
 {% endhint %}
 
-In order to send your calls to an ITSP, your dialplan needs to look something like this:
+#### Asterisk за NAT
+
+Во-первых, мы должны сказать вам, что размещение вашей АТС за NAT не рекомендуется. Гораздо лучше обеспечить брандмауэр без уровня NAT \(особенно если у вас есть конечные точки, которые не находятся в той же сети, что и УАТС\).
+
+Если вы застряли в работе с АТС за NAT, вам нужно будет поработать с вашей сетевой командой, чтобы убедиться, что компоненты NAT правильно обрабатываются вашим устройством NAT \(как правило брандмауэром\). Если они не обладают достаточными навыками в этом отношении, Вам могут потребоваться услуги внешнего консультанта, который обладает навыками обхода NAT для трафика SIP/RTP. Как мы уже говорили, нахождение вашей АТС за NAT не рекомендуется.
+
+Как правило, конечные точки также будут находиться за NAT, и, таким образом, у вас будет сценарий с двойным NAT, который, вероятно, потребует нескольких часов пререканий с различными настройками не только в Asterisk, но и в брандмауэре чтобы добиться успеха. Помните - очень важно чтобы вы проверяли звук в обоих направлениях; недостаточно просто проверить, что звонки можно набирать и отвечать.
+
+В сценарии, где нет выбора, кроме как использовать двойной NAT, мы рекомендуем выяснить, можно ли использовать VPN между УАТС и удаленными конечными точками. Во многих случаях его будет легче настроить в конечном итоге. Мы хотели бы сказать, что есть простой и надежный способ гарантировать, что он работает во всех случаях, но, к сожалению, нет.
+
+Вы также можете изучить использование технологий помощи с NAT, таких как STUN, TURN и ICE. Подробности этого выходят за рамки данной книги, так как они требуют внешних серверов, но многие люди имели успех с этими протоколами, где другие методы потерпели неудачу.
+
+### Терминация и инициирование ТфОП
+
+Передача вызовов между средой VoIP и ТфОП требует какого-то шлюза для преобразования сигнализации VoIP \(обычно SIP\) в нечто совместимое с протоколами ТфОП. Эти процессы называются _инициированием_ и _терминацией_ \(Рисунок 7-3\).
+
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 7-3. &#x418;&#x43D;&#x438;&#x446;&#x438;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x438; &#x442;&#x435;&#x440;&#x43C;&#x438;&#x43D;&#x430;&#x446;&#x438;&#x44F; &#x422;&#x444;&#x41E;&#x41F;](.gitbook/assets/2%20%282%29.png)
+
+Люди часто путают термины _инициирование_ и _терминация_ относительно того, что есть что. Для нас полезно помнить, что, поскольку ТфОП уже существовал когда появился VoIP, термины развивались по отношению к нему. В идеале процессы, вероятно, должны называться _инициирование_ ТфОП и _терминация_ ТфОП, и мы рекомендуем вам запомнить их таким образом.[12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407704584)
+
+#### Терминация ТфОП
+
+До тех пор, пока VoIP полностью не заменит ТфОП будет необходимость подключения вызовов из VoIP-сетей к телефонной сети общего пользования. Этот процесс называется _терминацией_ \(Рисунок 7-4\).
+
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 7-4. &#x422;&#x435;&#x440;&#x43C;&#x438;&#x43D;&#x430;&#x446;&#x438;&#x44F; &#x422;&#x444;&#x41E;&#x41F;](.gitbook/assets/3.png)
+
+Хотя вы можете сконструировать систему Asterisk для работы в качестве шлюза терминации \(используя некоторые интерфейсы ТфОП\), на практике вы с большей вероятностью будете использовать _поставщика услуг интернет-телефонии_ \(ITSP, также иногда называемый _оператором VoIP_\) для терминации ваших телефонных звонков. Интернет-провайдеры обычно вкладывают огромные инвестиции в инфраструктуру и вам будет трудно сделать лучше не тратя кучу денег. Интернет-провайдеры сделали терминацию недорогой, поэтому трудно сделать бизнес-кейс для того, чтобы сделать это самостоятельно.
+
+{% hint style="success" %}
+Если вам действительно нужно подключить систему Asterisk непосредственно к ТфОП, вам потребуется следующее:
+
+* Соответствующая линия\(и\) от тел.комп. ТфОП \(аналоговая, BRI, PRI, SS7, MFC/R2 и т.д.\)
+* Подходящее оборудование для подключения к этой линии \(FXO, BRI, T1, E1 и т.д.\)
+* Эзоподавление \(аппаратное или программное\)
+* Навыки, необходимые для правильной настройки вашего оборудования для оператора, с которым вы имеете дело \(есть множество вариантов каждой из этих типов линий, и может быть трудно даже для тех, кто хорошо знает технологию\)[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407692712)
+
+Кроме того, вам часто придется обрабатывать гораздо более сложную логику маршрутизации, которая учитывает такие вещи, как география, корпоративная политика, стоимость, доступные ресурсы и т.д.
+{% endhint %}
+
+Для того, чтобы отправить ваши вызовы на ITSP, ваш диалплан должен выглядеть примерно так:
 
 ```text
 ; NANP-based systems
@@ -307,7 +303,7 @@ exten => 11X,1,Dial(${LOCAL}/${EXTEN}) ; Defining this will require info from yo
 ```
 
 {% hint style="warning" %}
-**Warning**
+**Предупреждение**
 
 Given that most PSTN circuits will allow you to dial any number, anywhere in the world, and given that you will be expected to pay for all incurred charges, we cannot stress enough the importance of security on any gateway machine that is providing PSTN termination. Criminals put a lot of effort into cracking phone systems \(especially poorly secured Asterisk systems\), and if you do not pay careful attention to all aspects of security, you will be the victim of toll fraud. It’s only a matter of time.
 
@@ -486,7 +482,7 @@ include => no-emergency-services
 
 In North America, regulations have obligated many VoIP carriers to offer what is popularly known as E911.[18](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407618072) When you sign up for their services, they will require address information for each DID that you wish to associate with outgoing calls. This address information will then be sent to the PSAP appropriate to that address, and your emergency calls should be handled the same way they would be if they were dialed on a traditional PSTN circuit.
 
-The bottom line is that you need to make sure that the phone system you create handles emergency calls in accordance with local regulations and user expectations.
+Суть в том, что вы должны убедиться, что телефонная система, которую вы создаете, обрабатывает экстренные вызовы в соответствии с местными правилами и ожиданиями пользователей.
 
 ## Вывод
 
