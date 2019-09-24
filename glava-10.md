@@ -12,32 +12,32 @@ description: Погружение в диалплан
 
 ## Выражения и манипуляяции с переменными
 
-As we begin our dive into the deeper aspects of dialplans, it is time to introduce you to a few tools that will greatly add to the power you can exercise in your dialplan. These constructs add incredible intelligence to your dialplan by enabling it to make decisions based on different criteria you define. Put on your thinking cap, and let’s get started.
+Мы начинаем наше погружение в более глубокие аспекты диалпланов, пришло время познакомить вас с несколькими инструментами, которые значительно увеличат мощь, которую вы можете использовать в своем диалплане. Эти конструкции добавляют невероятный интеллект к вашему диалплану, позволяя ему принимать решения на основе различных критериев, которые вы определяете. Надень свой мыслительный колпачок, и давай начнем.
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-Throughout this chapter we use best practices that have been developed over the years in dialplan creation. The primary one you’ll notice is that all the first priorities start with the NoOp\(\) application \(which simply means No Operation; nothing functional will happen\). The other one is that all following lines will start with same =&gt; n, which is a shortcut that says, “Use the same extension as was just previously defined.” Additionally, the indentation is two spaces.
+В этой главе мы используем лучшие практики, которые были разработаны на протяжении многих лет при создании диалплана. Основное, что вы заметите, это то, что все первые приоритеты начинаются с приложения `NoOp()` \(что просто означает No Operation - отсутствие операции; ничего функционального не произойдет\). Другое заключается в том, что все следующие строки будут начинаться с `same => n`что является ярлыком, который говорит: “используйте то же \(same\) расширение, что и ранее."К роме того, отступ - это два пробела.
 {% endhint %}
 
 ### Basic Expressions
 
-Expressions are combinations of variables, operators, and values that you string together to produce a result. An expression can test values, alter strings, or perform mathematical calculations. Let’s say we have a variable called COUNT. In plain English, two expressions using that variable might be \[COUNT plus 1\], or \[COUNT divided by 2\]. Each of these expressions has a particular result or value, depending on the value of the given variable.
+Выражения - это комбинации переменных, операторов и значений, которые строятся вместе для получения результата. Выражение может проверять значения, изменять строки или выполнять математические вычисления. Допустим, у нас есть переменная под названием `COUNT`. На простом английском языке два выражения, использующие эту переменную, могут быть \[`COUNT` плюс 1\] или \[`COUNT` делить на 2\]. Каждое из этих выражений имеет определенный результат или значение, зависящее от значения данной переменной.
 
-In Asterisk, expressions always begin with a dollar sign and an opening square bracket and end with a closing square bracket, as shown here:
+В Asterisk выражения всегда начинаются со знака доллара и открывающей квадратной скобки и заканчиваются закрывающей квадратной скобкой, как показано здесь:
 
 ```text
 $[expression]
 ```
 
-Thus, we would write our two examples like this:
+Таким образом, мы запишем наши два примера следующим образом:
 
 ```text
 $[${COUNT} + 1]
 $[${COUNT} / 2]
 ```
 
-When Asterisk encounters an expression in a dialplan, it replaces the entire expression with the resulting value. It is important to note that this takes place after variable substitution. To demonstrate, let’s look at the following code:[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-1)
+Когда Asterisk встречает выражение в диалплане, он заменяет все выражение результирующим значением. Важно отметить, что это происходит _после_ подстановки переменных. Для демонстрации рассмотрим следующий код: [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html#asterisk-CHP-6-FN-1)
 
 ```text
 exten => 321,1,NoOp()
@@ -47,45 +47,39 @@ exten => 321,1,NoOp()
  same => n,SayNumber(${NEWCOUNT})
 ```
 
-In the second priority, we assign the value of 3 to the variable named COUNT.
+Во втором приоритете мы присваиваем значение `3` переменной с именем `COUNT`.
 
-In the third priority, only one application—Set\(\)—is involved, but three things actually happen:
+В третьем приоритете задействовано только одно приложение - `Set()`, но на самом деле происходят три вещи:
 
-1. Asterisk substitutes ${COUNT} with the number 3 in the expression. The expression effectively becomes this:
+1. Asterisk заменяет `${COUNT}` на число `3` в выражении. Выражение эффективно становится таким: `same => n,Set(NEWCOUNT=$[3 + 1])`
+2. Asterisk вычисляет выражение, прибавляя `1` к `3`, и заменяет его вычисленным значением `4`: `same => n,Set(NEWCOUNT=4)`
+3. Приложение `Set()` присваивает значение `4` новой переменной `COUNT`.
 
- same =&gt; n,Set\(NEWCOUNT=$\[3 + 1\]\)
+Третий приоритет просто вызывает приложение `SayNumber()`, которое проговаривает текущее значение переменной `${NEWCOUNT}` \(устанавливается в значение `4` во втором приоритете\).
 
-1. Asterisk evaluates the expression, adding 1 to 3, and replaces it with its computed value of 4:
+Попробуйте это в своём диалплане.
 
- same =&gt; n,Set\(NEWCOUNT=4\)
+### Операторы
 
-1. The Set\(\) application assigns the value 4 to the NEWCOUNT variable.
+Когда вы создаете диалплан Asterisk, вы действительно пишете код на специализированном языке сценариев. Это означает, что диалплан Asterisk, как и любой язык программирования, распознает символы, называемые операторами, которые позволяют управлять переменными. Давайте рассмотрим типы операторов, которые доступны в Asterisk:
 
-The third priority simply invokes the SayNumber\(\) application, which speaks the current value of the variable ${NEWCOUNT} \(set to the value 4 in priority two\).
+_Логические операторы_
 
-Try it out in your own dialplan.
+Эти операторы оценивают "истинность" утверждения. В вычислительных терминах это по существу относится к тому, является ли утверждение чем-то или ничем \(ненулевым или нулевым, истинным или ложным, включенным или выключенным и т.д.\). Логическими операторами являются:
 
-### Operators
+_`expr1 | expr2`_
 
-When you create an Asterisk dialplan, you’re really writing code in a specialized scripting language. This means that the Asterisk dialplan—like any programming language—recognizes symbols called operators that allow you to manipulate variables. Let’s look at the types of operators that are available in Asterisk:
+Этот оператор \(называемый оператором “или” или “пайп”\) возвращает оценку _`expr1`_ если она истинна \(ни одна строка не равна нулю\). В противном случае он возвращает оценку _`expr2`_.
 
-Boolean operators
+_`expr1 & expr2`_
 
-These operators evaluate the “truth” of a statement. In computing terms, that essentially refers to whether the statement is something or nothing \(nonzero or zero, true or false, on or off, and so on\). The Boolean operators are:
+Этот оператор \(называемый “и”\) возвращает вычисление _`expr1`_, если оба выражения истинны \(т.е. ни одно из выражений не является в пустой строкой или нулем\). В противном случае возвращает ноль.
 
-expr1 \| expr2
+_`expr1 {=, >, >=, <, <=, !=} expr2`_
 
-This operator \(called the “or” operator, or “pipe”\) returns the evaluation of expr1 if it is true \(neither an empty string nor zero\). Otherwise, it returns the evaluation of expr2.
+Эти операторы возвращают результаты сравнения целых чисел, если оба аргумента являются целыми числами; в противном случае возвращают результаты сравнения строк. Результат каждого сравнения равен `1`, если указанное отношение истинно, или `0` если отношение ложно. \(Если вы выполняете сравнение строк, они будут выполняться в соответствии с текущими локальными настройками вашей операционной системы.\)
 
-expr1 & expr2
-
-This operator \(called “and”\) returns the evaluation of expr1 if both expressions are true \(i.e., neither expression evaluates to an empty string or zero\). Otherwise, it returns zero.
-
-expr1 {=, &gt;, &gt;=, &lt;, &lt;=, !=} expr2
-
-These operators return the results of an integer comparison if both arguments are integers; otherwise, they return the results of a string comparison. The result of each comparison is 1 if the specified relation is true, or 0 if the relation is false. \(If you are doing string comparisons, they will be done in a manner that’s consistent with the current local settings of your operating system.\)
-
-Mathematical operators
+_Математические операторы_
 
 Want to perform a calculation? You’ll want one of these:
 
