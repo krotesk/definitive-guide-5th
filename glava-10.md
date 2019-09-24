@@ -81,63 +81,69 @@ _`expr1 {=, >, >=, <, <=, !=} expr2`_
 
 _Математические операторы_
 
-Want to perform a calculation? You’ll want one of these:
+Хотите выполнить расчет? Вам понадобится один из них:
 
-expr1 {+, -} expr2
+_`expr1 {+, -} expr2`_
 
-These operators return the results of the addition or subtraction of integer-valued arguments.
+Эти операторы возвращают результат сложения или вычитания целочисленных аргументов.
 
-expr1 {\*, /, %} expr2
+_`expr1 {*, /, %} expr2`_
 
-These return, respectively, the results of the multiplication, integer division, or remainder of integer-valued arguments.
+Возвращают, соответственно, результат умножения, целочисленного деления или остатка деления целочисленных аргументов.
 
-Regular expression operator
+_Операторы регулярных выражений_
 
-You can also use the regular expression operator in Asterisk:
-
-**Note**
-
-Some additional information about the peculiarities of the regular expression operator in Asterisk can be found at [Walter Doekes’s website](http://wjd.nu/notes/2011%22%20/l%20%22asterisk-dialplan-peculiarities-regex).
-
-expr1 : expr2
-
-This operator matches expr1 against expr2, where expr2 must be a regular expression.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-2) The regular expression is anchored to the beginning of the string with an implicit ^.[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-3)
-
-If the pattern contains no subexpression, the number of matched characters is returned. This will be 0 if the match failed. If the pattern contains a subexpression -- \\(...\\) -- the string corresponding to \1 is returned. If the match fails, the empty string is returned.
-
-expr1 =~ expr2
-
-This operator works the same as the : operator, except that it is not anchored to the beginning.
-
-## Dialplan Functions
-
-Dialplan functions allow you to add more power to your expressions; you can think of them as intelligent variables. Dialplan functions allow you to calculate string lengths, dates and times, MD5 checksums, and so on, all from within a dialplan expression.
+Вы также можете использовать операторы регулярных выражений в Asterisk:
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-You’ll see usage of Playback\(silence/1\) throughout the examples in this chapter. We are doing this as it will answer the line if it hasn’t already been answered for us, and plays back some silence on the line. This allows other applications such as SayNumber\(\) to play back audio without gaps.
+Дополнительную информацию об особенностях работы оператора регулярного выражения в Asterisk можно найти на [сайте Уолтера Докса](https://wjd.nu/notes/2011#asterisk-dialplan-peculiarities-regex).
 {% endhint %}
 
-### Syntax
+_`expr1 : expr2`_
 
-Dialplan functions have the following basic syntax:
+Этот оператор сопоставляет _`expr1`_ с _`expr2`_, где _`expr2`_ должно быть регулярным выражением.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html#asterisk-CHP-6-FN-2) Регулярное выражение привязывается к началу строки с неявным `^`.[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html#asterisk-CHP-6-FN-3)
 
-FUNCTION\_NAME\(argument\)
+Если шаблон не содержит подвыражения, возвращается количество совпадающих символов. Это вернет `0`, если совпадений не найдено. Если шаблон содержит подвыражение -- \\(... \\) -- возвращается строка, соответствующая `\1`. Если совпадение не найдено, возвращается пустая строка.
 
-You reference a function’s name the same way as a variable’s name, but you reference a function’s value with the addition of a dollar sign, an opening curly brace, and a closing curly brace:
+_`expr1 =~ expr2`_
 
-${FUNCTION\_NAME\(argument\)}
+Этот оператор работает так же, как и оператор `:`, за исключением того, что он не привязан к началу.
 
-Functions can also encapsulate other functions, like so:
+## Функции диалплана
 
-${FUNCTION\_NAME\(${FUNCTION\_NAME\(argument\)}\)}
+Функции диалплана позволяют добавить больше мощи к вашим выражениям; вы можете думать о них как об интеллектуальных переменных. Функции диалплана позволяют вычислять длины строк, даты и время, контрольные суммы MD5 и т.д. в пределах выражений диалплана.
 
- ^ ^ ^ ^ ^^^^
+{% hint style="info" %}
+**Примечание**
 
- 1 2 3 4 4321
+Вы увидите использование функции `Playback(silence/1)` во всех примерах в этой главе. Мы делаем так поскольку она ответит на линию, если еще не ответили и воспроизведёт некоторую тишину на линии. Это позволяет другим приложениям, таким как `SayNumber()`, воспроизводить звук без пропусков.
+{% endhint %}
 
-As you’ve probably already figured out, you must be very careful about making sure you have matching parentheses and braces. In the preceding example, we have labeled the opening parentheses and curly braces with numbers and their corresponding closing counterparts with the same numbers.
+### Синтаксис
+
+Функции диалплана имеют следующий базовый синтаксис:
+
+```text
+FUNCTION_NAME(argument)
+```
+
+Вы ссылаетесь на имя функции так же, как и на имя переменной, но на значение функции ссылаются с добавлением знака доллара, открывающейся и закрывающейся фигурной скобки:
+
+```text
+${FUNCTION_NAME(argument)}
+```
+
+Функции также могут инкапсулировать другие функции, например:
+
+```text
+${FUNCTION_NAME(${FUNCTION_NAME(argument)})}
+ ^             ^ ^             ^        ^^^^
+ 1             2 3             4        4321
+```
+
+Как вы, вероятно, уже поняли необходимо быть очень осторожными, чтобы убедиться в наличии соответствующих круглых и фигурных скобок. В предыдущем примере мы обозначили открывающие круглые и фигурные скобки цифрами, а их соответствующие закрывающие аналоги - теми же цифрами.
 
 ### Examples of Dialplan Functions
 
