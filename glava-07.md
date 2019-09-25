@@ -324,13 +324,9 @@ _Не допускайте никаких незащищенных VoIP-соед
 
 Телефонные номера — при использовании в целях инициирования обычно называются DID'ами \(номера Direct Inward Dialing\). Ваш оператор связи отправит вызов вниз по каналу в вашу систему и передаст DID \(или специальные полученные цифры в некоторых случаях [14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407677720)\), которые будет интерпретировать диалплан Asterisk. Другими словами, вам понадобится контекст диалплана, который принимает входящие вызовы от вашего оператора, с расширениями или шаблонами, которые будут коррелировать с вашими DID.
 
-Для того, чтобы принять вызов от линии VoIP, вам нужно будет обрабатывать цифры, которые поставщик услуг будет посылать вам \(DID или номер телефона\). Номер DNIS и DID не должны совпадать, но, как правило, будут. В прошедшие дни перевозчик обычно спрашивал вас, в каком формате вы хотите получить цифры. В настоящее время перевозчик VoIP, как правило, говорит вам, какой формат они будут отправлять, и вы должны разместить. Два распространенных формата: DNIS \(который по сути является цифрами DID, который был вызван\) или E. 164, что означает, что они будут включать код страны с номером.
+Чтобы принять вызов по линии VoIP, вам нужно будет обработать цифры, которые поставщик услуг будет посылать вам \(DID или номер телефона\). Номера DNIS и DID не должны совпадать, но, как правило, будут. Ранее провайдер обычно спрашивал, в каком формате вы хотите получать цифры. В настоящее время оператор VoIP, как правило, говорит вам в каком формате будет отправлять, и вы должны принять его. Два распространенных формата: DNIS \(который по сути является цифрами вызываемого DID\) или E.164, что означает, что они будут включать код страны с номером.
 
 В диалплане входящий канал связывается с контекстом, который будет знать, как обрабатывать входящие цифры. В качестве примера, это может выглядеть примерно так:
-
-In order to accept a call from a VoIP circuit, you will need to handle the digits the carrier will send you \(the DID or phone number\). The DNIS number and the DID do not have to match, but typically they will. In days gone by, the carrier would usually ask you in what format you wish to receive the digits. Nowadays, a VoIP carrier will typically tell you what format they will send, and you are expected to accommodate. Two common formats are: DNIS \(which is essentially the digits of the DID that was called\) or E.164, which means that they’ll be including the country code with the number.
-
-In the dialplan, you associate the incoming circuit with a context that will know how to handle the incoming digits. As an example, it could look something like this:
 
 ```text
 [from-pstn]
@@ -339,14 +335,13 @@ exten => 4165550101,1,Goto(sets,101,1)
 exten => 4165550102,1,Goto(sets,102,1)
 exten => 4165550103,1,Goto(sets,103,1)
 exten => 4165554321,1,Goto(main-menu,${EXTEN},1)
-exten => 4165559876,1,VoiceMailMain() ; a handy back door for listening
- ; to voice messages
+exten => 4165559876,1,VoiceMailMain() ; удобный ход для прослушивания голосовых сообщений
 exten => i,1,Verbose(2,Incoming call to invalid number)
 ```
 
-In the number-mapping context, you explicitly list all of the DIDs that you expect to handle, plus an invalid handler for any DIDs that are not listed \(you could send invalid numbers to reception, or to an automated attendant, or to some context that plays an invalid prompt\).
+В контексте `number-muppng` вы явно перечисляете все идентификаторы DID, которые ожидаете принимать, а также недопустимый обработчик для всех DID, которые не перечислены \(вы можете отправлять недопустимые номера в приёмную или в автосекретарь или даже в некоторый контекст, который воспроизводит недопустимое оповещение\).
 
-Now we’re ready to discuss how to configure trunks to carry your external traffic.
+Теперь мы готовы обсудить, как настроить транки для передачи вашего внешнего трафика.
 
 ### Configuring SIP Trunks
 
