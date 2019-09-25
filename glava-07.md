@@ -345,34 +345,34 @@ exten => i,1,Verbose(2,Incoming call to invalid number)
 
 ### Настройка SIP-транков
 
-SIP является очень и очень популярным из VoIP-протоколов, настолько, что термины VoIP и SIP стали означать почти одно и то же. В предыдущих изданиях этой книги мы рассмотрели некоторые из других протоколов, которые были популярны в то время \(в первую очередь IAX2 и H.323\), но для этого издания больше нет реальной причины обсуждать что-либо, кроме SIP. Драйверы каналов для этих старых протоколов по-прежнему доступны в Asterisk, но они больше не поддерживаются.
+SIP является очень и очень популярным из VoIP-протоколов, настолько, что термины _VoIP_ и _SIP_ стали означать почти одно и то же. В предыдущих изданиях этой книги мы рассмотрели некоторые из других протоколов, которые были популярны в то время \(в первую очередь IAX2 и H.323\), но для этого издания больше нет реальной причины обсуждать что-либо, кроме SIP. Драйверы каналов для этих старых протоколов по-прежнему доступны в Asterisk, но они больше не поддерживаются.
 
 Протокол SIP является одноранговым и на самом деле не имеет формальной спецификации транка. Это означает, что независимо от того, подключаете ли вы один телефон к серверу или соединяете два сервера вместе, SIP-соединения будут одинаковыми. Сказав это, есть некоторые различия в стиле того, как эти ресурсы могут быть настроены, и определенно будет разница в том, как ваш диалплан обрабатывает маршрутизацию по транкам.
 
 #### Подключение системы Asterisk к SIP-провайдеру
 
-It is quite common to use the same ITSP carrier for termination and origination, but be aware that the two processes are unrelated to each other. If calls going in one direction pass your testing, that doesn’t mean calls in the other direction are OK. If you change configuration, test routing both in and out, every time.
+Довольно часто используется один и тот же поставщик услуг ITSP для терминации и инициирования, но имейте в виду, что эти два процесса не связаны друг с другом. Если звонки, идущие в одном направлении, проходят ваше тестирование, это не означает, что звонки в другом направлении в порядке. При изменении конфигурации каждый раз проверяйте маршрутизацию как внутри, так и снаружи.
 
-Many carriers will provide sample configurations for Asterisk. Unfortunately, these documents generally refer to the older chan\_sip driver, which has been deprecated. Digium has designed a PJSIP wizard that is intended to greatly simplify carrier configuration. You can still configure ITSP trunks using the exact same methods we’ve shown before for configuring other endpoints \(creating records in ps\_endpoint, ps\_aors, ps\_auths, and so forth\), but rather than hash over all that again, we are going to take a look at the wizard, since it consolidates several components into a single configuration file. We have found that since user endpoints change often, and carrier endpoints seldom do, it’s often useful to configure carriers in a configuration file rather than in the database.
+Многие компании предоставляют примеры конфигураций для Asterisk. К сожалению, эти документы обычно относятся к более старому драйверу `chan_sip`, который является устаревшим. Digium разработал мастер настройки PJSIP, который призван значительно упростить конфигурацию провайдера. Вы все еще можете настроить транки ITSP, используя те же методы, которые мы показывали ранее для настройки других конечных точек \(создание записей в `ps_endpoint`, `ps_aors`, `ps_auths` и т.д.\), но вместо того, чтобы снова хэшировать все это, мы рассмотрим мастер настройки, поскольку он объединяет несколько компонентов в один файл конфигурации. Мы обнаружили, что поскольку конечные точки пользователей часто меняются, а конечные точки провайдеров редко, бывает полезно настроить провайдеров в файле конфигурации, а не в базе данных.
 
-Before any config can be created, however, it’s important to determine how the carrier will interact with your system. There are two fundamental models we have seen:
+Однако перед созданием любой конфигурации важно определить, как оператор будет взаимодействовать с вашей системой. Есть две фундаментальные модели, которые мы видели:
 
-Password-based authentication, including registration[15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407656840)
+Аутентификация на основе пароля, включая регистрацию[15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407656840)
 
-This is common in smaller carriers focused on the small-business market. This is also the type of service you would get if you were simply registering a SIP phone directly to a service.
+Это характерно для небольших провайдеров, ориентированных на рынок малого бизнеса. Это также тип услуги, которую вы получите, если просто регистрируете SIP-телефон непосредственно в службе.
 
-IP-based authentication
+IP-аутентификация
 
-No password; no registration. This is more common with carriers that provide bulk trunking services to larger enterprises and resellers. \(Typically these will also come with some sort of minimum commitment in terms of volume.\) You will be expected to have solid SIP and networking skills.
+Нет пароля; нет регистрации. Это чаще встречается у провайдеров, которые предоставляют услуги оптового транкинга более крупным предприятиям и реселлерам. \(Как правило, они также сопровождаются каким-то минимальным обязательством с точки зрения объема.\) От вас ожидают, что у вас будут хорошие навыки работы с SIP и сетью.
 
-These are not hard-and-fast rules, but they are the most common in our experience.
+Это не жесткие и быстрые правила, но они наиболее распространены в нашем опыте.
 
-So there are two ways we might configure an ITSP in the /etc/asterisk/pjsip\_wizard.conf file.
+Таким образом, существует два способа настройки ITSP в файле _/etc/asterisk/pjsip\_wizard.conf_.
 
-First, if the carrier uses an IP address–based authentication, they will expect you to send your traffic from a static IP address \(and should your address change, you will need to inform them so they can reconfigure their equipment\). Your pjsip\_wizard.conf file could then look something like this:
+Во–первых, если провайдер использует IP-аутентификацию - он будет ожидать, что вы будете отправлять трафик со статического IP-адреса \(и если ваш адрес изменится, то нужно будет сообщить его, чтобы он мог перенастроить свое оборудование\). Ваш файл _pjsip\_wizard.conf_ может выглядеть примерно так:
 
 ```text
-; ITSP uses IP address-based authentication
+; ITSP используя IP-аутентификацию
 [itsp-no-auth]
 type=wizard
 remote_hosts=itsp.example.com
@@ -384,7 +384,7 @@ sends_auth=no
 accepts_auth=no
 ```
 
-Alternatively, if your IP address changes frequently \(or your carrier requires this method\), you can have your system register to the carrier \(which will require you to send authentication credentials to prove it’s really you\). Your calls will typically also be required to authenticate:
+Кроме того, если ваш IP-адрес часто меняется \(или ваш оператор требует этот метод\), вы можете зарегистрировать свою систему у провайдера \(что потребует от вас отправки учетных данных для проверки подлинности, чтобы доказать, что это действительно Вы\). Ваши звонки, как правило, также потребуется аутентифицировать:
 
 ```text
 [itsp-with-auth]
@@ -400,11 +400,11 @@ outbound_auth/username=itsp_provided_username
 outbound_auth/password= itsp_provided_password
 ```
 
-Note that the names \[itsp-no-auth\] and \[itsp-with-auth\] have no built-in meaning to Asterisk. They become the PJSIP channel names to which you send your calls.
+Обратите внимание, что имена `[itsp-no-auth]` и `[itsp-with-auth]` не имеют смысла для Asterisk. Они становятся именами каналов PJSIP, на которые вы отправляете свои звонки.
 
-**Configure trunks for termination**
+_**Настройка транков для терминирования**_
 
-The PJSIP wizard has created the channel definitions we require for our carrier. To send a call, we only need to make a minor change to the \[globals\] section of our extensions.conf file, as follows:
+Мастер PJSIP создал определения каналов, необходимые для нашего оператора связи. Чтобы отправить вызов, нам нужно только внести незначительные изменения в раздел `[globals]` нашего файла _extensions.conf_, как показано ниже:
 
 ```text
 [globals]
@@ -419,9 +419,9 @@ LOCAL=${TOLL}
 ;LOCAL=${TOLL}
 ```
 
-**Configuring trunks for origination**
+_**Настройка транков для инициирования**_
 
-For your incoming calls, you’ll need a context in your /etc/asterisk/extensions.conf file that matches the context specified for the ITSP channel. Let’s assume we have two NANP DIDs, 4169671111 and 4167363636, and place the required code above the \[sets\] context:
+Для входящих звонков вам понадобится контекст в файле _/etc/asterisk/extensions.conf_, соответствующий контексту, указанному для канала ITSP. Предположим, что у нас есть два DID'а NANP: 4169671111 и 4167363636, и поместите необходимый код над контекстом `[sets]`:
 
 ```text
 TOLL=PJSIP/itsp-no-auth
@@ -436,50 +436,50 @@ exten => 4167363636,1,Dial(sets,101,1)
 exten => 100,1,Dial(${UserA_DeskPhone})
 ```
 
-In a small system, this is fairly easy to administer. In a larger system, you’d want to put the DIDs into a table in your database, and have the dialplan look up the required target. We’ll be diving into databases a bit more later in the book.[16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407641272)
+В небольшой системе это довольно легко администрировать. В более крупной системе более целесообразно поместить DID'ы в таблицу в своей базе данных и заставить диалплан искать нужную цель. Мы будем погружаться в базы данных далее в этой книге.[16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407641272)
 
-That’s the gist of it as far as carrier interconnection is concerned. It can seem very complicated to set this up because there are a lot of options, but at a high level it’s fairly straightforward. Problems are usually found to be minor configuration mismatches. Be methodical, and please, please, please be paranoid about security!
+В этом и заключается суть связи с оператором. Это может показаться очень сложным, потому что есть много вариантов, но на самом деле довольно просто. Обычно обнаруживаются проблемы с незначительными несоответствиями конфигурации. Будьте методичны, и, пожалуйста, пожалуйста, пожалуйста, будьте параноиком по поводу безопасности!
 
-## Emergency Dialing
+## Набор экстренных служб
 
-In North America, people are used to being able to dial 911 in order to reach emergency services. Outside of North America, well-known emergency numbers are 112 and 999. If you make your Asterisk system available to people, you are obligated \(in many cases regulated\) to ensure that calls can be made to emergency services from any telephone connected to the system \(even from phones that otherwise are restricted from making calls\).
+В Северной Америке люди привыкли иметь возможность набрать 911, чтобы позвонить в экстренные службы. За пределами Северной Америки хорошо известны номера экстренных служб 112 и 999. Если вы сделаете свою систему Asterisk доступной для людей, то обязаны \(во многих случаях регулируется\) гарантировать совершение звонков в экстренные службы с любого телефона, подключенного к системе \(даже с телефонов, которые ограничены от совершения звонков\).
 
-One of the essential pieces of information the emergency response organization needs to know is where the emergency is \(e.g., where to send the fire trucks\). In a traditional PSTN trunk, this information is already known by the carrier and is subsequently passed along to whatever local authority handles these tasks \(in Canada and the US, these are called Public Safety Answering Points, or PSAP\). With VoIP circuits things can get a bit more complicated, by virtue of the fact that they are not physically tied to any geographical location.
+Одна из важных частей информации, которую экстренная организация должна знать - это то, где произошла чрезвычайная ситуация \(например, куда направить пожарные машины\). В традиционном транке ТфОП эта информация уже известна оператору и впоследствии передается любому местному органу, который выполняет эти задачи \(в Канаде и США они называются пунктами ответов на вопросы общественной безопасности или PSAP\). С VoIP-линиями все может стать немного сложнее, в силу того, что они физически не привязаны к какому-либо географическому местоположению.
 
-You need to ensure that your system will properly handle emergency calls from any phone connected to it, and you need to communicate what is available to your users. As an example, if you allow users to register to the system from softphones on their laptops, what happens if they are in a hotel room in another country, and somebody dials 911?[17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407626504)
+Вы должны убедиться, что ваша система будет правильно обрабатывать экстренные вызовы с любого телефона, подключенного к нему, и вам необходимо сообщить, что доступно вашим пользователям. Например, если вы разрешаете пользователям регистрироваться в системе с софтфонов на своих ноутбуках, что произойдет, если они находятся в гостиничном номере в другой стране, и кто-то набирает 911?[17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407626504)
 
-The dialplan for handling emergency calls does not need to be complicated. In fact, it’s far better to keep it simple. People are often tempted to implement all sorts of fancy functionality in the emergency services portions of their dialplans, but if a bug in one of your fancy features causes an emergency call to fail, lives could be at risk. This is no place for playing around. The \[emergency-services\] section of your dialplan might look something like this:
+Диалплан для обработки экстренных вызовов не должен быть сложным. На самом деле гораздо лучше держать его простым. Люди часто испытывают соблазн реализовать все виды причудливых функций в частях вызова аварийных служб своих диалпланов, но если ошибка в одной из ваших причудливых функций вызывает сбой экстренного вызова, жизнь может быть под угрозой. _Здесь не место для игр_. Раздел `[emergency-services]` вашего диалплана может выглядеть примерно так:
 
 ```text
 [emergency-services]
 exten => 911,1,Goto(dialpsap,1)
-exten => 9911,1,Goto(dialpsap,1) ; some people will dial '9' because
- ; they're used to doing that from the PBX
+exten => 9911,1,Goto(dialpsap,1) ; некоторые люди будут набирать '9' 
+; потому что они привыкли делать это с АТС
 exten => 999,1,Goto(dialpsap,1)
 exten => 112,1,Goto(dialpsap,1)
 exten => dialpsap,1,Verbose(1,Call initiated to PSAP!)
- same => n,Dial(${LOCAL}/911) ; REPLACE 911 HERE WITH WHATEVER
- ; IS APPROPRIATE TO YOUR AREA
+ same => n,Dial(${LOCAL}/911) ; ЗАМЕНИТЕ 911 ЗДЕСЬ НА ЧТО УГОДНО
+ ; ПОДХОДЯЩЕЕ ДЛЯ ВАШЕГО РАЙОНА
 [internal]
-include => emergency-services ; you have to have this in any context
- ; that has users in it
+include => emergency-services ; вы должны иметь это в любом контексте,
+; который имеет пользователей в нем
 ```
 
-In contexts where you know the users are not on-site \(for example, remote users with their laptops\), something like this might be best instead:
+В контекстах, где вы знаете, что пользователи не находятся на месте \(например, удаленные пользователи со своими ноутбуками\), что-то вроде этого может быть лучше всего:
 
 ```text
 [no-emergency-services]
 exten => 911,1,Goto(nopsap,1)
-exten => 9911,1,Goto(nopsap,1) ; for people who dial '9' before external calls
+exten => 9911,1,Goto(nopsap,1) ; для людей, которые набирают '9' перед внешними вызовами
 exten => 999,1,Goto(nopsap,1)
 exten => 112,1,Goto(nopsap,1)
 exten => nopsap,1,Verbose(1,Call initiated to PSAP!)
- same => n,Playback(no-emerg-service) ; you'll need to record this prompt
+ same => n,Playback(no-emerg-service) ; вам нужно будет записать эту подсказку
 [remote-users]
 include => no-emergency-services
 ```
 
-In North America, regulations have obligated many VoIP carriers to offer what is popularly known as E911.[18](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407618072) When you sign up for their services, they will require address information for each DID that you wish to associate with outgoing calls. This address information will then be sent to the PSAP appropriate to that address, and your emergency calls should be handled the same way they would be if they were dialed on a traditional PSTN circuit.
+В Северной Америке правила обязали многих VoIP-операторов предлагать то, что в народе известно как _E911_.[18](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407618072) Когда вы регистрируетесь в их сервисах, им потребуется адресная информация для каждого из DID, которые вы хотите связать с исходящими вызовами. Эта адресная информация будет затем отправлена в PSAP, соответствующий этому адресу, и ваши экстренные вызовы должны обрабатываться так же, как если бы они были набраны по традиционной схеме ТфОП.
 
 Суть в том, что вы должны убедиться, что телефонная система, которую вы создаете, обрабатывает экстренные вызовы в соответствии с местными правилами и ожиданиями пользователей.
 
@@ -487,39 +487,39 @@ In North America, regulations have obligated many VoIP carriers to offer what is
 
 Обычно прогнозируется, что ТфОП в конечном итоге полностью исчезнет. Однако, прежде чем это произойдет, потребуется широко используемый и надежный распределенный механизм, который позволит организациям и отдельным лицам публиковать адресную информацию, чтобы их можно было найти. Любая голосовая технология, которая не использует PSTN, в настоящее время является либо запатентованным продуктом стен-сада, либо игровой площадкой спамеров и преступников. Мы подозреваем, что ТфОП будет сущесвтвовать еще некоторое время, и если это так, то возникновение и завершение должны быть частью вашей системы Asterisk.
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407857960-marker) In a key system, each line has a corresponding button on each telephone, and lines are accessed by pressing the desired line key.
+[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407857960-marker) В системе клавиш каждая линия имеет соответствующую кнопку на каждом телефоне, и доступ к линиям осуществляется нажатием нужной клавиши линии.
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407852440-marker) You can name these anything you wish.
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407852440-marker) Вы можете назвать их как угодно.
 
-[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407848792-marker) For more information on pattern matches, see [Chapter 6](glava-06.md).
+[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407848792-marker) Дополнительную информацию о совпадениях шаблонов см. в [Главе 6](glava-06.md).
 
-[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407792344-marker) We should note, however, that we’ve written extensively on the subject in the past, and that body of work has been released under Creative Commons licensing, and is freely available.
+[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407792344-marker) Мы должны отметить, что в прошлом мы много писали на эту тему, и эта работа была выпущена под лицензией Creative Commons и находится в свободном доступе.
 
-[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407778472-marker) There’s also a circuit used in Japan called a J-1, which is most simply described as a 24-channel E1.
+[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407778472-marker) В Японии также используется линия, называемая J-1, которую проще всего назвать 24-канальной E1.
 
-[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407773192-marker) We would again like to note that we’ve written extensively about digital circuits and DAHDI in previous editions, and that body of work has been released under Creative Commons licensing, and is freely available. Also, Sangoma/Digium provide detailed instructions on how to install and configure their PSTN cards. If you are looking to deploy this technology, please enlist the services of a professional technical resource. This stuff is complex and nuanced, and is not something you’re going to enjoy playing with if you haven’t had some sort of previous experience. It is not necessary to learning or understanding Asterisk.
+[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407773192-marker) Мы хотели бы еще раз отметить, что мы много писали о цифровых микросхемах и DAHDI в предыдущих выпусках, и этот объем работ был выпущен по лицензии Creative Commons и находится в свободном доступе. Также Sangoma/Digium предоставляют подробные инструкции по установке и настройке своих карт PSTN. Если вы хотите использовать эту технологию, воспользуйтесь услугами профессионального технического ресурса. Это сложный и нюансированный материал, с которым вам не понравится играть, если у вас не было какого-то предыдущего опыта. Это не обязательно для изучения или понимания Asterisk.
 
-[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407767752-marker) When we say “lengthy” we mean that in relation to other electronic technologies.
+[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407767752-marker) Когда мы говорим «длительный», то имеем в виду это по отношению к другим электронным технологиям.
 
-[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407766216-marker) Just try to imagine if your telephone number could be spammed the way your email address is. The fact that the PSTN is regulated, costs money to use, and controls the telephone numbers has served to limit the plague of spam that email has suffered.
+[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407766216-marker) Просто попытайтесь представить, может ли ваш номер телефона быть спамом таким, как ваш адрес электронной почты. Тот факт, что ТфОП регулируется, стоит денег и использует телефонные номера служил для ограничения чумы спама, от которого пострадала электронная почта.
 
-[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407758680-marker) [The Wikipedia page on network address translation](http://bit.ly/2InpK6S) is comprehensive and useful. For more information about different types of NAT, and how NAT operates in general, start there.
+[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407758680-marker) [Страница Wikipedia по трансляции сетевых адресов](https://ru.wikipedia.org/wiki/NAT) является всеобъемлющей и полезной. Для получения дополнительной информации о различных типах NAT и о том, как работает NAT в целом, начните там.
 
-[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407755912-marker) SIP is not the only protocol to use RTP to carry media streams.
+[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407755912-marker) SIP-это не единственный протокол, использующий RTP для передачи медиапотоков.
 
-[11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407725320-marker) Whether it is the best solution is still up for debate.
+[11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407725320-marker) Вопрос о том, является ли это наилучшим решением, все еще обсуждается.
 
-[12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407704584-marker) And perhaps even use them that way in conversation, since many people are confused by these terms, and few will admit it when you’re talking to them.
+[12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407704584-marker) И, возможно, даже использовать их таким образом в разговоре, так как многие люди смущены этими терминами, и мало кто признает это, когда вы говорите с ними.
 
-[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407692712-marker) Trust us, Jim Van Meggelen worked with this stuff for many years before getting into VoIP.
+[13](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407692712-marker) Поверьте нам, Джим Ван Меггелен работал с этим материалом в течение многих лет, прежде чем попасть в VoIP.
 
-[14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407677720-marker) In traditional PBXs, the purpose of DIDs was to allow connection directly to an extension in the office. Many PBXs could not support concepts such as number translation or flexible digit lengths, and thus the carrier had to pass the extension number, rather than the number that was dialed \(which was also referred to as the DNIS number, from Directory Number Information Service\). For example, the phone number 416-555-1234 might have been mapped to extension 100, and thus the carrier would have sent the digits 100 to the PBX instead of the DNIS of 4165551234. If you ever replace an old PBX with an Asterisk system, you may find this translation in place, and you’ll need to obtain a list of mappings between the numbers that the caller dials and the numbers that are sent to the PBX. It was also common to see the carrier only pass the last four digits of the DNIS number, which the PBX then translates into an internal number. With VoIP trunks this will seldom be the case, but be aware that it is possible.
+[14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407677720-marker) В традиционных УАТС назначение DID состояло в том, чтобы разрешить подключение непосредственно к дополнительному номеру в офисе. Многие УАТС не могут поддерживать такие понятия, как перевод номера или гибкие длины цифр, и поэтому оператор должен передавать добавочный номер, а не номер, который был набран \(который также назывался номером DNIS, от Directory Number Information Service\). Например, телефонный номер 416-555-1234 мог бы быть сопоставлен с добавочным номером 100, и таким образом оператор отправил бы цифры 100 в УАТС вместо DNIS 4165551234. Если вы когда-нибудь замените старую АТС системой Asterisk, вы можете найти этот перевод на месте, и вам нужно будет получить список сопоставлений между номерами, которые набирает абонент, и номерами, которые отправляются на УАТС. Было также распространено видеть, что оператор передает только последние четыре цифры номера DNIS, который УАТС затем переводит во внутренний номер. С VoIP-транками это будет редко иметь место, но имейте в виду, что это возможно.
 
-[15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407656840-marker) Remember that registration is simply a mechanism whereby a SIP endpoint tells a registrar server where it is located. This is useful if your IP address changes, as might be the case on a consumer or small-business type of internet connection \(such as DSL or cable\).
+[15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407656840-marker) Помните, что регистрация - это просто механизм, посредством которого конечная точка SIP сообщает серверу регистратора где она расположена. Это полезно, если ваш IP-адрес изменяется, как это может быть в случае потребителей или малого бизнеса по отношению к подключению к интернету \(например, DSL или кабель\).
 
-[16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407641272-marker) A table to handle this would simply need a field for the DID, and three more for the target context, extension, and priority.
+[16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407641272-marker) Таблица для обработки этого просто потребует поле для DID и еще три для целевого контекста, расширения и приоритета.
 
-[17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407626504-marker) Don’t assume this can’t happen. When somebody calls 911, it’s because they have an emergency, and it’s not safe to assume that they’re going to be in a rational state of mind. A recording that tells your softphone users what address the system is going to be sending to the PSAP may clue them in to the fact that the fire trucks aren’t going to be sent to where they’re needed. \(“This telephone is registered to our Toronto system. Emergency services will be sent to our office at 301 Front St W. Press 1 to proceed with this call.”\).
+[17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407626504-marker) Не думайте, что это не может произойти. Когда кто-то звонит по номеру 911, это происходит из-за чрезвычайной ситуации, и небезопасно предполагать, что он будет в рациональном состоянии. Запись, которая сообщает пользователям программного телефона, по какому адресу система будет отправлять PSAP, может указывать на то, что пожарные машины не будут отправляться туда, где они нужны. \(«Этот телефон зарегистрирован в нашей системе Торонто. Экстренные службы будут отправлены в наш офис по адресу 301 Front St W. Нажмите 1, чтобы продолжить этот вызов».\).
 
-[18](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407618072-marker) It’s not actually the carrier that’s offering this; rather it’s a capability of the PSAP. E911 is also used on PSTN trunks, but since that happens without any involvement on your part \(the PSTN carriers handle the paperwork for you\), you are generally not aware that you have E911 on your local lines.
+[18](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407618072-marker) На самом деле это не оператор предлагает эту услугу; скорее это возможность PSAP. E911 также используется на транках ТфОП, но поскольку это происходит без какого-либо участия с вашей стороны \(операторы ТфОП обрабатывают документы за вас\), вы как правило не знаете, что у вас есть E911 на ваших местных линиях.
 
