@@ -282,47 +282,51 @@ MySQL> update ps_endpoints set rtp_symmetric='yes',force_rport='yes',rewrite_con
 Для того, чтобы отправить ваши вызовы на ITSP, ваш диалплан должен выглядеть примерно так:
 
 ```text
-; NANP-based systems
-[to-pstn] ; Yes, we're going through an ITSP, but the PSTN is our destination
-exten => _1NXXNXXXXXX.,1,Dial(${TOLL}/${EXTEN}) ; Country code plus phone number
-; Add a '1' and send
-exten => _NXXNXXXXXX.,1,Dial(${LOCAL}/1${EXTEN}) ; Country code plus phone number
-; Strip off the '011' and send
-exten => _011X.,1,Dial(${TOLL}/${EXTEN:3}) ; Country code plus phone number
-; Emergency dialing
-exten => 911,1,Dial(${LOCAL}/911) ; Defining this will require info from your carrier
+; Для систем NANP
+[to-pstn] ; Да, мы проходим через ITSP, но ТфОП - это наш пункт назначения
+exten => _1NXXNXXXXXX.,1,Dial(${TOLL}/${EXTEN}) ;  код страны плюс номер телефона
+; Добавляем '1' и отправляем
+exten => _NXXNXXXXXX.,1,Dial(${LOCAL}/1${EXTEN}) ; код страны плюс номер телефона
+; Отбрасываем '011' и отправляем
+exten => _011X.,1,Dial(${TOLL}/${EXTEN:3}) ; код страны плюс номер телефона
+; Вызов экстренных служб
+exten => 911,1,Dial(${LOCAL}/911) ; определение этого потребует информации от вашего оператора
 
-; Most of the rest of the world
+; Большая часть остального мира
 [to-pstn]
-; Strip off NDD prefix, add country code, and send
-exten => _0X.,1,Dial(${TOLL}/<add your country code here>${EXTEN:1})
-; Strip off IDD prefix and send
-exten => _00X,1,Dial(${LOCAL}/${EXTEN:2}) ; Country code plus phone number
-; Emergency dialing (and other services)
-exten => 11X,1,Dial(${LOCAL}/${EXTEN}) ; Defining this will require info from your carrier
+; Убрать префикс NDD, добавить код страны и отправить
+exten => _0X.,1,Dial(${TOLL}/<добавить сюда код страны>${EXTEN:1})
+; Убрать префикс IDD и отправить
+exten => _00X,1,Dial(${LOCAL}/${EXTEN:2}) ; код страны плюс номер телефона
+; Вызов экстренных служб (и других служб)
+exten => 11X,1,Dial(${LOCAL}/${EXTEN}) ; для определения этого потребуется информация от вашего оператора
 ```
 
 {% hint style="warning" %}
 **Предупреждение**
 
-Given that most PSTN circuits will allow you to dial any number, anywhere in the world, and given that you will be expected to pay for all incurred charges, we cannot stress enough the importance of security on any gateway machine that is providing PSTN termination. Criminals put a lot of effort into cracking phone systems \(especially poorly secured Asterisk systems\), and if you do not pay careful attention to all aspects of security, you will be the victim of toll fraud. It’s only a matter of time.
+Учитывая, что большинство каналов ТфОП позволит вам набрать любой номер в любой точке мира, и учитывая, что вы будете платить за все понесенные расходы, мы не можем лишний раз не подчеркнуть важность безопасности на любой машине шлюза, которая обеспечивает терминацию ТфОП. Преступники прикладывают много усилий для взлома телефонных систем \(особенно плохо защищенных систем Asterisk\), и если вы не уделите пристального внимания всем аспектам безопасности, то станете жертвой мошенничества. Это лишь вопрос времени.
 
-_Do not allow any unsecured VoIP connections into any context that contains PSTN termination._
+_Не допускайте никаких незащищенных VoIP-соединений в любой контекст, содержащий терминацию ТфОП._
 {% endhint %}
 
-Termination will tend to be more complex than we’ve outlined here—even if you’re using an ITSP as your carrier—but the basic concept is fairly straightforward: match a pattern that your users might dial, prepare it for the carrier by removing or adding necessary digits, and send the call out the appropriate PJSIP endpoint \(trunk\). We’ve only discussed the dialplan here; in a later section we’ll discuss how to configure the SIP trunks to carry this traffic.
+Терминация как правило будет более сложной, чем мы описали здесь — даже если вы используете ITSP в качестве своего оператора, но основная концепция довольно проста: сопоставьте шаблон номера, который ваши пользователи могут набрать, подготовьте его для оператора, удалив или добавив необходимые цифры, и отправьте вызов соответствующей конечной точке PJSIP \(транку\). Мы здесь только обсудили диалплан; в более позднем разделе мы обсудим, как настроить SIP-транки для передачи этого трафика.
 
-#### PSTN origination
+#### Инициирование ТфОП
 
-You might also want to be able to accept calls from the PSTN into your VoIP network. The process of doing this is commonly referred to as origination. This simply means that the call originated in the PSTN \([Figure 7-5](7.%20Outside%20Connectivity%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig0705)\).
+Вы также можете принимать звонки от ТфОП в свою сеть VoIP. Процесс выполнения этого обычно называют _инициированием_. Это просто означает что вызов инициирован в ТфОП \(Рисунок7-5\).
 
-![Figure 7-5. PSTN origination](.gitbook/assets/4.png)
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 7-5. &#x418;&#x43D;&#x438;&#x446;&#x438;&#x438;&#x440;&#x43E;&#x432;&#x430;&#x43D;&#x438;&#x435; &#x422;&#x444;&#x41E;&#x41F;](.gitbook/assets/4.png)
 
-In order to provide origination, a phone number is required.
+Для того, чтобы обеспечить инициирование, требуется номер телефона.
 
-In the good old days, when VoIP and Asterisk were new, it was quite common for people to handle the circuit connection to the PSTN themselves, using analog or digital trunks provided by the local phone company. For the most part this type of connection is now handled by ITSPs, and you simply need to connect your system to your VoIP carrier across a SIP trunk.
+В старые добрые времена, когда VoIP и Asterisk были молоды, для людей было довольно распространено обрабатывать подключение линии к ТфОП самостоятельно, используя аналоговые или цифровые транки, предоставляемые местной телефонной компанией. По большей части этот тип соединения теперь обрабатывается ITSP, и вам просто нужно подключить вашу систему к VoIP-оператору через SIP-транк.
 
-Phone numbers—when used for the purpose of origination—are commonly called DIDs \(Direct Inward Dialing numbers\). Your carrier will send a call down the circuit to your system, and pass the DID \(or special received digits in some cases[14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22idm46178407677720)\), which the Asterisk dialplan will interpret. In other words, you will need a dialplan context that accepts incoming calls from your carrier, with extensions or patterns that will correlate to your DIDs.
+Телефонные номера — при использовании в целях инициирования обычно называются DID'ами \(номера Direct Inward Dialing\). Ваш оператор связи отправит вызов вниз по каналу в вашу систему и передаст DID \(или специальные полученные цифры в некоторых случаях [14](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html#idm46178407677720)\), которые будет интерпретировать диалплан Asterisk. Другими словами, вам понадобится контекст диалплана, который принимает входящие вызовы от вашего оператора, с расширениями или шаблонами, которые будут коррелировать с вашими DID.
+
+Для того, чтобы принять вызов от линии VoIP, вам нужно будет обрабатывать цифры, которые поставщик услуг будет посылать вам \(DID или номер телефона\). Номер DNIS и DID не должны совпадать, но, как правило, будут. В прошедшие дни перевозчик обычно спрашивал вас, в каком формате вы хотите получить цифры. В настоящее время перевозчик VoIP, как правило, говорит вам, какой формат они будут отправлять, и вы должны разместить. Два распространенных формата: DNIS \(который по сути является цифрами DID, который был вызван\) или E. 164, что означает, что они будут включать код страны с номером.
+
+В диалплане входящий канал связывается с контекстом, который будет знать, как обрабатывать входящие цифры. В качестве примера, это может выглядеть примерно так:
 
 In order to accept a call from a VoIP circuit, you will need to handle the digits the carrier will send you \(the DID or phone number\). The DNIS number and the DID do not have to match, but typically they will. In days gone by, the carrier would usually ask you in what format you wish to receive the digits. Nowadays, a VoIP carrier will typically tell you what format they will send, and you are expected to accommodate. Two common formats are: DNIS \(which is essentially the digits of the DID that was called\) or E.164, which means that they’ll be including the country code with the number.
 
