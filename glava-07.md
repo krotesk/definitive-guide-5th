@@ -343,11 +343,11 @@ exten => i,1,Verbose(2,Incoming call to invalid number)
 
 Теперь мы готовы обсудить, как настроить транки для передачи вашего внешнего трафика.
 
-### Configuring SIP Trunks
+### Настройка SIP-транков
 
-SIP is far and away the most popular of the VoIP protocols—so much so that the terms VoIP and SIP have almost come to mean the same thing. In previous editions of this book, we’ve looked at some of the other protocols that were popular at the time \(primarily IAX2 and H.323\), but for this edition there’s no real reason anymore to discuss anything but SIP. The channel drivers for those older protocols are still available in Asterisk, but they’re no longer supported.
+SIP является очень и очень популярным из VoIP-протоколов, настолько, что термины VoIP и SIP стали означать почти одно и то же. В предыдущих изданиях этой книги мы рассмотрели некоторые из других протоколов, которые были популярны в то время \(в первую очередь IAX2 и H.323\), но для этого издания больше нет реальной причины обсуждать что-либо, кроме SIP. Драйверы каналов для этих старых протоколов по-прежнему доступны в Asterisk, но они больше не поддерживаются.
 
-The SIP protocol is peer-to-peer and does not really have a formal trunk specification. This means that whether you are connecting a single phone to your server or connecting two servers together, the SIP connections will be similar. Having said that, there are some differences in the style of how these resources can be configured, and there will definitely be a difference in how your dialplan handles routing across trunks.
+Протокол SIP является одноранговым и на самом деле не имеет формальной спецификации транка. Это означает, что независимо от того, подключаете ли вы один телефон к серверу или соединяете два сервера вместе, SIP-соединения будут одинаковыми. Сказав это, есть некоторые различия в стиле того, как эти ресурсы могут быть настроены, и определенно будет разница в том, как ваш диалплан обрабатывает маршрутизацию по транкам.
 
 #### Connecting an Asterisk system to a SIP provider
 
