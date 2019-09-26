@@ -24,31 +24,49 @@ Asterisk может показаться довольно пугающим и с
 
 ## Условные обозначения используемые в книге
 
-The following typographical conventions are used in this book:_Italic_
+В этой книге используются следующие типографские условные обозначения: 
 
-Indicates new terms, URLs, email addresses, filenames, file extensions, pathnames, directories, and package names, as well as Unix utilities, commands, modules, parameters, and arguments.`Constant width`
+_Курсив_
 
-Used to display code samples, file contents, command-line interactions, database commands, library names, and options.**`Constant width bold`**
+Обозначает новые термины, URL-адреса, адреса электронной почты, имена файлов, расширения файлов, пути, каталоги и имена пакетов, а также утилиты Unix, команды, модули, параметры и аргументы.
 
-Indicates commands or other text that should be typed literally by the user. Also used for emphasis in code._`Constant width italic`_
+`Моноширинный`
 
-Shows text that should be replaced with user-supplied values._`[ Keywords and other stuff ]`_
+Используется для отображения примеров кода, содержимого файлов, взаимодействий командной строки, команд базы данных, имен библиотек и параметров.
 
-Indicates optional keywords and arguments._`{ choice-1 | choice-2 }`_
+**`Моноширинный полужирный`**
 
-Signifies either _`choice-1`_ or _`choice-2`_.
+Обозначает команды или другой текст, который должен быть набран буквально пользователем. Также используется для акцентирования в коде.
 
-**Tip**
+_`Моноширинный курсив`_
 
-This element signifies a tip or suggestion.
+Показывает текст, который должен быть заменен пользовательскими значениями.
 
-**Note**
+_`[ Keywords and other stuff ]`_
 
-This element signifies a general note.
+Указывает необязательные ключевые слова и аргументы.
 
-**Caution**
+_`{ вариант-1 | вариант-2 }`_
 
-This element indicates a warning or caution.
+Означает _`вариант-1`_ или _`вариант-2`_.
+
+{% hint style="info" %}
+**Подсказка**
+
+Этот элемент означает подсказку или предложение.
+{% endhint %}
+
+{% hint style="success" %}
+**Примечания**
+
+Этот элемент обозначает общую заметку.
+{% endhint %}
+
+{% hint style="warning" %}
+**Предупреждение**
+
+Этот элемент указывает на предупреждение или предостережение.
+{% endhint %}
 
 ## O’Reilly Online Learning
 

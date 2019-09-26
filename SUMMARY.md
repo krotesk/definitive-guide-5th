@@ -1,7 +1,6 @@
 # Table of contents
 
 * [Начальная страница](README.md)
-* [Метод перевода](metod-perevoda.md)
 * [Важные изменения](changelog.md)
 * [Вступление](foreword.md)
 * [Предисловие](preface.md)
