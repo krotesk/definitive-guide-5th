@@ -222,190 +222,171 @@ mkdir -p ~/ansible/playbooks
 
 ## Установка Asterisk
 
-Asterisk is officially delivered in a tarball \(as source code\), and it must be downloaded, extracted, and compiled.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409043048) This is not difficult to do, so long as you have all the dependencies correct. Between the writing of this book and your reading of it, there may have been some changes to the various dependencies, so your install process may have to be run slightly differently. It’s often difficult to know the difference between an error message that can safely be ignored, and one that is indicating a critical problem; however, in general, you should have identified and resolved any errors in the previous processes before arriving at this step. If your dependencies are sorted, the Asterisk install will tend to go smoothly.
+Asterisk официально поставляется в виде архива \(как исходный код\), и его необходимо загрузить, извлечь и скомпилировать.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409043048) Это не трудно сделать когда у вас удовлетворены все зависимости. Между написанием этой книги и вашим чтением ее, возможно, были некоторые изменения в различных зависимостях, поэтому вам процесс установки, возможно, придется запускать немного иначе. Часто бывает трудно понять разницу между сообщением об ошибке, которое можно безопасно проигнорировать, и сообщением, указывающим на критическую проблему; однако, как правило, вы должны были выявить и устранить все ошибки в предыдущих процессах, прежде чем приступать к этому шагу. Если ваши зависимости отсортированы, установка Asterisk будет проходить гладко.
 
-### Download and Prerequisites
+### Загрузка и необходимые компоненты
 
-Log out of the system, and log back in as user astmin.[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409035896)
+Выйдите из системы и снова войдите в систему как пользователь `astmin`.[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409035896)
 
-Type the following commands from the shell in order to download the Asterisk source code:
+Введите следующие команды из командной консоли, чтобы загрузить исходный код Asterisk:
 
-**Note**
+{% hint style="info" %}
+**Примечание**
 
-When you see us write &lt;TAB&gt; in a filename, what we mean is that you should press the Tab key on your keyboard and allow autocomplete to fill in what it can. The rest of the typing then follows.
+ Когда вы видите, что мы указываем &lt;TAB&gt; в имени файла, то мы имеем в виду, что вы должны нажать клавишу Tab на клавиатуре и разрешить автозаполнение, чтобы заполнить то, что она может. Затем следует остальная часть набора текста.
+{% endhint %}
 
+```text
 $ mkdir ~/src
-
 $ cd ~/src
-
 $ wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-16-current.tar.gz
-
 $ tar zxvf asterisk-16-current.tar.gz
+$ cd asterisk-16.<TAB> # вкладка должна заполниться автоматически (если она не имеет более одного совпадения)
+```
 
-$ cd asterisk-16.&lt;TAB&gt; \# tab should auto-complete \(unless it has more than one match\)
+Теперь мы можем выполнить несколько предварительных условий, определенных командой Asterisk, а также проверить среду:
 
-We can now run a few prerequisites that the Asterisk team has defined, and also have the environment checked:
-
-$ cd contrib/scripts \(or cd ~/src/asterisk-16.&lt;TAB&gt;/contrib/scripts
-
-$ sudo ./install\_prereq install \# asterisk has a few prerequisites that this simplifies
-
+```text
+$ cd contrib/scripts (or cd ~/src/asterisk-16.<TAB>/contrib/scripts
+$ sudo ./install_prereq install # asterisk has a few prerequisites that this simplifies
 $ cd ../..
-
 $ ./configure --with-jansson-bundled
+```
 
-Asterisk is now ready to compile and install, but there are a few tweaks worth making to the configuration before compilation.
+Asterisk теперь готов к компиляции и установке, но есть несколько настроек, которые стоит внести в конфигурацию перед компиляцией.
 
-### Compiling and Installing
+### Компиляция и установка
 
+```text
 $ make menuselect
+```
 
-You will see a menu that presents various options you can select for the compiler. Use the arrow and Tab keys to move around, and the Enter key to select/deselect. For the most part, the defaults should be fine, but we want to make a few tweaks to the sound files in order to ensure we have all the sounds we want, in the best format.
+Вы увидите меню, в котором представлены различные параметры, которые можно выбрать для компилятора. Для перемещения используйте клавиши со стрелками и Tab, а для выбора/отмены выбора - клавишу Enter. По большей части, значения по умолчанию должны быть в порядке, но мы хотим сделать несколько настроек для звуковых файлов, чтобы убедиться, что у нас есть все звуки, которые мы хотим, в лучшем формате.
 
-**Note**
+{% hint style="info" %}
+**Примечание**
 
-At this point you can also select other languages you wish to have on your system. We recommend you select the WAV and G722 formats \(and G729 as well, if you need to support it\).
+На этом этапе вы также можете выбрать другие языки, которые захотите иметь в своей системе. Мы рекомендуем вам выбрать форматы WAV и G722 \(а также G729, если вам необходимо его поддерживать\).
+{% endhint %}
 
-Under Codec Translators \(--- External ---\):
+Под Codec Translators \(`--- External ---`\):
 
-* Select \[\*\] codec\_opus
-* Select \[\*\] codec\_silk
-* Select \[\*\] codec\_siren7
-* Select \[\*\] codec\_siren14
-* Select \[\*\] codec\_g729a
+* Выбрать `[*] codec_opus`
+* Выбрать `[*] codec_silk`
+* Выбрать `[*] codec_siren7`
+* Выбрать `[*] codec_siren14`
+* Выбрать `[*] codec_g729a`
 
-Under Core Sound Packages:
+Под Core Sound Packages:
 
-* Deselect \[\*\] CORE-SOUNDS-EN-GSM
-* Select \[\*\] CORE-SOUNDS-EN-WAV
-* Select \[\*\] CORE-SOUNDS-EN-G722
+* Убрать `[*] CORE-SOUNDS-EN-GSM`
+* Выбрать `[*] CORE-SOUNDS-EN-WAV`
+* Выбрать `[*] CORE-SOUNDS-EN-G722`
 
-Under Extras Sound Packages:
+Под Extras Sound Packages:
 
-* Select \[\*\] EXTRA-SOUNDS-EN-WAV
-* Select \[\*\] EXTRA-SOUNDS-EN-G722
+* Выбрать `[*] EXTRA-SOUNDS-EN-WAV`
+* Выбрать `[*] EXTRA-SOUNDS-EN-G722`
 
-Save and Exit.
+Save and Exit \(Сохранить и выйти\).
 
-Three more commands and Asterisk is installed:
+Еще три команды и Asterisk установлена:
 
-$ make \# this will take several minutes to complete
+```text
+$ make # это займет несколько минут
+ # (в зависимости от скорости вашей системы)
+$ sudo make install # вы должны запустить это с повышенными привилегиями
+$ sudo make config # и это
+```
 
- \# \(depending on the speed of your system\)
+{% hint style="danger" %}
+**Предупреждение**
 
-$ sudo make install \# you must run this with escalated privileges
+По завершении выполнения команды `make config` будут предложены некоторые команды для установки примеров файлов конфигурации. Для целей этой книги, _вы **не** должны этого делать_. Мы будем создавать необходимые файлы вручную, поэтому примеры файлов будут служить только тому, чтобы нарушить и запутать этот процесс. Сказав это, отметим что примеры файлов полезны, и мы будем упоминать их на протяжении всей этой книги, так как они являются отличным справочным материалом.
+{% endhint %}
 
-$ sudo make config \# this too
+_Перезагрузите систему._
 
-**Warning**
+Как только загрузка будет завершена, войдите в систему как пользователь `astmin` и временно установите SELinux на `Permissive` \(после каждой загрузки он будет возвращаться к `Enforcing`, поэтому до тех пор, пока мы не разобрались с частью установки SELinux, это должно происходить на каждой загрузке\):
 
-When the make config command has completed, it will suggest some commands to install the sample configuration files. For the purposes of this book, you do not want to do this. We will be building the necessary files by hand, so the sample files will only serve to disrupt and confuse that process. Having said that, the sample files are useful, and we will mention them throughout this book, since they are excellent reference material.
-
-Reboot the system.
-
-Once the boot is complete, log back in as the astmin user, and temporarily set SELinux to Permissive \(it will revert to Enforcing after each boot, so until we’ve sorted out the SELinux portion of the install, this has to happen on every boot\):
-
+```text
 $ sudo setenforce Permissive
-
 $ sudo sestatus
+```
 
-This should show Current mode: permissive
+Это должно показать `Current mode: permissive`
 
-Verify that Asterisk is running with the following command:
+Убедитесь, что Asterisk работает со следующей командой:
 
-$ ps -ef \| grep asterisk
+```text
+$ ps -ef | grep asterisk
+```
 
-You want to see the /user/sbin/asterisk daemon running \(currently as user root, but we’ll fix that shortly\).
-
-Asterisk is now installed and is running; however, there are a few configuration settings we’ll need to make before the system is in any way useful.
+Вы можете увидеть, что демон `/user/sbin/asterisk` запущен \(в настоящее время как пользователь `root`, но мы исправим это в ближайшее время\). Asterisk теперь установлен и работает; однако, есть несколько параметров конфигурации, которые нам нужно сделать, прежде чем система будет полезна.
 
 ### Initial Configuration
 
 Asterisk stores its configuration files in the /etc/asterisk folder by default. The Asterisk process itself doesn’t need any configuration files in order to run; however, it will not be usable yet, since none of the features it provides have been specified. We’re going to handle a few of the initial configuration tasks now.
 
+{% hint style="info" %}
 **Note**
 
 Asterisk configuration files use the semicolon \(;\) character for comments, primarily because the hash character \(\#\) is a valid character on a telephone number pad.
+{% endhint %}
 
 The modules.conf file gives you fine-grained control over what modules Asterisk will \(and will not\) load. It’s usually not necessary to explicitly define each module in this file, but you could if you wanted to. We’re going to create a very simple file like this:
 
+```text
 $ sudo chown asterisk:asterisk /etc/asterisk ; sudo chmod 664 /etc/asterisk
-
 $ sudo -u asterisk vim /etc/asterisk/modules.conf
-
-\[modules\]
-
+[modules]
 autoload=yes
-
-preload=res\_odbc.so
-
-preload=res\_config\_odbc.so
+preload=res_odbc.so
+preload=res_config_odbc.so
+```
 
 We’re using ODBC to load many of the configurations of other modules, and we need this connector available before Asterisk attempts to load anything else, so we’ll pre-load it.
 
-Next up, we’re going to tweak the logger.conf file just a bit from the defaults.
+Next up, we’re going to tweak the _logger.conf_ file just a bit from the defaults.
 
+```text
 $ sudo -u asterisk vim /etc/asterisk/logger.conf
-
-\[general\]
-
-exec\_after\_rotate=gzip -9 ${filename}.2;
-
-\[logfiles\]
-
-;debug =&gt; debug
-
-;security =&gt; security
-
-console =&gt; notice,warning,error,verbose
-
-;console =&gt; notice,warning,error,debug
-
-messages =&gt; notice,warning,error
-
-full =&gt; notice,warning,error,debug,verbose,dtmf,fax
-
-;full-json =&gt; \[json\]debug,verbose,notice,warning,error,dtmf,fax
-
+[general]
+exec_after_rotate=gzip -9 ${filename}.2;
+[logfiles]
+;debug => debug
+;security => security
+console => notice,warning,error,verbose
+;console => notice,warning,error,debug
+messages => notice,warning,error
+full => notice,warning,error,debug,verbose,dtmf,fax
+;full-json => [json]debug,verbose,notice,warning,error,dtmf,fax
 ;syslog keyword : This special keyword logs to syslog facility
-
-;syslog.local0 =&gt; notice,warning,error
+;syslog.local0 => notice,warning,error
+```
 
 You will notice that many lines are commented out. They’re there as a reference, because you’ll find when debugging your system you may want to frequently tweak this file. We’ve found it’s easier to have a few handy lines prepared and commented out, rather than having to look up the syntax each time.
 
 The next file, asterisk.conf, defines various folders needed for normal operation, as well as parameters needed to run as the asterisk user:
 
+```text
 $ sudo -u asterisk vim /etc/asterisk/asterisk.conf
-
-\[directories\]\(!\)
-
-astetcdir =&gt; /etc/asterisk
-
-astmoddir =&gt; /usr/lib/asterisk/modules
-
-astvarlibdir =&gt; /var/lib/asterisk
-
-astdbdir =&gt; /var/lib/asterisk
-
-astkeydir =&gt; /var/lib/asterisk
-
-astdatadir =&gt; /var/lib/asterisk
-
-astagidir =&gt; /var/lib/asterisk/agi-bin
-
-astspooldir =&gt; /var/spool/asterisk
-
-\[options\]
-
-astrundir =&gt; /var/run/asterisk
-
-astlogdir =&gt; /var/log/asterisk
-
-astsbindir =&gt; /usr/sbin
-
+[directories](!)
+astetcdir => /etc/asterisk
+astmoddir => /usr/lib/asterisk/modules
+astvarlibdir => /var/lib/asterisk
+astdbdir => /var/lib/asterisk
+astkeydir => /var/lib/asterisk
+astdatadir => /var/lib/asterisk
+astagidir => /var/lib/asterisk/agi-bin
+astspooldir => /var/spool/asterisk
+[options]
+astrundir => /var/run/asterisk
+astlogdir => /var/log/asterisk
+astsbindir => /usr/sbin
 runuser = asterisk ; The user to run as. The default is root.
-
 rungroup = asterisk ; The group to run as. The default is root
+```
 
 We’ll configure more files later on, but these are all we need for the time being.
 
@@ -471,63 +452,41 @@ Alembic is not used by Asterisk, so the configuration you’ve just performed do
 
 Log into the database now, and review all the tables that have been created:
 
+```text
 $ mysql -u asterisk -p
-
-mysql&gt; use asterisk;
-
-mysql&gt; show tables;
+mysql> use asterisk;
+mysql> show tables;
+```
 
 You should see a list similar to this:
 
-\| alembic\_version\_config \|
-
-\| extensions \|
-
-\| iaxfriends \|
-
-\| meetme \|
-
-\| musiconhold \|
-
-\| ps\_aors \|
-
-\| ps\_asterisk\_publications \|
-
-\| ps\_auths \|
-
-\| ps\_contacts \|
-
-\| ps\_domain\_aliases \|
-
-\| ps\_endpoint\_id\_ips \|
-
-\| ps\_endpoints \|
-
-\| ps\_globals \|
-
-\| ps\_inbound\_publications \|
-
-\| ps\_outbound\_publishes \|
-
-\| ps\_registrations \|
-
-\| ps\_resource\_list \|
-
-\| ps\_subscription\_persistence \|
-
-\| ps\_systems \|
-
-\| ps\_transports \|
-
-\| queue\_members \|
-
-\| queue\_rules \|
-
-\| queues \|
-
-\| sippeers \|
-
-\| voicemail \|
+```text
+| alembic_version_config      |
+| extensions                  |
+| iaxfriends                  |
+| meetme                      |
+| musiconhold                 |
+| ps_aors                     |
+| ps_asterisk_publications    |
+| ps_auths                    |
+| ps_contacts                 |
+| ps_domain_aliases           |
+| ps_endpoint_id_ips          |
+| ps_endpoints                |
+| ps_globals                  |
+| ps_inbound_publications     |
+| ps_outbound_publishes       |
+| ps_registrations            |
+| ps_resource_list            |
+| ps_subscription_persistence |
+| ps_systems                  |
+| ps_transports               |
+| queue_members               |
+| queue_rules                 |
+| queues                      |
+| sippeers                    |
+| voicemail                   |
+```
 
 We’re not going to configure anything in the database as of yet. We’ve got some more base configuration to do first.
 

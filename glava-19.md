@@ -4,29 +4,31 @@ description: Asterisk REST Interface
 
 # Глава 19
 
-> People who think they know everything are a great annoyance to those of us who do.
+> Люди, которые думаю, будто все знают, раздражают нас, людей, которые действительно все знают.
 >
-> Isaac Asimov
+> -- Айзек Азимов
 
-The Asterisk REST Interface \(ARI\) was created to address the limitations inherent in developing external or enhanced functionality outside Asterisk. While AGI allows you to trigger external applications, and AMI allows you to externally supervise and control calls in progress, any attempt to integrate both into a complete external application quickly becomes complex and kludgy. ARI allows developers to build a stand-alone and complete application, using Asterisk as the underlying engine.
+Интерфейс Asterisk REST \(ARI\) был создан для устранения ограничений, присущих разработке внешних или расширенных функций вне Asterisk. В то время как AGI позволяет запускать внешние приложения, а AMI позволяет осуществлять наблюдение и контроль выполняемых вызовов, любая попытка интегрировать их в полное внешнее приложение быстро становится сложной и запутанной. ARI позволяет разработчикам создавать автономное и полное приложение, используя Asterisk в качестве базового движка.
 
-As of this writing, ARI requires a very basic dialplan in order to trigger the Stasis\(\) dialplan application, which then hands the channel over to ARI. By the time you read this, it’s very likely that this requirement has changed, as the Asterisk developer community has actively been working on allowing ARI to spawn without any dialplan in the middle.
+На момент написания этой статьи ARI требует очень простого диалплана для запуска приложения `Stasis()`, которое затем передает канал ARI. К тому времени, когда вы читаете это, очень вероятно, что это требование изменилось, поскольку сообщество разработчиков Asterisk активно работает над тем, чтобы позволить ARI появляться без какого-либо диалплана в середине.
 
-Using an external interface such as ARI to control Asterisk is not necessarily going to make your life easier. The skills required to implement and troubleshoot applications of this type require a comprehensive skill set, in not only your language of choice, but also in Linux system administration, Asterisk administration, network troubleshooting, and fundamental telephony concepts. For the skilled developer, ARI can give you the power you want in your applications, but for someone learning, we recommend you consider mastering the dialplan before you dive into external development environments. The dialplan is peculiar, but it is also completely integrated, high-performance, and relatively easy to learn.
+Использование внешнего интерфейса, такого как ARI, для управления Asterisk, не обязательно облегчит вашу жизнь. Навыки, необходимые для реализации и устранения неполадок приложений этого типа, требуют комплексного набора навыков не только на выбранном языке, но и в области системного администрирования Linux, администрирования Asterisk, устранения неполадок в сети и основных концепций телефонии. Для опытного разработчика ARI может дать необходимую мощь в приложениях, но для тех, кто учится, мы рекомендуем изучить диалплан прежде чем погружаться во внешние среды разработки. Диалплан является своеобразным, но он также полностью интегрирован, высокопроизводителен и относительно прост в освоении.
 
-Having said that, let’s get you up and running with ARI.
+Сказав это, давайте разберемся с ARI.
 
-## ARI Quick Start
+## ARI быстрый старт
 
-This section gives you a simple working example of ARI. Later in the chapter we’ll cover things in more detail.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178403407976)
+В этом разделе приведен простой рабочий пример Ари. Позже в этой главе мы рассмотрим все более подробно.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178403407976)
 
-#### Warning
+{% hint style="danger" %}
+#### Предупреждение
 
-In this quick-start section we will be using a very simple HTTP access layer. You must be very careful about putting this sort of configuration into production. If, for example, you are going to run your application on a separate machine and connect it to Asterisk across a socket, you will want a more secure connection. What we’re doing in this section is akin to a sailing club using dinghies to teach; useful as an introduction, but foolish and dangerous to set out to sea in such a craft.
+В этом разделе быстрого старта мы будем использовать очень простой уровень доступа HTTP. Вы должны быть очень осторожны при вводе такого рода конфигурации в продакшен. Если, например, вы собираетесь запустить приложение на отдельном компьютере и подключить его к Asterisk через сокет, вам потребуется более безопасное соединение. То, что мы делаем в этом разделе, сродни парусному клубу, использующему шлюпки для обучения; полезно в качестве введения, но глупо и опасно выходить в море на таком судне.
+{% endhint %}
 
-### Basic Asterisk Configuration
+### Базовая конфигурация Asterisk
 
-You should already have the Asterisk web server running, so you simply need to verify that your /etc/asterisk/http.conf file looks similar to the following:
+У вас уже должен быть запущен веб-сервер Asterisk, поэтому вам просто нужно проверить, что ваш файл _/etc/asterisk/http.conf_ выглядит следующим образом:
 
 ```text
 [general]
