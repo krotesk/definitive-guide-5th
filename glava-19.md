@@ -248,31 +248,33 @@ $ sudo asterisk -rx 'module reload http' ; sudo asterisk -rx 'module reload ari'
 
 ### Stasis
 
-The Stasis Message Bus allows the core of Asterisk to communicate events with other modules and components. It is mostly internal to Asterisk; however, in the case of ARI, a dialplan application named Stasis\(\) allows the dialplan to pass call control to your external ARI application.
+Шина сообщений Stasis позволяет ядру Asterisk связывать события с другими модулями и компонентами. Она как правило является внутренней для Asterisk; тем не менее, в случае ARI приложение диалплана с именем `Stasis()` позволяет диалплану передать управление вызовами внешнему приложению ARI.
 
-The Stasis\(\) application itself is required in order to signal to the dialplan that call control is to be passed to the external program via ARI.
+Само приложение `Stasis()` требуется для того, чтобы сигнализировать диалплану, что управление вызовами должно быть передано внешней программе через ARI.
 
-As of Asterisk 16, it is no longer necessary to write dialplan code to define a connection from an incoming channel to your ARI client application. Many developers in the Asterisk community write all their call control logic in external applications, and having to code up a few lines of dialplan just to pass channels to their app was seen as kludgy and confusing. They requested \(and developed\) a mechanism whereby Asterisk will create automatic dialplan to handle this function.
+{% hint style="info" %}
+Начиная с Asterisk 16, больше нет необходимости писать код диалплана для определения соединения от входящего канала к клиентскому приложению ARI. Многие разработчики в сообществе Asterisk пишут всю свою логику управления вызовами во внешних приложениях, и необходимость писать несколько строк диалплана только для передачи каналов в свое приложение считалась сложной и запутанной. Они запросили \(и разработали\) механизм, с помощью которого Asterisk автоматически создает диалплан для обработки этой функции.
 
-When the API is instantiated, the application reference in the URL—for example, our app zarniwoop—will trigger the automatic creation of a dialplan context named according to the app name \(in this case, \[stasis-zarniwoop\]\), including an extension that pattern matches everything. This extension will then pass all calls arriving in that context to Stasis\(zarniwoop\). You will need to associate your channels with the correct context \(context=stasis-zarniwoop\) in your PJSIP \(or other channel\) configuration tables, at which point calls to those channels will automatically be connected through Stasis\(\) to the client application.
+При создании экземпляра API, ссылка на приложение в URL-адресе — например, наше приложение `zarniwoop` - инициирует автоматическое создание контекста диалплана, названного в соответствии с именем приложения \(в данном случае `[stasis-zarniwoop]`\), включая расширение, шаблон которого соответствует всему. Затем это расширение будет передавать все вызовы, поступающие в этот контекст в `Stasis(zarniwoop)`. Вам нужно будет связать ваши каналы с правильным контекстом \(`context=stasis-zarniwoop`\) в ваших таблицах конфигурации PJSIP \(или другого канала\), и в момент вызова этих каналов они будут автоматически подключены через `Stasis()` к клиентскому приложению.
 
-If all this seems confusing, there’s no reason you need to stop using actual dialplan to handle this, as we did earlier in our quick-start example.
+Если все это кажется запутанным, нет причин, по которым вам нужно прекратить использовать фактический диалплан для обработки этого, как мы делали ранее в нашем примере быстрого запуска.
+{% endhint %}
 
-Understanding the workings of Stasis\(\) is generally not necessary unless you are going to be developing the Asterisk product itself \(i.e., joining the Asterisk development team and coding new capabilities into Asterisk\).
+Понимание работы `Stasis()` обычно не требуется, если вы не собираетесь разрабатывать сам продукт Asterisk \(т.е. присоединиться к команде разработчиков Asterisk и создавать новые возможности в Asterisk\).
 
-Typically, after your initial experimentation with ARI, you will want to implement a framework to help ease the work of developing your external application.
+Как правило, после первых экспериментов с ARI вы захотите реализовать фреймворк для облегчения работ по разработке внешнего приложения.
 
 ## Фреймворки
 
-A production-grade application using ARI will benefit from the implementation of a framework to simplify development effort, add a layer of security, and provide a control environment.
+Производственное приложение, использующее ARI, выиграет от внедрения платформы для упрощения разработки, добавления уровня безопасности и обеспечения среды управления.
 
-There are several such libraries available. Which one you choose will in part be dictated by which language you prefer to use, and should also take into account whether the framework you’re interested in has an active community and is still being actively maintained.
+Существует несколько таких библиотек. Какую из них вы выберете отчасти будет продиктовано тем, какой язык вы предпочитаете использовать, а также должны учитывать, имеет ли структура, в которой вы заинтересованы, активное сообщество и наличие активной поддержки.
 
-The ones described next are listed in the Asterisk wiki. We examined the code repository for each, and while some projects are still actively maintained, others have not been updated in quite some time. If you are planning to implement one of these frameworks, you will need to do your own due diligence to ensure you can get support for it. In many cases, it may be worthwhile to reach out to the developers, and determine their consulting rates so you can ensure priority access to their time should you need it.
+Те, которые описаны ниже, перечислены в Asterisk wiki. Мы рассмотрели репозиторий кода для каждого, и хотя некоторые проекты все еще активно поддерживаются, другие не обновлялись в течение довольно продолжительного времени. Если вы планируете реализовать один из этих фреймворков, вам нужно будет сделать собственную экспертизу, чтобы убедиться, что вы можете получить поддержку для него. Во многих случаях, возможно, стоит обратиться к разработчикам и определить их ставки за консультации, чтобы вы могли обеспечить приоритетный доступ к их времени, если вам это нужно.
 
-### ari-py \(and aioari\) for Python
+### ari-py \(и aioari\) для Python
 
-The [ari-py framework](https://github.com/asterisk/ari-py) was written by Digium in 2013–2014, and as of this writing had not been updated since then. This framework builds on Asterisk’s Swagger.py client.
+Фреймворк [ari-py](https://github.com/asterisk/ari-py) была написана Digium в 2013-2014 годах и с тех пор она не обновлялась. Эта структура основана на клиенте Asterisk Swagger.py.
 
 Shortly after the relase of ari-py, it was forked into the [aioari project](https://pypi.org/project/aioari/), which delivers an asynchronous version of ari-py. This code has been more steadily updated since then \(although as of this writing had not been updated since early 2018\). This framework should be included in your evaluation of a Python framework for ARI.
 
