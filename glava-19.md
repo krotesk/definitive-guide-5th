@@ -18,12 +18,12 @@ description: Asterisk REST Interface
 
 ## ARI быстрый старт
 
-В этом разделе приведен простой рабочий пример Ари. Позже в этой главе мы рассмотрим все более подробно.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178403407976)
+В этом разделе приведен простой рабочий пример ARI. Позже в этой главе мы рассмотрим все более подробно.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178403407976)
 
 {% hint style="danger" %}
 #### Предупреждение
 
-В этом разделе быстрого старта мы будем использовать очень простой уровень доступа HTTP. Вы должны быть очень осторожны при вводе такого рода конфигурации в продакшен. Если, например, вы собираетесь запустить приложение на отдельном компьютере и подключить его к Asterisk через сокет, вам потребуется более безопасное соединение. То, что мы делаем в этом разделе, сродни парусному клубу, использующему шлюпки для обучения; полезно в качестве введения, но глупо и опасно выходить в море на таком судне.
+В этом разделе быстрого старта мы будем использовать очень простой уровень доступа HTTP. Вы должны быть очень осторожны при вводе такого рода конфигурации в продакшен. Если, например, вы собираетесь запустить приложение на отдельном компьютере и подключить его к Asterisk через сокет, то потребуется более безопасное соединение. То, что мы делаем в этом разделе, сродни парусному клубу, использующему шлюпки для обучения; полезно в качестве начинания, но глупо и опасно выходить в море на таком судне.
 {% endhint %}
 
 ### Базовая конфигурация Asterisk
@@ -36,7 +36,7 @@ enabled = yes
 bindaddr = 127.0.0.1
 ```
 
-Next, a simple /etc/asterisk/ari.conf file is needed:
+Далее нужен простой файл _/etc/asterisk/ari.conf_:
 
 ```text
 [general]
@@ -45,17 +45,17 @@ pretty = yes
 [asterisk]
 type = user
 read_only = no
-password = whateveryoudodontusethispassword
+password = чтобывыниделалинеиспользуйтеэтотпароль
 ```
 
-OK, let’s load the ari module now:
+Хорошо, давайте загрузим модуль `ari` сейчас:
 
 ```text
 $ sudo asterisk -rx 'module load res_ari.so'
 Loaded res_ari.so => (Asterisk RESTful Interface)
 ```
 
-Then, into our /etc/asterisk/extensions.conf file we need an extension to trigger the Stasis\(\) dialplan app:[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396697256)
+Затем в файл _/etc/asterisk/extensions.conf_ необходимо добавить расширение для запуска приложения диалплана `Stasis()`:[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396697256)
 
 ```text
 exten => 242,1,Noop()
@@ -63,24 +63,24 @@ exten => 242,1,Noop()
  same => n,Hangup()
 ```
 
-Reload your dialplan with
+Перезагрузите ваш диалплан с помощью:
 
 ```text
 $ sudo asterisk -rx 'dialplan reload'
 Dialplan reloaded.
 ```
 
-At this point it might be worthwhile to simply reload Asterisk:
+На этом этапе может быть стоит просто перезагрузить Asterisk:
 
 ```text
 $ sudo service asterisk restart
 ```
 
-There are just a few steps left, and you’re ready to test your ARI environment.
+Осталось всего несколько шагов, и вы готовы протестировать свою среду ARI.
 
-### Testing Your Basic ARI Environment
+### Тестирование вашей среды ARI
 
-Since ARI depends on WebSockets, we’ll need a tool to allow us to test from the command line. The Node.js package manager \(npm\) will allow us to find and install the wscat tool we’ll use for our tests.
+Поскольку ARI зависит от WebSockets, нам понадобится инструмент, позволяющий тестировать из командной строки. Node.JS package manager \(npm\) позволит нам найти и установить инструмент сканирования, который мы будем использовать для наших тестов.
 
 ```text
 $ sudo yum -y install npm
@@ -88,33 +88,34 @@ $ sudo npm install -g wscat
 /usr/bin/wscat -> /usr/lib/node_modules/wscat/bin/wscat
 /usr/lib
 +-- wscat@2.2.1
- +-- commander@2.15.1
- +-- read@1.0.7
- ¦ +-- mute-stream@0.0.8
- +-- ws@5.2.2
- +-- async-limiter@1.0.0
+  +-- commander@2.15.1
+  +-- read@1.0.7
+  ¦ +-- mute-stream@0.0.8
+  +-- ws@5.2.2
+    +-- async-limiter@1.0.0
 ```
 
-Now let’s light it up and see what we get!
+Теперь давайте зажжем его и посмотрим, что получим!
 
 ```text
 $ wscat -c "ws://localhost:8088/ari/events?api_key= \
- asterisk:whateveryoudodontusethispassword&app=zarniwoop"
+ asterisk:чтобывыниделалинеиспользуйтеэтотпароль&app=zarniwoop"
+
 connected (press CTRL+C to quit)
 >
 ```
 
-So far, so good. Let’s place a call to our Stasis\(\) app and see what happens.
+Пока все идет хорошо. Давайте сделаем звонок в наше приложение `Stasis()` и посмотрим что произойдет.
 
-Open up a new SSH window \(leave the other one as is so you can see what happens in the wscat session\). Connect to the Asterisk CLI in that new shell session:
+Откройте новое окно SSH \(оставьте предыдущее как есть, чтобы видеть что происходит в сеансе `wscat`\). Подключитесь к CLI Asterisk в этом новом сеансе оболочки:
 
 ```text
 $ sudo asterisk -rvvvv
 ```
 
-Using one of your lab telephones, place a call to 242.
+Используя один из ваших лабораторных телефонов, позвоните на номер 242.
 
-On the Asterisk CLI, you should see this:
+В Asterisk CLI, вы должны увидеть это:
 
 ```text
 *CLI>
@@ -123,66 +124,66 @@ On the Asterisk CLI, you should see this:
  -- Executing [242@sets:2] Stasis("PJSIP/SOFTPHONE_A-00000001", "zarniwoop") in new stack
 ```
 
-And on the wscat session, you should see this:
+И в сеансе `wscat` вы должны увидеть это:
 
 ```text
 >
 < {
- "type": "StasisStart",
- "timestamp": "2019-01-27T21:43:43.720-0500",
- "args": [],
- "channel": {
- "id": "1548643423.2",
- "name": "PJSIP/SOFTPHONE_A-00000002",
- "state": "Ring",
- "caller": {
- "name": "101",
- "number": "SOFTPHONE_A"
- },
- "connected": {
- "name": "",
- "number": ""
- },
- "accountcode": "",
- "dialplan": {
- "context": "sets",
- "exten": "242",
- "priority": 2
- },
- "creationtime": "2019-01-27T21:43:43.709-0500",
- "language": "en"
- },
- "asterisk_id": "08:00:27:27:bf:0e",
- "application": "zarniwoop"
+  "type": "StasisStart",
+  "timestamp": "2019-01-27T21:43:43.720-0500",
+  "args": [],
+  "channel": {
+    "id": "1548643423.2",
+    "name": "PJSIP/SOFTPHONE_A-00000002",
+    "state": "Ring",
+    "caller": {
+      "name": "101",
+      "number": "SOFTPHONE_A"
+    },
+    "connected": {
+      "name": "",
+      "number": ""
+    },
+    "accountcode": "",
+    "dialplan": {
+      "context": "sets",
+      "exten": "242",
+      "priority": 2
+    },
+    "creationtime": "2019-01-27T21:43:43.709-0500",
+    "language": "en"
+    },
+  "asterisk_id": "08:00:27:27:bf:0e",
+  "application": "zarniwoop"
 }
 >
 ```
 
-OK, now we’re going to open yet another shell session[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396682696) so we can interact with this connection we’ve created. From this new shell, issue the following command:
+Хорошо, теперь мы откроем еще один сеанс оболочки[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html#idm46178396682696), чтобы взаимодействовать с этим соединением, которое мы создали. Из этой новой оболочки выполните следующую команду:
 
 ```text
-$ curl -v -u asterisk:whateveryoudodontusethispassword -X POST \
+$ curl -v -u asterisk:чтобывыниделалинеиспользуйтеэтотпароль -X POST \
  "http://localhost:8088/ari/channels/1548643423.2/play?media=sound:believe-its-free" sd
 ```
 
-Note the "id" from the JSON returned on the wscat session must be used following the 'channels/' portion of the curl command. In other words, you must match the channel identifier in your command to the channel identifier associated with your call. In this manner, you can of course wrangle many calls simultaneously.
+Обратите внимание, что "`id` "из JSON, возвращаемый в сеансе `wscat`, должен использоваться после части `'channels/'` команды `curl`. Другими словами, вы должны сопоставить идентификатор канала в вашей команде с идентификатором канала, связанным с вашим вызовом. Таким образом, вы можете одновременно обрабатывать множество звонков.
 
-### Working with Your ARI Environment Using Swagger
+### Работа с вашей средой ARI с использованием Swagger
 
-Asterisk’s ARI has been developed to be compatible with the OpenAPI Specification \(aka Swagger\), which means that many tools compatible with this spec will work with ARI. As an example, you can interact with your ARI installation using Swagger-UI, which will be useful both for debugging and as a documentation source.
+Asterisk's ARI был разработан, чтобы быть совместимым со спецификацией Open API \(aka Swagger\) и это означает, что многие инструменты, совместимые с этой спецификацией, будут работать с ARI. Например, вы можете взаимодействовать с установкой AIR с помощью Swagger-UI, который будет полезен как для отладки, так и в качестве источника документации.
 
-First up, we’ll need to expose our Asterisk HTTP server to the local network \(currently it’s only allowing connections from 127.0.0.1\). In your /etc/asterisk/http.conf file you’ll bind the HTTP server to the local IP address of your Asterisk machine:
+Во-первых, нам нужно будет открыть наш HTTP-сервер Asterisk в локальной сети \(в настоящее время он разрешает только соединения с 127.0.0.1\). В вашем файле _/etc/asterisk/http.conf_ мы привяжем HTTP-сервер к локальному IP-адресу машины "Asterisk":
 
 ```text
 $ sudo vim /etc/asterisk/http.conf
-; Enable the built-in HTTP server, and only listen for connections on localhost.
+; Включите встроенный HTTP-сервер и прослушивайте только соединения на локальном хосте.
 [general]
 enabled = yes
-;bindaddr = 127.0.0.1 ; comment this out
-bindaddr = 172.29.1.57 ; LAN IP OF YOUR ASTERISK SERVER
+;bindaddr = 127.0.0.1 ; закомментируйте это
+bindaddr = 172.29.1.57 ; LAN IP ВАШЕГО СЕРВЕРА ASTERISK
 ```
 
-Next, we’ll need to add a line to your /etc/asterisk/ari.conf file:
+Далее нам нужно добавить строку в ваш файл _/etc/asterisk/ari.conf_:
 
 ```text
 $ sudo vim /etc/asterisk/ari.conf
@@ -193,61 +194,57 @@ allowed_origins=http://ari.asterisk.org
 ...
 ```
 
-Save and reload the http and ari modules in Asterisk:
+Сохраните и перезагрузите модули `http` and `ari` в Asterisk:
 
 ```text
 $ sudo asterisk -rx 'module reload http' ; sudo asterisk -rx 'module reload ari'
 ```
 
-Now, from your development desktop, open up your browser and navigate to [http://ari.asterisk.org](http://ari.asterisk.org/).
+Теперь на рабочем столе разработчика откройте браузер и перейдите в раздел [http://ari.asterisk.org](http://ari.asterisk.org/).
 
-You’ll see a web page similar to [Figure 19-1](19.%20Asterisk%20REST%20Interface%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1901).
+Вы увидите страницу, похожую на Рисунок 19-1.
 
-![Figure 19-1. Swagger UI for ARI](.gitbook/assets/0%20%285%29.png)
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 19-1. Swagger UI &#x434;&#x43B;&#x44F; ARI](.gitbook/assets/0%20%285%29.png)
 
-#### 
+Замените `localhost` на LAN IP-адрес вашего сервера Asterisk, а в поле api\_key введите Ваш ARI _`user:password`_ из _/etc/asterisk/ari.conf_ \(например, `asterisk:чтобывыниделалинеиспользуйтеэтотпароль`\). Если у вас есть все настройки верны, то вы будете вознаграждены с результатами как на Рисунке 19-2.
 
-Replace localhost with the LAN IP address of your Asterisk server, and in the api\_key field, put your ARI user:password from /etc/asterisk/ari.conf \(for example, asterisk:whateveryoudodontusethispassword\). If you’ve got all the configuration correct, you will be rewarded with the results in [Figure 19-2](19.%20Asterisk%20REST%20Interface%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1902).
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 19-2. ARI Swagger](.gitbook/assets/1%20%285%29.png)
 
-![Figure 19-2. ARI Swagger](.gitbook/assets/1%20%285%29.png)
+Вы видите полную документацию для вашего модуля ARI, и можете на самом деле так же передавать к нему запросы. Это очень полезно при отладке, и хвала людям Digium за это.
 
-#### 
+В качестве примера того, для чего это нужно, выберите пункт `endpoints:Endpoint resources`, нажмите кнопку `GET` рядом с `/endpoints`, и вы увидите экран, показанный на Рисунке 19-3.
 
-You are looking at comprehensive documentation for your ARI module, and you can actually pass queries to it as well. This is a massively useful debugging aid, and kudos to the Digium folks for it.
+![&#x420;&#x438;&#x441;&#x443;&#x43D;&#x43E;&#x43A; 19-3. Get endpoints](.gitbook/assets/2%20%284%29.png)
 
-As an example of what this is good for, select the endpoints:Endpoint resources item, press the GET button beside /endpoints, and you will see the screen shown in [Figure 19-3](19.%20Asterisk%20REST%20Interface%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1903).
+Ну, давай - жми на кнопку "Try it out!".
 
-![Figure 19-3. Get endpoints](.gitbook/assets/2%20%284%29.png)
+Обратите внимание на "`id`" канала в сеансе `wscat`, который вы хотите скопировать для использования в Swagger UI \(вы увидите несколько строк вывода JSON, связанных с вызовом\).
 
-Well, go ahead—press the “Try it out!” button.
+Выполните следующие действия по каналу через интерфейс Swagger UI: `POST: Answer` \(ответ на канал\), `POST: hold` \(поставить вызов на удержание\), `DELETE: hold` \(принять вызов из режима ожидания\). Обратите внимание на то, что происходит с каналом в каждом случае.
 
-Note the "id" of the channel in the wscat session, which you’ll want to copy for use in the Swagger UI \(you’ll see several lines of JSON output relating to the call\).
+Использование этого Swagger UI также документировано в [Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Using+Swagger+to+Drive+ARI).
 
-Perform the following actions on the channel using the Swagger UI interface: POST: Answer \(answer the channel\), POST: hold \(place the call on hold\), DELETE: hold \(take the call off hold\). Note what happens to the channel in each case.
+Это значительно упростит процесс разработки и тестирования.
 
-Use of this Swagger UI is also documented over at the [Asterisk wiki](https://wiki.asterisk.org/wiki/display/AST/Using+Swagger+to+Drive+ARI).
+Хорошо, это быстрый старт. Давайте нырнем поглубже в ARI.
 
-This will greatly simplify your development and testing process.
+## Строительные блоки ARI
 
-OK, that’s the quick start. Let’s dive in deeper to ARI.
+Есть три компонента, которые работают вместе для обеспечения ARI:
 
-## The Building Blocks of ARI
-
-There are three components that work together to deliver ARI:
-
-* The RESTful interface, through which the external application communicates with Asterisk.
-* A WebSocket that passes information back to the external application from Asterisk \(in JSON format\).
-* The Stasis\(\) dialplan application, which connects control of a channel to the external application.
+* RESTful интерфейс, через который внешнее приложение взаимодействует с Asterisk.
+* WebSocket, который передает информацию обратно во внешнее приложение из Asterisk \(в формате JSON\).
+* Приложение диалплана `Stasis()`, которое соединяет управление каналом с внешним приложением.
 
 ### REST
 
-The term RESTful stems from Representational State Transfer \(REST\), which is an architectural model for web services \(as opposed to, say, a protocol\). The term RESTful has commonly come to refer to any API that provides interaction through URLs, with data represented in JSON format.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396640584) So, anything that is “RESTful” is supposed to adhere to the constraints of REST, but in practice may be implemented as a looser interpretation \(which, if it gets the job done, may indeed be good enough\).
+Термин _RESTful_ происходит от Representational State Transfer \(REST\), который является архитектурной моделью для веб-служб \(в отличие, скажем, от протокола\). Термин RESTful обычно относится к любому API, который обеспечивает взаимодействие через URL-адреса с данными, представленными в формате JSON.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html#idm46178396640584) Итак, все, что является "RESTfull", должно соответствовать ограничениям REST, но на практике может быть реализовано как более свободная интерпретация \(которая, если выполнит свою работу, действительно может быть достаточно хорошей\).
 
 ### WebSocket
 
-The WebSocket connection is the mechanism that performs the communication between the internals of Asterisk and the RESTful interface. In Asterisk, events may happen that the client did not initiate, and the WebSocket allows Asterisk to signal those changes to the client.
+Соединение WebSocket - это механизм, который осуществляет связь между внутренними компонентами Asterisk и интерфейсом RESTful. В Asterisk могут происходить события, которые клиент не инициировал, и WebSocket позволяет Asterisk сигнализировать об этих изменениях клиенту.
 
-Asterisk’s built-in HTTP server potentially provides other services across a web interface. For example, WebRTC also connects through the web server. If you are making changes or adding new services, make sure you not only test the item you’re working on, but also other services running through the same server, to ensure you haven’t inadvertently misconfigured something else.
+Встроенный HTTP-сервер Asterisk потенциально предоставляет другие сервисы через веб-интерфейс. Например, WebRTC также подключается через веб-сервер. Если вы вносите изменения или добавляете новые службы, убедитесь, что проверили не только элемент, над которым работаете, но и другие службы, работающие через тот же сервер, чтобы убедиться, что случайно не расстроили что-то другое.
 
 ### Stasis
 
@@ -265,7 +262,7 @@ Understanding the workings of Stasis\(\) is generally not necessary unless you a
 
 Typically, after your initial experimentation with ARI, you will want to implement a framework to help ease the work of developing your external application.
 
-## Frameworks
+## Фреймворки
 
 A production-grade application using ARI will benefit from the implementation of a framework to simplify development effort, add a layer of security, and provide a control environment.
 
@@ -323,15 +320,15 @@ Yes, Ruby also has an ARI framework.
 
 You can find it at [https://github.com/svoboda-jan/asterisk-ari](https://github.com/svoboda-jan/asterisk-ari).
 
-## Conclusion
+## Вывод
 
-ARI provides a current-generation RESTful API that can be used to develop communications applications using popular development languages. Through it, an experienced developer can harness the power of the most successful PBX platform in history. This allows next-generation communications applications to interact with legacy telecommunications protocols and applications, which could prove very useful as we are increasingly called to bridge the gap between past, present, and future communications technologies.
+ARI предоставляет RESTful API текущего поколения, который может использоваться для разработки коммуникационных приложений с использованием популярных языков разработки. С его помощью опытный разработчик может использовать мощь самой успешной платформы АТС в истории. Это позволяет коммуникационным приложениям следующего поколения взаимодействовать с устаревшими телекоммуникационными протоколами и приложениями, что может оказаться очень полезным, поскольку мы все чаще призваны преодолевать разрыв между прошлым, настоящим и будущим коммуникационных технологий.
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178403407976-marker) Although, to be honest, there’s really nothing more to the configuration unless you’re implementing one of the frameworks, which is strongly recommended if you’re going to put this into a production environment, and which we will explore later.
+[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178403407976-marker) Хотя, честно говоря, в конфигурации нет особой сложности, если вы решите внедрить одну из платформ, что настоятельно рекомендуется для продакшена, и которую мы рассмотрим позже.
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396697256-marker) We named the app “zarniwoop” because “hello-world” was used in the Digium wiki on ARI, and it seemed best to avoid overlap. You can of course name it anything you wish.
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396697256-marker) Мы назвали приложение "zarniwoop", потому что “hello-world” использовалось в Digium wiki для ARI, и нам показалось, что лучше избегать перекрытия. Вы, конечно, можете назвать его как угодно.
 
-[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396682696-marker) If your computer has only one screen, now is probably the point where you’re thinking what a good idea it would be to have more of them.
+[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396682696-marker) Если ваш компьютер имеет только один экран, то, вероятно, это то место, где вы задумаетесь, что неплохо было бы иметь их больше.
 
-[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396640584-marker) Strictly speaking, REST is far more than that, but as a practical matter, these days it seems not uncommon to assume that a REST API will be URL and JSON-based, simply because so many such services are presented in those formats.
+[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396640584-marker) Строго говоря, REST - это гораздо больше, но на практике в наши дни не редкость предположить, что REST API будет основан на URL и JSON просто потому, что много сервисов представлены именно в этих форматах.
 
