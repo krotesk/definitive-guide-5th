@@ -276,51 +276,51 @@ $ sudo asterisk -rx 'module reload http' ; sudo asterisk -rx 'module reload ari'
 
 Фреймворк [ari-py](https://github.com/asterisk/ari-py) была написана Digium в 2013-2014 годах и с тех пор она не обновлялась. Эта структура основана на клиенте Asterisk Swagger.py.
 
-Shortly after the relase of ari-py, it was forked into the [aioari project](https://pypi.org/project/aioari/), which delivers an asynchronous version of ari-py. This code has been more steadily updated since then \(although as of this writing had not been updated since early 2018\). This framework should be included in your evaluation of a Python framework for ARI.
+Вскоре после выпуска ari-py он был разветвлен в [проект aioari](https://pypi.org/project/aioari/), который предоставляет асинхронную версию ari-py. С тех пор этот код постоянно обновляется \(хотя на момент написания этой статьи он не обновлялся с начала 2018 года\). Эта структура должна быть включена в вашу оценку структуры Python для ARI.
 
-If you are looking to develop ARI applications in Python, one of these two frameworks may be what you are looking for. If you are looking to build a large ARI application, you will need to ensure that you have carefully tested the performance implications of using Python for what you are doing.
+Если вы хотите разрабатывать приложения ARI на Python, одна из этих двух платформ может быть тем, что вы ищете. Если хотите создать большое приложение ARI - вам необходимо убедиться, что вы тщательно проверили влияние производительности использования Python на то, что делаете.
 
-Digium has provided samples for this framework \(and others\) at [https://github.com/asterisk/ari-examples](https://github.com/asterisk/ari-examples).
+Digium предоставил образцы для этой структуры \(и других\) на [_https://github.com/asterisk/ari-examples_](https://github.com/asterisk/ari-examples).
 
 ### node-ari-client
 
-For the JavaScript folks, there is a Node.js-based ARI framework that was first released in early 2014, and as of this writing is still being updated. It is based on the automatically generated API that comes from swagger-js.
+Для любителей JavaScript есть основанный на Node.js ARI-фреймворк, который был впервые выпущен в начале 2014 года, и на момент написания этой статьи все еще обновляется. Он основан на автоматически генерируемом API, который приходит из swagger-js.
 
-For JavaScript/Node developers, this is where you’ll want to start: [https://github.com/asterisk/node-ari-client](https://github.com/asterisk/node-ari-client).
+Для разработчиков JavaScript/Node, вы можете начать: [_https://github.com/asterisk/node-ari-client_](https://github.com/asterisk/node-ari-client).
 
-Digium has provided samples for this framework \(and others\) at [https://github.com/asterisk/ari-examples](https://github.com/asterisk/ari-examples).
+Digium предоставил образцы для этой структуры \(и других\) на [_https://github.com/asterisk/ari-examples_](https://github.com/asterisk/ari-examples).
 
 ### AsterNET.ARI
 
-The Windows folks are not left out. The AsterNET.ARI project delivers a framework for .NET that augments the AsterNET project \(which also includes integration with Asterisk’s FastAGI and AMI interfaces\).
+Сторонники Windows так же не остались в стороне. Проект AsterNET.ARI предоставляет платформу для .NET, которая дополняет проект Masternet \(который также включает интеграцию с интерфейсами Asterisk FastAGI и AMI\).
 
-You can find the repository for AsterNET.ARI here: [https://github.com/skrusty/AsterNET.ARI](https://github.com/skrusty/AsterNET.ARI).
+Вы можете найти репозиторий для AsterNET.ARI здесь: [_https://github.com/skrusty/AsterNET.ARI_](https://github.com/skrusty/AsterNET.ARI).
 
-Digium has provided samples for this framework \(and others\) at [https://github.com/asterisk/ari-examples](https://github.com/asterisk/ari-examples).
+Digium предоставил образцы для этой структуры \(и других\) на [_https://github.com/asterisk/ari-examples_](https://github.com/asterisk/ari-examples).
 
 ### ari4java
 
-The ari4java project is one of the most actively developed ARI frameworks we have found. It has been developed since 2013, and the repository was receiving commits at the same time as this writing.
+Проект ari4java является одним из наиболее активно разрабатываемых фреймворков ARI, которые мы нашли. Он разрабатывался с 2013 года, и репозиторий получал коммиты одновременно с этой записью.
 
-If Java is your language, you will want to check out the ari4java repository at [https://github.com/l3nz/ari4java](https://github.com/l3nz/ari4java).
+Если Java - ваш язык, вы точно захотите проверить репозиторий ari4java по адресу [_https://github.com/l3nz/ari4java_](https://github.com/l3nz/ari4java).
 
 ### phpari
 
-The phpari project delivers an ARI framework for the PHP community. It has been developed since 2014, and the repository was still being updated as of this writing.
+Проект phpari предоставляет платформу ARI для сообщества PHP. Он разрабатывался с 2014 года, и на момент написания этой статьи репозиторий все еще обновлялся.
 
-For the PHP fans, you’ll find the repository at [https://github.com/greenfieldtech-nirs/phpari](https://github.com/greenfieldtech-nirs/phpari).
+Для поклонников PHP вы найдете репозиторий по адресу [_https://github.com/greenfieldtech-nirs/phpari_](https://github.com/greenfieldtech-nirs/phpari).
 
 ### aricpp
 
-If you’re used to writing in C++, there’s even an ARI project for you. The aricpp framework consists of header files only, so you can build its functions right into whatever you’re developing. This library has also been performance tested with SIPp, and while we don’t have any numbers on that, it seems to us that a compiled framework that has been performance tested is very much worth taking for a spin if you have the right skills.
+Если вы привыкли писать на C++, есть даже проект ARI для вас. Платформа aricpp состоит только из файлов заголовков, так что вы можете встроить свои функции прямо в то, что разрабатываете. Эта библиотека также была протестирована на производительность с помощью SIPp, и хотя у нас нет цифр по этому поводу, нам кажется, что скомпилированная среда, которая была протестирована на производительность, очень стоит того, чтобы её попробовать, если у вас есть соответствующие навыки.
 
-One of the newer of the ARI frameworks, this project benefits from regular updates. Check it out at [https://github.com/daniele77/aricpp](https://github.com/daniele77/aricpp).
+Один из самых новых фреймворков ARI, этот проект получает регулярные обновления. Проверьте его [_https://github.com/daniele77/aricpp_](https://github.com/daniele77/aricpp).
 
 ### asterisk-ari-client
 
-Yes, Ruby also has an ARI framework.
+Да, Ruby тоже имеет фреймворк ARI. 
 
-You can find it at [https://github.com/svoboda-jan/asterisk-ari](https://github.com/svoboda-jan/asterisk-ari).
+Вы можете найти его по адресу [_https://github.com/svoboda-jan/asterisk-ari_](https://github.com/svoboda-jan/asterisk-ari).
 
 ## Вывод
 
