@@ -236,37 +236,39 @@ exten => 209,1,Noop(Test use of conditional branching to labels)
 Вы заметите, что мы использовали приложение `Hangup()` после каждого использования приложения `Playback()`. Это делается для того, чтобы при переходе к метке `weasels` вызов останавливался до того, как он попадет на звуковой файл _office-iguanas_. Становится все более распространенным видеть расширения, разбитые на несколько компонентов \(защищенных друг от друга командой `Hangup()`\), каждый из которых представляет собой отдельную последовательность шагов, выполняемых после `GotoIf()`.
 {% endhint %}
 
-#### Providing Only a False Conditional Path
+{% hint style="info" %}
+#### Предоставление только ложного условного пути
 
-Either of the destinations may be omitted \(but not both\). If an expression evaluates to a blank destination, Asterisk simply goes on to the next priority in the current extension.
+Любой из пунктов назначения может быть опущен \(но не оба\). Если выражение оценивается как пустое назначение, Asterisk просто переходит к следующему приоритету в текущем расширении.
 
-We could have crafted the preceding example like this:
+Мы могли бы выполнить предыдущий пример следующим образом:
 
 ```text
 exten => 209,1,Noop(Test use of conditional branching)
  same => n,GotoIf($[ ${RAND(0,1)} = 1 ]?:iguanas)
- same => n,Playback(weasels-eaten-phonesys) ; No weasels label anymore
+ same => n,Playback(weasels-eaten-phonesys) ; больше нет ярлыка weasels
  same => n,Hangup()
- same => n(iguanas),Playback(office-iguanas) ; NOTE THIS IS THE SAME EXTEN
+ same => n(iguanas),Playback(office-iguanas) ; ОБРАТИТЕ ВНИМАНИЕ ЧТО ЭТО ТО ЖЕ РАСШИРЕНИЕ
  same => n,Hangup()
 ```
 
-There’s nothing between the ? and the : so if the statement evaluates to true, execution will continue at the next step. Since that’s what we want, a label isn’t needed.
+Между `?` и `:` ничего нет, так что если оператор оценивается как истина, выполнение будет продолжено на следующем шаге. Поскольку это то, что мы хотим, ярлык не нужен.
 
-We don’t really recommend doing this, because it’s hard to read. Nevertheless, you will see dialplans like this, so it’s good to be aware that this syntax is technically correct.
+Мы действительно не рекомендуем делать так, потому что это трудно читать. Тем не менее, вы увидите такие диалпланы, поэтому хорошо знать, что этот синтаксис технически корректен.
+{% endhint %}
 
-Rather than using labels, we could also send the call to different extensions. Since they’re not dialable, we can use alphabet characters rather than digits for the extension “numbers.” In this example, the conditional branch sends the call to completely different extensions within the same context. The result is otherwise the same.
+Вместо того, чтобы использовать метки \(лейблы\), мы могли бы также отправить вызов на различные расширения. Поскольку они недоступны, мы можем использовать буквы, а не цифры для расширения “номера". В этом примере условная ветвь отправляет вызов на совершенно разные расширения в одном и том же контексте. В остальном результат тот же.
 
 ```text
 exten => 210,1,Noop(Test use of conditional branching to extensions)
  same => n,GotoIf($[ ${RAND(0,1)} = 1 ]?weasels,1:iguanas,1)
-exten => weasels,1,Playback(weasels-eaten-phonesys) ; DIFFERENT EXTENSION
+exten => weasels,1,Playback(weasels-eaten-phonesys) ; РАЗЛИЧНЫЕ РАСШИРЕНИЯ
  same => n,Hangup()
-exten => iguanas,1,Playback(office-iguanas) ; ALSO A DIFFERENT EXTEN
+exten => iguanas,1,Playback(office-iguanas) ; ТАКЖЕ РАЗЛИЧНЫЕ РАСШИРЕНИЯ
  same => n,Hangup()
 ```
 
-Let’s look at another example of conditional branching. This time, we’ll use both Goto\(\) and GotoIf\(\) to count down from 5 and then hang up:
+Рассмотрим еще один пример условного ветвления. На этот раз мы будем использовать оба `Goto()` и `GotoIf()` для обратного отсчета от `5`, а затем повесим трубку:
 
 ```text
 exten => 211,1,NoOp()
@@ -280,35 +282,34 @@ exten => 211,1,NoOp()
  same => n,Hangup()
 ```
 
-Let’s analyze this example. In the second priority, we set the variable COUNT to 5. Next, we check to see if COUNT is greater than 0. If it is, we move on to the next priority. \(Don’t forget that if we omit a destination in the GotoIf\(\) application, control goes to the next priority.\) From there, we speak the number, subtract 1 from COUNT, and go back to priority label start. Again, if COUNT is less than or equal to 0, control goes to priority label goodbye; otherwise, we run through the loop one more time.
+Давайте проанализируем этот пример. Во втором приоритете мы задаем переменную `COUNT` равную `5`. Далее, проверяем, чтобы увидеть если `COUNT` больше `0`. Если это так, мы переходим к следующему приоритету. \(Не забывайте, что если мы опустим назначение в приложении `GotoIf()`, управление перейдет к следующему приоритету.\) Оттуда мы произносим число, вычитаем `1` из числа и возвращаемся к метке приоритета `start`. Опять же, если `COUNT` меньше или равен `0`, управление переходит к метке приоритета `goodbye`; в противном случае мы запускаем цикл еще раз.
 
-#### Quoting and Prefixing Variables in Conditional Branches
+{% hint style="info" %}
+#### Кавычки и префиксы переменных в условных ветвлениях
 
-Now is a good time to take a moment to look at some nitpicky stuff with conditional branches. In Asterisk, it is invalid to have a null value on either side of the comparison operator. Let’s look at examples that would produce an error:
+Сейчас самое время воспользоваться моментом, чтобы посмотреть на некоторые небрежные вещи с условными ветвями. В Asterisk недопустимо иметь нулевое значение по обе стороны от оператора сравнения. Давайте рассмотрим примеры, которые могли бы привести к ошибке:
 
-$\[ = 0 \]
+```text
+$[ = 0 ]
+$[ foo = ]
+$[ > 0 ]
+$[ 1 + ]
+```
 
-$\[ foo = \]
+Любой из наших примеров вызовет такое предупреждение:
 
-$\[ &gt; 0 \]
-
-$\[ 1 + \]
-
-Any of our examples would produce a warning like this:
-
-WARNING\[28400\]\[C-000000eb\]: ast\_expr2.fl:470 ast\_yyerror: ast\_yyerror\(\):
-
+```text
+WARNING[28400][C-000000eb]: ast_expr2.fl:470 ast_yyerror: ast_yyerror():
 syntax error: syntax error, unexpected '=', expecting $end; Input:
-
  = 0
-
  ^
+```
 
-It’s fairly unlikely \(unless you have a typo\) that you’d purposefully implement something like our examples. However, when you perform math or a comparison with an unset channel variable, this is effectively what you’re doing.
+Это маловероятно \(если у вас нет опечатки\), что вы целенаправленно реализуете что-то из наших примеров. Однако, когда вы выполняете математическое действие или сравнение с неназначенной переменной канала, это фактически то, что вы делаете.
 
-The examples we’ve used to show you how conditional branching works are not invalid. We’ve first initialized the variable and can clearly see that the channel variable we’re using in our comparison has been set, so we’re safe. But what if you’re not always so sure?
+Примеры, которые мы использовали, чтобы показать вам как работает условное ветвление, не являются недопустимыми. Мы сначала инициализировали переменную и можем ясно видеть, что переменная канала, которую мы используем в нашем сравнении, была установлена, поэтому мы в безопасности. Но что, если вы не всегда так уверены?
 
-In Asterisk, strings do not need to be double- or single-quoted like in many programming languages. In fact, if you use a double or single quote, it is a literal construct in the string. If we look at the following snippets of an extension...
+В Asterisk строки необязательно должны быть заключены в двойные или одинарные кавычки, как во многих языках программирования. Фактически, если вы используете двойные или одинарные кавычки, это будет буквенной конструкцией в строке. Если мы посмотрим на следующие фрагменты расширения...
 
 ```text
 same => n,Set(TEST_1=foo)
@@ -316,11 +317,11 @@ same => n,Set(TEST_1=foo)
  same => n,NoOp(Are TEST_1 and TEST_2 equiv? $[${TEST_1} = ${TEST_2}])
 ```
 
- ...we need to note that the value returned by our comparison in the NoOp\(\) will not be a value of 1 \(values match; or true\) the return value will be 0 \(values do not match; or false\).
+...мы должны отметить, что значение, возвращаемое нашим сравнением в `NoOp()`, не будет значением `1` \(значения совпадают или истина\), возвращаемое значение будет 0 \(значения не совпадают или ложь\).
 
-We can use this to our advantage when performing comparisons by wrapping our channel variables in single or double quotes. By doing this we make sure even when the channel variable might not be set, our comparison will be valid syntax.
+Мы можем использовать это в своих интересах при выполнении сравнений, обертывая наши переменные канала в одинарные или двойные кавычки. Делая это, мы удостоверяемся, что даже когда переменная канала не может быть установлена, наше сравнение будет допустимым синтаксисом.
 
-In the following example, we would get an error:
+В следующем примере мы получим ошибку:
 
 ```text
 exten => 212,1,NoOp()
@@ -330,7 +331,7 @@ exten => 212,1,NoOp()
  same => n,Hangup()
 ```
 
-However, we can circumvent this by wrapping what we’re comparing in extra characters \(in this case quotes\). The same example, but made valid:
+Однако, мы можем обойти это, обернув то, что мы сравниваем, в дополнительные символы \(в данном случае кавычки\). Тот же пример, но сделан допустимым:
 
 ```text
 exten => 213,1,NoOp()
@@ -340,21 +341,22 @@ exten => 213,1,NoOp()
  same => n,Hangup()
 ```
 
-Even if ${TEST} hasn’t been set \(in other words it does not exist and therefore has no value\), we’re still doing a comparison of something:
+Даже если `${TEST}` не была установлена \(другими словами, она не существует и поэтому не имеет значения\), мы все равно делаем сравнение чего-то:
 
-$\["" != "valid"\]
+`$["" != "valid"]`
 
-If you get into the habit of recognizing these situations and using the wrapping and prefixing techniques we’ve outlined, you’ll write much safer dialplans.
+Если вы привыкнете распознавать эти ситуации и использовать методы обертки и префикса, которые мы описали, вы напишете гораздо более безопасные диалпланы.
 
-Note again that the quote character doesn’t have any special meaning here. We used it because it’s a logical character for this purpose. The following works too:
+Обратите внимание еще раз, что символ кавычки не имеет никакого особого значения здесь. Мы использовали его, потому что это логический символ для этой цели. Следующее тоже работает:
 
- same =&gt; n,GotoIf\($\[\_${TEST}\_ != \_valid\_\]?error\_handling\)
-
+```text
+same => n,GotoIf($[_${TEST}_ != _valid_]?error_handling)
 ;OR
+ same => n,GotoIf($[AAAAA${TEST}AAAAA != AAAAAvalidAAAAA]?error_handling)
+```
 
- same =&gt; n,GotoIf\($\[AAAAA${TEST}AAAAA != AAAAAvalidAAAAA\]?error\_handling\)
-
-Not all characters will work, as some may have other meanings to Asterisk and cause problems. Stay with the quote character and you should be fine.
+Не все символы будут работать, так как некоторые могут иметь другие значения для Asterisk и вызвать проблемы. Оставайтесь с кавычками и всё должно быть в порядке.
+{% endhint %}
 
 The classic example of conditional branching is affectionately known as the “psycho-ex” logic. If the caller ID number of the incoming call matches the phone number of somebody you never want to talk to again, Asterisk gives a different message than it ordinarily would to any other caller. While somewhat simple and primitive, it’s a good example for learning about conditional branching within the Asterisk dialplan.
 
