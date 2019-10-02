@@ -4,19 +4,19 @@ description: 'Функции АТС, включая парковку, пейдж
 
 # Глава 11
 
-I don’t believe in angels, no. But I do have a wee parking angel. It’s on my dashboard and you wind it up. The wings flap and it’s supposed to give you a parking space. It’s worked so far.
-
-Billy Connolly
+> _Я не верю в ангелов, нет. Но у меня есть крошечный парковочный ангел. Он у меня на приборной панели, и ты его заводишь. Крылья хлопают, и это должно дать вам место для парковки. Это работало до сих пор._ 
+>
+> -- Билли Коннолли
 
 This chapter discusses several peripheral features common to business telephone environments. We’ll briefly cover the features.conf file, and then spend a few sections on paging and parking, and finally do a bit of work with Asterisk’s conferencing engine, confbridge.
 
 First up, let’s copy the features.conf file over from the installation directory, and have a look at it:
 
-$ sudo cp ~/src/asterisk-16.&lt;TAB&gt;/configs/samples/features.conf.sample \
-
+```text
+$ sudo cp ~/src/asterisk-16.<TAB>/configs/samples/features.conf.sample \
 /etc/asterisk/features.conf
-
 $ sudo chown asterisk:asterisk /etc/asterisk/features.conf
+```
 
 ## features.conf
 
@@ -422,23 +422,17 @@ In many organizations, there may be a need for both set-based and external pagin
 
 At this point you should have a list of the various channel types that you want to page. Since Page\(\) will nearly always want to signal more than one channel, we recommend setting a global variable in the \[globals\] section of your extensions.conf file that defines the list of channels to include, and then calling the Page\(\) application with that string:
 
-\[globals\]
-
+```text
+[globals]
 MULTICAST=MulticastRTP/linksys/239.0.0.1:1234
-
 ;MULTICAST=MulticastRTP/linksys/239.0.0.1:1234/239.0.0.1:6061 ; if you have SPA phones
-
-BOGEN=PJSIP/ATAforPaging ; Assumes an ATA named \[ATAforPaging\]
-
+BOGEN=PJSIP/ATAforPaging ; Assumes an ATA named [ATAforPaging]
 PAGELIST=${MULTICAST}&${BOGEN} ; Variable names are arbitrary.
-
 ;...
-
-\[sets\]
-
+[sets]
 ; ...
-
-exten =&gt; \*731,1,Page\(${PAGELIST},i,120\)
+exten => *731,1,Page(${PAGELIST},i,120)
+```
 
 This example offers several possible configurations, depending on the hardware. While it is not strictly required to have a PAGELIST variable defined, we have found that this will tend to simplify the management of multiple paging resources, especially during the configuration and testing process.
 
@@ -468,83 +462,52 @@ The bridge type defines the conference rooms themselves, the menu type defines m
 
 Let’s lay down a subroutine to get us started:
 
-\[subConference\]
-
-exten =&gt; \_\[0-9\].,1,Noop\(Creating conference room for ${EXTEN}\)
-
- same =&gt; n,Goto\(${ARG1}\)
-
- same =&gt; n,Noop\(INVALID ARGUMENT ARG1: ${ARG1}\)
-
- same =&gt; n\(admin\),Noop\(\)
-
- same =&gt; n,Authenticate\(${ARG2}\) ; Could also use ,Set\(CONFBRIDGE\(user,pin\)=${ARG2}\)
-
- same =&gt; n,Set\(ConfNum=$\[${EXTEN} - 1\]\) ; Hack: Subtract 1 to get the conf number
-
- same =&gt; n,Set\(CONFBRIDGE\(bridge,record\_conference\)=yes\) ; Record when admin arrives
-
- same =&gt; n,Set\(RecordingFileName=${ConfNum}-${STRFTIME\(,,%Y-%m-%d %H:%m:%S\)}\)
-
- same =&gt; n,Set\(CONFBRIDGE\(bridge,record\_file\)=${RecordingFileName}\) ; unique name
-
- same =&gt; n,Set\(CONFBRIDGE\(user,admin\)=yes\) ; Admin
-
- same =&gt; n,Set\(CONFBRIDGE\(user,marked\)=yes\) ; Mark this user
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,7\)=decrease\_talking\_volume\) ; Decrease gain
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,9\)=increase\_talking\_volume\) ; Increase gain
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,4\)=set\_as\_single\_video\_src\) ; Lock video on me
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,5\)=release\_as\_single\_video\_src\) ; Return to talker
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,6\)=admin\_toggle\_mute\_participants\); Mute all but admins
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,2\)=participant\_count\) ; How many participants?
-
- same =&gt; n,ConfBridge\(${ConfNum}\)
-
- same =&gt; n,Return\(\)
-
- same =&gt; n\(participant\),Noop\(\)
-
- same =&gt; n,Set\(ConfNum=${EXTEN}\)
-
- same =&gt; n,Set\(CONFBRIDGE\(user,wait\_marked\)=yes\) ; Wait for a marked user
-
- same =&gt; n,Set\(CONFBRIDGE\(user,announce\_only\_user\)=no\) ; Wait for a marked user
-
- same =&gt; n,Set\(CONFBRIDGE\(user,music\_on\_hold\_when\_empty\)=yes\) ; Wait for a marked user
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,7\)=decrease\_talking\_volume\) ; Decrease gain
-
- same =&gt; n,Set\(CONFBRIDGE\(menu,9\)=increase\_talking\_volume\) ; Increase gain
-
- same =&gt; n,ConfBridge\(${ConfNum}\)
-
- same =&gt; n,Return\(\)
+```text
+[subConference]
+exten => _[0-9].,1,Noop(Creating conference room for ${EXTEN})
+ same => n,Goto(${ARG1})
+ same => n,Noop(INVALID ARGUMENT ARG1: ${ARG1})
+ same => n(admin),Noop()
+ same => n,Authenticate(${ARG2}) ; Could also use ,Set(CONFBRIDGE(user,pin)=${ARG2})
+ same => n,Set(ConfNum=$[${EXTEN} - 1]) ; Hack: Subtract 1 to get the conf number
+ same => n,Set(CONFBRIDGE(bridge,record_conference)=yes) ; Record when admin arrives
+ same => n,Set(RecordingFileName=${ConfNum}-${STRFTIME(,,%Y-%m-%d %H:%m:%S)})
+ same => n,Set(CONFBRIDGE(bridge,record_file)=${RecordingFileName}) ; unique name
+ same => n,Set(CONFBRIDGE(user,admin)=yes) ; Admin
+ same => n,Set(CONFBRIDGE(user,marked)=yes) ; Mark this user
+ same => n,Set(CONFBRIDGE(menu,7)=decrease_talking_volume) ; Decrease gain
+ same => n,Set(CONFBRIDGE(menu,9)=increase_talking_volume) ; Increase gain
+ same => n,Set(CONFBRIDGE(menu,4)=set_as_single_video_src) ; Lock video on me
+ same => n,Set(CONFBRIDGE(menu,5)=release_as_single_video_src) ; Return to talker
+ same => n,Set(CONFBRIDGE(menu,6)=admin_toggle_mute_participants); Mute all but admins
+ same => n,Set(CONFBRIDGE(menu,2)=participant_count) ; How many participants?
+ same => n,ConfBridge(${ConfNum})
+ same => n,Return()
+ same => n(participant),Noop()
+ same => n,Set(ConfNum=${EXTEN})
+ same => n,Set(CONFBRIDGE(user,wait_marked)=yes) ; Wait for a marked user
+ same => n,Set(CONFBRIDGE(user,announce_only_user)=no) ; Wait for a marked user
+ same => n,Set(CONFBRIDGE(user,music_on_hold_when_empty)=yes) ; Wait for a marked user
+ same => n,Set(CONFBRIDGE(menu,7)=decrease_talking_volume) ; Decrease gain
+ same => n,Set(CONFBRIDGE(menu,9)=increase_talking_volume) ; Increase gain
+ same => n,ConfBridge(${ConfNum})
+ same => n,Return()
+```
 
 We can set bridge, user, and menu parameters as in the preceding example. All of the parameters you might wish to use are documented in the ~/src/asterisk-15.&lt;TAB&gt;/configs/samples/confbridge.conf.sample file.
 
 When we call the subroutine, we can pass the user as an argument. Place the following new code in your \[sets\] context after \_55512XX and before \*724:
 
-exten =&gt; \_55512XX,1,Answer\(\)
-
- same =&gt; n,Playback\(tt-monkeys\)
-
+```text
+exten => _55512XX,1,Answer()
+ same => n,Playback(tt-monkeys)
 ; ConfBridge
-
-exten =&gt; \*600,1,GoSub\(subConference,${EXTEN:1},1\(participant\)\) ;
-
-exten =&gt; \*601,1,GoSub\(subConference,${EXTEN:1},1\(admin,4242\)\) ;
-
-exten =&gt; \*724,1,Noop\(Page\)
-
- same =&gt; n,Set\(ChannelsToPage=${UserA\_DeskPhone}&${UserA\_SoftPhone}&${UserB\_DeskPhone}\)
-
- same =&gt; n,Page\(${ChannelsToPage},i,120\)
+exten => *600,1,GoSub(subConference,${EXTEN:1},1(participant)) ;
+exten => *601,1,GoSub(subConference,${EXTEN:1},1(admin,4242)) ;
+exten => *724,1,Noop(Page)
+ same => n,Set(ChannelsToPage=${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_DeskPhone})
+ same => n,Page(${ChannelsToPage},i,120)
+```
 
 If you dial \*600, you will be joined as a participant. If you dial \*601, you will be asked for the PIN \(4242\), and will join as an administrator. We used dialplan labels to control the call flow into the subroutine. It’s easy to read, and easy to administer.
 

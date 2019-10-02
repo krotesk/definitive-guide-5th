@@ -4,21 +4,21 @@ description: Безопасность
 
 # Глава 22
 
-## Chapter 22. Security
+> _Мы тратим время на поиски безопасности и ненавидим, когда получаем ее._ 
+>
+> -- Джон Стейнбек
 
-We spend our time searching for security and hate it when we get it.
-
-John Steinbeck
-
-Security for your Asterisk system is critical, especially if the system is exposed to the internet. There is a lot of money to be made by attackers in exploiting systems to make free phone calls. This chapter provides advice on how to provide stronger security for your VoIP deployment.
+Безопасность вашей системы Asterisk имеет решающее значение, особенно если система подключена к Интернету. Злоумышленники могут заработать много денег, используя системы для бесплатных телефонных звонков. В этой главе даются советы о том, как обеспечить более надежную защиту для вашего развертывания VoIP.
 
 ## Scanning for Valid Accounts
 
 If you expose your Asterisk system to the public internet, one of the things you will almost certainly see is a scan for valid accounts. [Example 22-1](22.%20Security%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22example-accountscan) contains log entries from one of the authors’ production Asterisk systems.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396108536) This scan began with checking various common usernames, then later went on to scan for numbered accounts. It is common for people to name SIP accounts the same as extensions on the PBX. This scan takes advantage of that fact.
 
-**Tip**
+{% hint style="info" %}
+**Подсказка**
 
-Use non-numeric usernames for your VoIP accounts to make them harder to guess. For example, in this book we use the MAC address of a SIP phone as its account name in Asterisk.
+Используйте нечисловые имена пользователей для своих учетных записей VoIP, чтобы их было сложнее угадать. Например, в этой книге мы используем MAC-адрес SIP-телефона в качестве имени учетной записи в Asterisk.
+{% endhint %}
 
 #### Example 22-1. Log excerpts from account scanning
 
@@ -58,9 +58,11 @@ The first section of this chapter discussed scanning for usernames. Even if you 
 
 The default authentication scheme of the SIP protocol is weak. Authentication is done using an MD5 challenge-and-response mechanism. If an attacker is able to capture any call traffic, such as a SIP call made from a laptop on an open wireless network, it will be much easier to work on brute-forcing the password, since it will not require authentication requests to the server.
 
-**Tip**
+{% hint style="info" %}
+**Подсказка**
 
-Use strong passwords. There are countless resources available on the internet that help define what constitutes a strong password. There are also many strong password generators available. Use them!
+Используйте надежные пароли. В Интернете доступно множество ресурсов, которые помогают определить, что представляет собой надежный пароль. Есть также много надежных генераторов паролей. Используй их!
+{% endhint %}
 
 ## Fail2ban
 
