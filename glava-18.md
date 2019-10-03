@@ -4,67 +4,60 @@ description: AGI
 
 # Глава 18
 
-## Chapter 18. Asterisk Gateway Interface
+> _Кофеин. Шлюз к наркотикам._
+>
+> -- Эдди Веддер
 
-Caffeine. The gateway drug.
+Диалплан Asterisk превратился в простой, но мощный программный интерфейс для обработки вызовов. Однако многие люди, особенно с опытом программирования, предпочитают реализовывать обработку вызовов на традиционном языке программирования. Asterisk Gateway Interface \(AGI\) позволяет разрабатывать управление вызовами от первого лица на выбранном вами языке программирования.
 
-Eddie Vedder
+## Быстрый старт
 
-The Asterisk dialplan has evolved into a simple yet powerful programming interface for call handling. Many people, however, especially those with a programming background, prefer to implement call handling in a traditional programming language. The Asterisk Gateway Interface \(AGI\) allows for the development of first-party call control in the programming language of your choice.
+В этом разделе приведен краткий пример использования AGI.
 
-## Quick Start
+Во-первых, давайте создадим скрипт, который мы собираемся запустить. Скрипты AGI обычно помещаются в _/var/lib/asterisk/agi-bin_.
 
-This section gives a quick example of using the AGI.
-
-First, let’s create the script that we’re going to run. AGI scripts are usually placed in /var/lib/asterisk/agi-bin.
-
+```text
 $ cd /var/lib/asterisk/agi-bin
-
 $ vim hello-world.sh
-
-\#!/bin/bash
-
-\# Consume all variables sent by Asterisk
-
-while read VAR && \[ -n ${VAR} \] ; do : ; done
-
-\# Answer the call.
-
+#!/bin/bash
+# Consume all variables sent by Asterisk
+while read VAR && [ -n ${VAR} ] ; do : ; done
+# Answer the call.
 echo "ANSWER"
-
 read RESPONSE
-
-\# Say the letters of "Hello World"
-
+# Say the letters of "Hello World"
 echo 'SAY ALPHA "Hello World" ""'
-
 read RESPONSE
-
 exit 0
-
 $ chown asterisk:asterisk hello-world.sh
-
 $ chmod 700 hello-world.sh
+```
 
-Now, add the following line to /etc/asterisk/extensions.conf, in your \[sets\] context:
+Теперь добавьте следующую строку в _/etc/asterisk/extensions.conf_ в контекст `[sets]`:
 
-exten =&gt; 237,1,AGI\(hello-world.sh\)
+```text
+exten => 237,1,AGI(hello-world.sh)
+```
 
-Save and reload your dialplan, and when you call extension 237 you should hear Allison spell out “Hello World.”
+Сохраните и перезагрузите свой диалплан и теперь когда вы звоните по номеру 237, то должны услышать, как Эллисон произносит “Hello World.”
 
-## AGI Variants
+## Варианты AGI
 
-There are a few variants of AGI that differ primarily in the method used to communicate with Asterisk. It is good to be aware of all the options so you can make the best choice based on the needs of your application.
+Существует несколько вариантов AGI, которые отличаются в первую очередь методом, используемым для связи с Asterisk. Полезно быть в курсе всех вариантов чтобы сделать лучший выбор, основанный на потребностях вашего приложения.
 
 ### Process-Based AGI
 
-Process-based AGI is the simplest variant of AGI. The quick-start example at the beginning of this chapter is an example of a process-based AGI script. The script is invoked using the AGI\(\) application from the Asterisk dialplan. The application to run is specified as the first argument to AGI\(\). Unless a full path is specified, the application is expected to be in the /var/lib/asterisk/agi-bin directory. Arguments to be passed to your AGI application can be specified as additional arguments to the AGI\(\) application in the Asterisk dialplan. The syntax is:
+Process-based AGI \(AGI на основе процесса\) является простейшим вариантом AGI. Пример быстрого запуска в начале этой главы является примером сценария Process-based AGI. Скрипт вызывается с помощью приложения `AGI()` из диалплана Asterisk. Запускаемое приложение указывается в качестве первого аргумента функции `AGI()`. Если не указан полный путь, приложение должно находиться в каталоге _/var/lib/asterisk/agi-bin_. Аргументы, передаваемые приложению AGI, могут быть указаны в качестве дополнительных аргументов приложения `AGI()` в диалплане Asterisk. Синтаксис такой:
 
-AGI\(command\[,arg1\[,arg2\[,...\]\]\]\)
+```text
+AGI(command[,arg1[,arg2[,...]]])
+```
 
-**Tip**
+{% hint style="info" %}
+**Подсказка**
 
-Ensure that your application has the proper permissions set so that the Asterisk process user has permissions to execute it. Otherwise, AGI\(\) will fail.
+Убедитесь, что приложение имеет соответствующие разрешения, чтобы пользователь Asterisk имел разрешения на его выполнение. В противном случае функция `AGI()` завершится ошибкой.
+{% endhint %}
 
 Once Asterisk executes your AGI application, communication between Asterisk and your application will take place over stdin and stdout. More details about this communication will be covered in [“AGI Communication Overview”](18.%20Asterisk%20Gateway%20Interface%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22AGI-communication). For more details about invoking AGI\(\) from the dialplan, check the documentation built into Asterisk:
 

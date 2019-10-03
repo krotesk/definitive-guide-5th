@@ -4,47 +4,48 @@ description: Автосекретарь
 
 # Глава 14
 
-I don’t answer the phone. I get the feeling whenever I do that there will be someone on the other end.
+> _Я не отвечаю на звонки. У меня всегда такое чувство, что на другом конце провода кто-то есть. -- Фред Коуплз_
 
-Fred Couples
+Во многих УАТС, как правило, есть система меню для автоматического ответа на входящие вызовы, которая позволяет абонентам направлять себя на различные расширения и ресурсы в системе с помощью выбора меню. Эта система известна в телекоммуникационной отрасли как _автосекретарь_ \(АС\). АС, как правило, предоставляет следующие возможности:
 
-In many PBXs, it is common to have a menu system in place to answer incoming calls automatically and allow callers to direct themselves to various extensions and resources in the system through menu choices. This is known in the telecom industry as an automated attendant \(AA\). An AA normally provides the following features:
+* Перевод на добавочный номер
+* Перевод на голосовую почту
+* Переход в очередь 
+* Воспроизведение сообщения \(например “наш адрес…”\) 
+* Подключение к подменю \(например “для получения списка наших отделов...”\)
+* Подключение к приемной
+* Повтор выбора
 
-* Transfer to extension
-* Transfer to voicemail
-* Transfer to a queue
-* Play message \(e.g., “our address is…”\)
-* Connect to a submenu \(e.g., “for a listing of our departments...”\)
-* Connect to reception
-* Repeat choices
+Для всего остального, особенно если требуется внешняя интеграция, например поиск по базе данных, обычно требуется интерактивное голосовое меню \(сокращенно на английском - IVR\).
 
-For anything else—especially if there is external integration required, such as a database lookup—an Interactive Voice Response \(IVR\) would normally be needed.
+## АС это не IVR
 
-## An AA Is Not an IVR
+В open sorce телекоммуникационном сообществе вы часто услышите термин IVR, используемый для описания автосекретаря.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html#idm46178405502152) Однако в телекоммуникационной отрасли в течение многих десятилетий до появления VoIP или УАТС с открытым исходным кодом IVR отличался от AС. По этой причине, когда вы говорите с кем-то, имеющим многолетний опыт работы в области телекоммуникаций, о любом виде телекоммуникационного меню, вы должны убедиться, что говорите об одном и том же. Для специалиста по телекоммуникациям термин _IVR_ подразумевает относительно комплексную и сложную в разработке \(и последующе затратную\), в то время как AС - это простая и недорогая вещь, которая является общей для большинства АТС.
 
-In the open source telecom community, you will often hear the term IVR used to describe an automated attendant.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405502152) However, in the telecom industry, for many decades before there was VoIP or open source PBXs, an IVR was distinct from an AA. For this reason, when you are talking to somebody with many years of telecom experience about any sort of telecom menu, you should ensure that you are talking about the same thing. To a telecom professional, the term IVR implies a relatively complex and involved development effort \(and subsequent costs\), whereas an AA is a simple and inexpensive thing that is common to most PBXs.
+В этой главе мы поговорим о создании автосекретаря. IVR мы обсудим в [Главе 16](glava-16.md).[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html#idm46178405498824)
 
-In this chapter, we talk about building an automated attendant. In [Chapter 16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch16.html%22%20/l%20%22asterisk-IVR) we will discuss IVR.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405498824)
+## Проектирование вашего АС
 
-## Designing Your AA
+Самая распространенная ошибка новичков при проектировании АС - излишняя сложность. В то время как может быть много радости и чувства выполненного долга в создании многоуровневого AС с десятками отличных вариантов и кучами действительно интересных подсказок, ваши абоненты имеют другую повестку дня. Люди звонят по телефону в первую очередь потому, что хотят с кем-то поговорить. В то время как люди привыкли к реальности автосекретарей \(и в некоторых случаях они могут ускорить процесс\), по большей части люди предпочитают говорить с кем-то живым. Это означает, что есть два основных правила, которых должен придерживаться каждый АС:
 
-The most common mistake beginners make when designing an AA is needless complexity. While there can be much joy and sense of accomplishment in the creation of a multilevel AA with dozens of nifty options and oodles of really cool prompts, your callers have a different agenda. The reason people make phone calls is primarily because they want to talk to someone. While people have become used to the reality of automated attendants \(and in some cases they can speed things up\), for the most part people would prefer to speak to somebody live. This means that there are two fundamental rules that every AA should adhere to:
+* Быть проще.
+* Убедитесь, что вы всегда делаете обработчик для людей, которые собираются нажимать 0, когда слышат меню. Если вы не хотите иметь опцию 0, имейте в виду, что многие люди будут оскорблены этим, они повесят трубку и не перезвонят. В бизнесе это вообще плохо.
 
-* Keep it simple.
-* Make sure you always include a handler for the folks who are going to press 0 whenever they hear a menu. If you do not want to have a 0 option, be aware that many people will be insulted by this, and they will hang up and not call back. In business, this is generally a bad thing.
+Прежде чем вы начнете кодировать свой AС, разумно его спроектировать. Вам нужно будет определить поток вызовов и необходимо будет указать подсказки, которые будут воспроизводиться на каждом шаге. Программные инструменты для построения диаграмм могут быть полезны для этого, но нет необходимости фантазировать. Таблица 14-1 предоставляет хороший шаблон для базового AС, который будет делать то, что вам нужно.
 
-Before you start to code your AA, it is wise to design it. You will need to define a call flow, and you will need to specify the prompts that will play at each step. Software diagramming tools can be useful for this, but there’s no need to get fancy. [Table 14-1](14.%20The%20Automated%20Attendant%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Autoattendant_id259349) provides a good template for a basic AA that will do what you need.
-
-Table 14-1. A basic automated attendant
+Таблица 14-1. Базовый автосекретарь
 
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">Step or choice</th>
-      <th style="text-align:left">Sample prompt</th>
-      <th style="text-align:left">Notes</th>
-      <th style="text-align:left">Filename<a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405488440">a</a>
-      </th>
+      <th style="text-align:left">&#x428;&#x430;&#x433; &#x438;&#x43B;&#x438; &#x432;&#x44B;&#x431;&#x43E;&#x440;</th>
+      <th
+      style="text-align:left">&#x41E;&#x431;&#x440;&#x430;&#x437;&#x435;&#x446; &#x43F;&#x440;&#x438;&#x433;&#x43B;&#x430;&#x448;&#x435;&#x43D;&#x438;&#x44F;</th>
+        <th
+        style="text-align:left">&#x41F;&#x440;&#x438;&#x43C;&#x435;&#x447;&#x430;&#x43D;&#x438;&#x435;</th>
+          <th
+          style="text-align:left">&#x418;&#x43C;&#x44F; &#x444;&#x430;&#x439;&#x43B;&#x430;<a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405488440">a</a>
+            </th>
     </tr>
   </thead>
   <tbody>
@@ -53,14 +54,16 @@ Table 14-1. A basic automated attendant
       <td style="text-align:left">Thank you for calling ABC company.</td>
       <td style="text-align:left">Day greeting. Played immediately after the system answers the call.</td>
       <td
-      style="text-align:left">daygreeting.wav</td>
+      style="text-align:left"><em>daygreeting.wav</em>
+        </td>
     </tr>
     <tr>
       <td style="text-align:left">Greeting&#x2014;nonbusiness hours</td>
       <td style="text-align:left">Thank you for calling ABC company. Our office is now closed.</td>
       <td style="text-align:left">Night greeting. As above, but plays outside of business hours.</td>
       <td
-      style="text-align:left">nightgreeting.wav</td>
+      style="text-align:left"><em>nightgreeting.wav</em>
+        </td>
     </tr>
     <tr>
       <td style="text-align:left">Main menu</td>
@@ -72,19 +75,22 @@ Table 14-1. A basic automated attendant
       <td style="text-align:left">Main menu prompt. Plays immediately after the greeting. For the caller,
         the greeting and the main menu are heard as a single prompt; however, in
         the system it is helpful to keep these prompts separate.</td>
-      <td style="text-align:left">mainmenu.wav</td>
+      <td style="text-align:left"><em>mainmenu.wav</em>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left">1</td>
       <td style="text-align:left">Please hold while we connect your call.</td>
       <td style="text-align:left">Transfer to sales queue.</td>
-      <td style="text-align:left">holdwhileweconnect.wav</td>
+      <td style="text-align:left"><em>holdwhileweconnect.wav</em>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left">2</td>
       <td style="text-align:left">Please hold while we connect your call.</td>
       <td style="text-align:left">Transfer to support queue.</td>
-      <td style="text-align:left">holdwhileweconnect.wav</td>
+      <td style="text-align:left"><em>holdwhileweconnect.wav</em>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left">#</td>
@@ -98,13 +104,15 @@ Table 14-1. A basic automated attendant
       <td
       style="text-align:left">Play a recording containing address and fax information. Return caller
         to menu prompt when done.</td>
-        <td style="text-align:left">faxandaddress.wav</td>
+        <td style="text-align:left"><em>faxandaddress.wav</em>
+        </td>
     </tr>
     <tr>
       <td style="text-align:left">0</td>
       <td style="text-align:left">Transferring to our attendant. Please hold.</td>
       <td style="text-align:left">Transfer to reception/operator.</td>
-      <td style="text-align:left">transfertoreception.wav</td>
+      <td style="text-align:left"><em>transfertoreception.wav</em>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left">9</td>
@@ -124,14 +132,16 @@ Table 14-1. A basic automated attendant
       <td style="text-align:left">You have made an invalid selection. Please try again.</td>
       <td style="text-align:left">Caller pressed an invalid digit: replay menu prompt (but not greeting).</td>
       <td
-      style="text-align:left">invalid.wav</td>
+      style="text-align:left"><em>invalid.wav</em>
+        </td>
     </tr>
     <tr>
       <td style="text-align:left">_XXX <a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405466264">b</a>
       </td>
       <td style="text-align:left">n/a</td>
       <td style="text-align:left">Transfer call to dialed extension.</td>
-      <td style="text-align:left">holdwhileweconnect.wav</td>
+      <td style="text-align:left"><em>holdwhileweconnect.wav</em>
+      </td>
     </tr>
     <tr>
       <td style="text-align:left">
@@ -146,15 +156,15 @@ Table 14-1. A basic automated attendant
       <td style="text-align:left"></td>
     </tr>
   </tbody>
-</table>Let’s go over the various components of this template. Then we’ll show you the dialplan code required to implement it, as well as how to create prompts for it.
+</table>Давайте рассмотрим различные компоненты этого шаблона. Затем мы покажем вам код диалплана, необходимый для его реализации, а также как создавать подсказки.
 
-### The Greeting
+### Приветствие
 
-The first thing the caller hears is actually two prompts.
+Первое, что слышит абонент - это на самом деле две подсказки.
 
-The first prompt is the greeting. The only thing the greeting should do is greet the caller. Examples of a greeting might be “Thank you for calling Bryant, Van Meggelen, and Associates,” “Welcome to Leif’s School of Wisdom and T-Shirt Design,” or “You have reached the offices of Dewey, Cheetum, and Howe, Attorneys.” That’s it—the choices for the caller will come later. This allows you to record different greetings without having to record a whole new menu. For example, for a few weeks each year you might want your greeting to say “Season’s greetings” or whatever, but your menu will not need to change. Also, if you want to play a different recording after hours \(“Thank you for calling. Our office is now closed.”\), you can use different greetings, but the heart of the menu can stay the same. Finally, if you want to be able to return callers to the menu from a different part of the system, you will normally not want them to hear the greeting again.
+Первая подсказка - это приветствие. Единственное, что приветствие должно сделать - это поприветствовать абонента. Примером приветствия может быть “Спасибо, что позвонили Брайанту, Ван Меггелену и партнерам”, “Добро пожаловать в школу мудрости и дизайна футболок Лейфа" или "Вы позвонили в офисы адвокатов Дьюи, Читама и Хоуи.” Вот именно - выбор для звонящего придет позже. Это позволяет записывать различные приветствия без необходимости записывать все новое меню. Например, в течение нескольких недель каждый год вы можете делать, чтобы ваше приветствие говорило "приветствие сезона" или что-то еще, но ваше меню не нужно будет менять. Кроме того, если вы хотите воспроизвести другую запись в нерабочее время \(“Спасибо за звонок. Наш офис сейчас закрыт.”\), то можете использовать разные приветствия, но сердце меню останется прежним. Наконец, если вы хотите иметь возможность вернуть абонентов в меню из другой части системы, то не захотите, чтобы они снова услышали приветствие.
 
-### The Main Menu
+### Главное меню
 
 The main menu prompt is where you inform your callers of the choices available to them. You should speak this as quickly as possible \(without sounding rushed or silly\).[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405454200) When you record a choice, always tell the users the action that will be taken before giving them the digit option to take that action. So, don’t say “press 1 for sales,” but rather say “for sales, press 1.” The reason for this is that most people will not pay full attention to the prompt until they hear the choice that is of interest to them. Once they hear their choice, you will have their full attention and can tell them what button to press to get them to where they want to go.
 
@@ -414,23 +424,23 @@ And that’s it! A simple automated attendant that is easy to manage, and will h
 
 ### IVR
 
-We’ll cover Interactive Voice Response \(IVR\) in more depth in [Chapter 16](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch16.html%22%20/l%20%22asterisk-IVR), but before we do that, we’re going to talk about something that is essential to any IVR. Database integration is the subject of the next chapter.
+Мы рассмотрим интерактивное голосовое меню \(IVR\) более подробно в [Главе 16](glava-16.md), но прежде чем мы это сделаем поговорим о том, что важно для любого IVR. Интеграция баз данных является предметом следующей главы.
 
-## Conclusion
+## Вывод
 
-An automated attendant can provide a very useful service to callers. However, if it is not designed and implemented well, it can also be a barrier to your callers that may well drive them away. Take the time to carefully plan out your AA, and keep it simple.
+Автосекретарь может предоставить очень полезную услугу для абонентов. Однако, если он не разработан и хорошо реализован, то также может стать барьером для ваших абонентов, который может отпугнуть их. Потратьте время, чтобы тщательно спланировать свой АС и держать его простым.
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405502152-marker) This is most likely because “IVR” is much easier to say than “automated attendant.”
+[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405502152-marker) Это, скорее всего, потому, что "IVR“ гораздо легче сказать, чем "автосекретарь".
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405498824-marker) It should be noted that Asterisk is an excellent IVR-creation tool. It’s not bad for building automated attendants, either.
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405498824-marker) Следует отметить, что Asterisk - это отличный инструмент для создания IVR. Но также отлично подходит и для создания автосекретаря.
 
-[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405454200-marker) If necessary, you can use an audio editing program such as Audacity to remove silence, and even to speed up the recording a bit.
+[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405454200-marker) При необходимости вы можете использовать программу редактирования звука, такую как Audacity, чтобы удалить тишину и даже немного ускорить запись.
 
-[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405451528-marker) In fact, we don’t normally recommend this in an AA because it adds to what the caller has to listen to, and most people will go to a website for this sort of information.
+[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405451528-marker) На самом деле, мы обычно не рекомендуем это в AС, потому что это добавляется к тому, что абонент должен слушать, и большинство людей все равно пойдет на сайт для получения такого рода информации.
 
-[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405403992-marker) Unless you are an expert in these areas, in which case go for it!
+[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405403992-marker) Если вы не являетесь экспертом в этих областях, в таком случае пойдите на это!
 
-[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405391512-marker) The vm-intro prompt isn’t perfect \(it asks you to leave a message\), but it’s close enough for our purposes. The usage instructions at least are correct: press \# to end the recording. Once you’ve gotten the hang of recording prompts, you can go back, record a custom prompt, and change priority 1 to reflect more appropriate instructions for recording your own prompts.
+[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405391512-marker) Подсказка _vm-intro_ не идеальна \(она просит вас оставить сообщение\), но она достаточно близка для наших целей. Инструкции по использованию по крайней мере верны: нажмите \#, чтобы завершить запись. После того, как вы научились записывать подсказки можете вернуться назад, записать пользовательское приглашение и изменить приоритет 1, чтобы отразить более подходящие инструкции для записи собственных приглашений.
 
 [7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch14.html%22%20/l%20%22idm46178405356792-marker) And if you do in yours, congratulations and please be careful swimming with the sharks.
 
