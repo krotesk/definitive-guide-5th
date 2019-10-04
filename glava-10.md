@@ -456,21 +456,21 @@ exten => 1,1,Dial(${UserA_DeskPhone},10)
 
 ## GoSub
 
-The GoSub\(\) dialplan application allows you to send a call off to a separate section of the dialplan, make something useful happen, and then return the call to the point in the dialplan where it came from. You can pass arguments to GoSub\(\), and also receive a return code back from it. This cranks up the functionality of your dialplan quite a bit.
+Приложение диалплана `GoSub()` позволяет отправить вызов в отдельный раздел диалплана, сделать что-то полезное, а затем вернуть вызов в точку в диалплане, откуда он пришел. Вы можете передать аргументы в `GoSub()`, а также получить от него код возврата. Оно немного увеличивает функциональность вашего диалплана.
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-Subroutines are a critical skill in any programming language, and no less so in an Asterisk dialplan. For those new to programming, a subroutine allows you to create a block of generic code that can be reused by different parts of the dialplan to avoid repetition. Think of it like a template in a word processing document, or a blank form, and you’ve got the general idea. Once you see them in operation, it should become clear how useful they can be.
+Подпрограммы являются важнейшей способностью в любом языке программирования, и в не меньшей степени в диалплане Asterisk. Для тех, кто новичок в программировании: подпрограмма позволяет создать блок универсального кода, который может быть повторно использован различными частями диалплана, чтобы избежать повторения. Подумайте о ней как о шаблоне в текстовом документе или пустой форме, и у вас появится представление. Как только вы увидите их в действии, должно стать ясно, насколько полезными они могут быть.
 {% endhint %}
 
-### Defining Subroutines
+### Определение подпрограмм
 
-There are no special naming requirements when using GoSub\(\) in the dialplan. In fact, you can use GoSub\(\) within the same context and extension if you want to. In most cases, however, your subroutines should be written in separate contexts: one context for each subroutine. When creating the context, we like to prepend the name with sub so we know the context is called from the GoSub\(\) application.
+При использовании `GoSub()` в диалплане нет особых требований к именованию. Фактически, вы можете использовать `GoSub()` в том же контексте и расширении если пожелаете. В большинстве случаев, однако, ваши подпрограммы должны быть написаны в отдельных контекстах: один контекст для каждой подпрограммы. При создании контекста, мы рекомендуем добавить к имени  `sub`, чтобы знать что контекст вызывается из приложения `GoSub()`.
 
-Let’s explore an obvious example of where a subroutine would be useful.
+Давайте рассмотрим очевидный пример того, где подпрограмма была бы полезна.
 
-As you might have noticed when we were building our sample dialplan for the users we have created, the dialplan logic for each user can require several lines of code.
+Как вы могли заметить, при создании нашего примера диалплана для пользователей, которых мы добавили, логика диалплана для каждого пользователя может потребовать несколько строк кода.
 
 ```text
 [sets]
@@ -494,91 +494,68 @@ exten => 103,1,Dial(${UserB_SoftPhone})
  same => n,Hangup()
 ```
 
-We’ve only provided two users with actual, working voicemail, and we’ve only defined four phones as extensions, and yet we’ve already got a mess of repetitive code, which is only going to get more and more difficult to maintain and expand. This will quickly become unmanageable if we don’t find a better way.
+Мы предоставили только двум пользователям реальную, рабочую голосовую почту, и определили только четыре телефона как внутренние номера, и все же у нас уже есть беспорядок в виде повторяющегося кода, который будет все труднее поддерживать и расширять. Это быстро станет неуправляемым, если мы не найдем способа получше.
 
-Let’s write a subroutine to handle dialing our users. Add the following to the very bottom of your dialplan:
+Давайте напишем подпрограмму для обработки набора номера наших пользователей. Добавьте следующее в самый конец вашего диалплана:
 
+```text
 ; SUBROUTINES
+[subDialUser]
+exten => _[0-9].,1,Noop(Dial extension ${EXTEN},channel: ${ARG1}, mailbox: ${ARG2})
+ same => n,Noop(mboxcontext: ${ARG3}, timeout ${ARG4})
+ same => n,Dial(${ARG1},${ARG4})
+ same => n,GotoIf($["${DIALSTATUS}" = "BUSY"]?busy:unavail)
+ same => n(unavail),VoiceMail(${ARG2}@${ARG3},u)
+ same => n,Hangup()
+ same => n(busy),VoiceMail(${ARG2}@${ARG3},b)
+ same => n,Hangup()
+```
 
-\[subDialUser\]
+Теперь измените верхнюю часть своего диалплана следующим образом:
 
-exten =&gt; \_\[0-9\].,1,Noop\(Dial extension ${EXTEN},channel: ${ARG1}, mailbox: ${ARG2}\)
+```text
+[OLD_sets] ; что было [sets] теперь [OLD_sets] (называйте как угодно, имя изменить недолго)
+exten => 100,1,Dial(${UserA_DeskPhone},12)
+ same => n,Voicemail(100@default)
+ same => n,GotoIf($["${DIALSTATUS}" = "BUSY"]?busy:unavail)
+;(и тд)
+```
 
- same =&gt; n,Noop\(mboxcontext: ${ARG3}, timeout ${ARG4}\)
+Мы переименовали наш контекст `[sets]` , который, конечно, сломает наш диалплан, так как наши телефоны входят в диалплан в нем. Итак, мы собираемся снова добавить его немного ниже:
 
- same =&gt; n,Dial\(${ARG1},${ARG4}\)
+```text
+exten => 103,1,Dial(${UserB_SoftPhone})
+ same => n,Hangup()
+[sets]
+exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
+ same => n,Hangup()
+;(etc)
+```
 
- same =&gt; n,GotoIf\($\["${DIALSTATUS}" = "BUSY"\]?busy:unavail\)
+Итак, теперь у нас снова есть наш контекст `[sets]`, а также `[OLD_sets]`, в котором есть наш старый, осиротевший код. Как мы набираем наши телефоны? Как эта подпрограмма, которую мы только что написали, поможет нам?
 
- same =&gt; n\(unavail\),VoiceMail\(${ARG2}@${ARG3},u\)
-
- same =&gt; n,Hangup\(\)
-
- same =&gt; n\(busy\),VoiceMail\(${ARG2}@${ARG3},b\)
-
- same =&gt; n,Hangup\(\)
-
-Now, modify the top of your dialplan as follows:
-
-\[OLD\_sets\] ; what was \[sets\] is now \[OLD\_sets\] \(call it whatever, so long as name changes\)
-
-exten =&gt; 100,1,Dial\(${UserA\_DeskPhone},12\)
-
- same =&gt; n,Voicemail\(100@default\)
-
- same =&gt; n,GotoIf\($\["${DIALSTATUS}" = "BUSY"\]?busy:unavail\)
-
-;\(etc\)
-
-We’ve renamed our \[sets\] context, which of course breaks our dialplan since our phones enter the dialplan there. So, we’re going to reinsert it a little farther down:
-
-exten =&gt; 103,1,Dial\(${UserB\_SoftPhone}\)
-
- same =&gt; n,Hangup\(\)
-
-\[sets\]
-
-exten =&gt; 110,1,Dial\(${UserA\_DeskPhone}&${UserA\_SoftPhone}&${UserB\_SoftPhone}\)
-
- same =&gt; n,Hangup\(\)
-
-;\(etc\)
-
-OK, so now we’ve got our \[sets\] context working again, and also this \[OLD\_sets\] context that’s got our old, orphaned code. How do we dial our telephones? How does this subroutine we just wrote help us?
-
-exten =&gt; 103,1,Dial\(${UserB\_SoftPhone}\)
-
- same =&gt; n,Hangup\(\)
-
-\[sets\]
-
+```text
+exten => 103,1,Dial(${UserB_SoftPhone})
+ same => n,Hangup()
+[sets]
 ;subDialUser args:
+; - ARG1 канал(ы) для вызова
+; - ARG2 почтовый ящик
+; - ARG3 контекст почтового ящика
+; - ARG4 Тайм-аут
+exten => 100,1,Gosub(subDialUser,${EXTEN},1(${UserA_DeskPhone},${EXTEN},default,12))
+exten => 101,1,Gosub(subDialUser,${EXTEN},1(${UserA_SoftPhone},${EXTEN},default,3))
+exten => 102,1,Gosub(subDialUser,${EXTEN},1(${UserB_DeskPhone},${EXTEN},default,6))
+exten => 103,1,Gosub(subDialUser,${EXTEN},1(${UserB_SoftPhone},${EXTEN},default,24))
+exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
+ same => n,Hangup()
+```
 
-; - ARG1 Channel\(s\) to dial
+Сохраните его, перезагрузите диалплан и выполните несколько тестовых вызовов. Поиграйте с параметрами и посмотрите что изменится. Добавьте несколько почтовых ящиков в свою базу данных и посмотрите, что произойдет. Если вы вдохновлены, напишите новую подпрограмму `subDialUserNEW` и посмотрите что сможете придумать. На этом этапе вы также можете удалить весь код в контексте `[OLD_sets]`, поскольку он теперь заброшен, но вы также можете оставить его там, поскольку он не причиняет вреда.
 
-; - ARG2 Mailbox
+Теперь, вы можете добавить сотни расширений, и каждое из них будет использовать только одну строку диалплана.
 
-; - ARG3 Mailbox Context
-
-; - ARG4 Timeout
-
-exten =&gt; 100,1,Gosub\(subDialUser,${EXTEN},1\(${UserA\_DeskPhone},${EXTEN},default,12\)\)
-
-exten =&gt; 101,1,Gosub\(subDialUser,${EXTEN},1\(${UserA\_SoftPhone},${EXTEN},default,3\)\)
-
-exten =&gt; 102,1,Gosub\(subDialUser,${EXTEN},1\(${UserB\_DeskPhone},${EXTEN},default,6\)\)
-
-exten =&gt; 103,1,Gosub\(subDialUser,${EXTEN},1\(${UserB\_SoftPhone},${EXTEN},default,24\)\)
-
-exten =&gt; 110,1,Dial\(${UserA\_DeskPhone}&${UserA\_SoftPhone}&${UserB\_SoftPhone}\)
-
- same =&gt; n,Hangup\(\)
-
-Plug that in, reload your dialplan, and make some test calls. Play with the parameters and see what changes. Add some mailboxes to your database and see what that does. If you’re inspired, write a new subDialUserNEW subroutine and see what you can come up with. At this point you can also delete all the code in the \[OLD\_sets\] context, since it’s now abandoned, but you can also leave it there as it does no harm.
-
-Now, you can add hundreds of extensions, and each one will only use one line of the dialplan.
-
-Whenever you find yourself writing duplicate dialplan code somewhere, stop. It’s very likely that it’s time to write a subroutine.
+Всякий раз, когда вы обнаружите, что где-то пишете дубликат кода диалплана, остановитесь. Вполне вероятно, что пришло время написать подпрограмму.
 
 ### Returning from a Subroutine
 
