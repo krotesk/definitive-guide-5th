@@ -358,9 +358,9 @@ same => n,GotoIf($[_${TEST}_ != _valid_]?error_handling)
 Не все символы будут работать, так как некоторые могут иметь другие значения для Asterisk и вызвать проблемы. Оставайтесь с кавычками и всё должно быть в порядке.
 {% endhint %}
 
-The classic example of conditional branching is affectionately known as the “psycho-ex” logic. If the caller ID number of the incoming call matches the phone number of somebody you never want to talk to again, Asterisk gives a different message than it ordinarily would to any other caller. While somewhat simple and primitive, it’s a good example for learning about conditional branching within the Asterisk dialplan.
+Классический пример условного ветвления ласково называют логикой "психо-экс". Если идентификационный номер абонента входящего вызова совпадает с номером телефона человека, с которым вы больше никогда не захотите разговаривать, Asterisk выдает другое сообщение, чем для любого другого абонента. Хотя он несколько прост и примитивен, это хороший пример для изучения условного ветвления в диалплане Asterisk.
 
-This example uses the CALLERID\(\) function, which allows us to retrieve the caller ID information on the inbound call. Let’s assume for the sake of this example that the victim’s phone number is 888-555-1212:[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406809256)
+В этом примере используется функция `CALLERID()`, которая позволяет получить информацию об идентификаторе вызывающего абонента при входящем вызове. Предположим, ради этого примера, что номер телефона жертвы 888-555-1212:4
 
 ```text
 exten => 214,1,NoOp(CALLERID(num): ${CALLERID(num)} CALLERID(name): ${CALLERID(name)})
@@ -371,66 +371,66 @@ exten => 214,1,NoOp(CALLERID(num): ${CALLERID(num)} CALLERID(name): ${CALLERID(n
  same => n,Hangup()
 ```
 
-In priority 1, we call the GotoIf\(\) application. It tells Asterisk to go to priority label reject if the caller ID number matches 8885551212, and otherwise to go to priority label allow \(we could have simply omitted the label name, causing the GotoIf\(\) to fall through\).[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406801064) If the caller ID number matches, control of the call goes to priority label reject, which plays back a subtle hint to the undesired caller. Otherwise, the call attempts to dial the recipient on the channel referenced by the UserA\_DeskPhone global variable.
+В приоритете `1` мы вызываем приложение `GotoIf()`. Он сообщает Asterisk перейти к приоритету метки `reject`, если номер идентификатора вызывающего абонента соответствует `8885551212` и в противном случае перейти к приоритету метки `allow` \(мы могли бы просто опустить имя метки в результате чего `GotoIf()` просто провалился\).[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html#idm46178406801064) Если CallerID абонента совпадает, управление вызовом переходит к метке приоритета `reject`, которая воспроизводит тонкий намёк нежелательному абоненту. В противном случае вызов пытается набрать получателя по каналу, на который ссылается глобальная переменная `UserA_DeskPhone`.
 
-### Time-Based Conditional Branching with GotoIfTime\(\)
+### Условное ветвление по времени с GotoIfTime\(\)
 
-Another way to use conditional branching in your dialplan is with the GotoIfTime\(\) application. Whereas GotoIf\(\) evaluates an expression to decide what to do, GotoIfTime\(\) looks at the current system time and uses that to decide whether or not to follow a different branch in the dialplan.
+Другой способ использования условного ветвления в диалплане - это использование приложения `GotoIfTime()`. В то время как `GotoIf()` оценивает выражение для дальнейших действий, `GotoIfTime()` смотрит на текущее системное время и использует его, чтобы решить, следует ли следовать другой ветви в диалплане.
 
-The most obvious use of this application is to give your callers a different greeting before and after normal business hours.
+Наиболее очевидное использование этого приложения - это озвучить вашим абонентам другое приветствие до и после рабочих часов.
 
-The syntax for the GotoIfTime\(\) application looks like this:
+Синтаксис приложения `GotoIfTime()` выглядит следующим образом:
 
 ```text
 GotoIfTime(times,days_of_week,days_of_month,months?label)
 ```
 
-In short, GotoIfTime\(\) sends the call to the specified label if the current date and time match the criteria specified by times, days\_of\_week, days\_of\_month, and months. Let’s look at each argument in more detail:
+Короче говоря, `GotoIfTime()` отправляет вызов на указанный _`label`_, если текущая дата и время соответствуют критериям, указанным _`times, days_of_week, days_of_month`_ и _`months`_. Давайте рассмотрим каждый аргумент более подробно:
 
-times
+_`times`_
 
-This is a list of one or more time ranges, in a 24-hour format. As an example, 9:00 A.M. through 5:00 P.M. would be specified as 09:00-17:00. The day starts at 0:00 and ends at 23:59.
-
-{% hint style="info" %}
-**Note**
-
-It is worth noting that times will properly wrap around. So, if you wish to specify the times your office is closed, you might write 18:00-9:00 in the times parameter, and it will perform as expected. Note that this technique works as well for the other components of GotoIfTime\(\). For example, you can write sat-sun to specify the weekend days.
-{% endhint %}
-
-days\_of\_week
-
-This is a list of one or more days of the week. The days should be specified as mon, tue, wed, thu, fri, sat, and/or sun. Monday through Friday would be expressed as mon-fri. Tuesday and Thursday would be expressed as tue&thu.
+Это список одного или нескольких временных диапазонов в 24-часовом формате. Например, с 9:00 утра до 5:00 вечера будет указано как 09:00-17:00. День начинается в 0:00 и заканчивается в 23:59.
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-Note that you can specify a combination of ranges and single days, as in: sun-mon&wed&fri-sat, or, more simply: wed&fri-mon.
+Стоит отметить, что время будет правильно оборачиваться. Таким образом, если вы хотите указать время закрытия вашего офиса, то можете указать 18:00-9:00 в параметре _`times`_, и оно будет работать как и ожидалось. Обратите внимание, что этот метод работает также и для других компонентов `GotoIfTime()`. Например, вы можете написать `sat-sun`, чтобы указать выходные дни.
 {% endhint %}
 
-days\_of\_month
+_`days_of_week`_
 
-This is a list of the numerical days of the month. Days are specified by the numbers 1 through 31. The 7th through the 12th would be expressed as 7-12, and the 15th and 30th of the month would be written as 15&30. This can be useful for holidays, which often fall on the same day of the month, but not typically on the same day of the week.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406763720)
+Это список из одного или нескольких дней недели. Дни должны быть указаны как `mon`, `tue`, `wed`, `thu`, `fri`, `sat` и/или `sun`. С понедельника по пятницу будет выражаться как `mon-fri`. Вторник и четверг будут выражены как `tue&thu`.
 
-months
+{% hint style="info" %}
+**Примечание**
 
-This is a list of one or more months of the year. The months should be written as jan-apr for a range, and separated with ampersands when wanting to include nonsequential months, such as jan&mar&jun. You can also combine them like so: jan-apr&jun&oct-dec.
+Обратите внимание, что можно указать совокупность диапазонов и одного дня, как: `sun-mon&wed&fri-sat` или более просто: `wed&fri-mon`.
+{% endhint %}
 
-If you wish to match on all possible values for any of these arguments, simply put an \* in for that argument.
+_`days_of_month`_
 
-The label argument can be any of the following:
+Это список чисел дней месяца. Дни указываются цифрами от `1` до `31`. С 7-го по 12-е число будет выражено как `7-12`, а 15-е и 30-е числа месяца будут записаны как `15&30`. Это может быть полезно для праздников, которые обычно приходятся на один и тот же день месяца, но не на один и тот же день недели.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html#idm46178406763720)
 
-* A priority label within the same extension, such as time\_has\_passed
-* An extension and a priority within the same context, such as 123,time\_has\_passed
-* A context, extension, and priority, such as incoming,123,time\_has\_passed
+_`months`_
 
-Now that we’ve covered the syntax, let’s look at a couple of examples. The following example would match from 9:00 A.M. to 5:59 P.M., on Monday through Friday, on any day of the month, in any month of the year:
+Это список из одного или нескольких месяцев в году. Месяцы должны быть записаны как `jan-apr` для диапазона и разделены амперсандами когда требуется включить не месяцы не последовательно как например `jan&mar&jun`. Вы также можете комбинировать их так: `jan-apr&jun&oct-dec`.
+
+Если вы хотите сопоставить все возможные значения для любого из этих аргументов, просто поставьте `*` в этом аргументе.
+
+Аргумент `label` может быть любым из следующих:
+
+* Метка приоритета в пределах одного расширения, например `time_has_passed` 
+* Расширение и приоритет в одном контексте, например `123, time_has_passed`
+* Контекст, расширение, а также приоритет, например `incoming,123,time_has_passed` 
+
+Теперь, когда мы рассмотрели синтаксис, давайте рассмотрим несколько примеров. Следующий пример будет соответствовать с _9:00 утра до 5:59 вечера_, с _понедельника по пятницу_, в _любой день месяца_, в _любом месяце года_:
 
 ```text
 exten => s,1,NoOp()
  same => n,GotoIfTime(09:00-17:59,mon-fri,*,*?open,s,1)
 ```
 
-If the caller calls during these hours, the call will be sent to the first priority of the start extension in the context named open. If the call is made outside of the specified times, it will simply carry on with the next priority of the current extension. We’re going to add a new context named \[closed\] right after the pattern match example 55512XX, and modify the \[TestMenu\] context we built in [Chapter 6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch06.html%22%20/l%20%22asterisk-DP-Basics) to handle our new time condition.
+Если вызывающий абонент звонит в течение этих часов, вызов будет направлен на первый приоритет расширения `start` в контексте с именем `open`. Если вызов выполняется вне указанного времени, он просто продолжит работу со следующего приоритета текущего расширения. Мы собираемся добавить новый контекст с именем `[closed]` сразу после примера соответствия шаблону `55512XX` и изменить контекст `[Test Menu]`, который мы создали в [Главе 6](glava-06.md), чтобы обработать наше новое правило по времени.
 
 ```text
 exten => _55512XX,1,Answer()
