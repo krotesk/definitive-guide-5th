@@ -557,13 +557,13 @@ exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
 
 Всякий раз, когда вы обнаружите, что где-то пишете дубликат кода диалплана, остановитесь. Вполне вероятно, что пришло время написать подпрограмму.
 
-### Returning from a Subroutine
+### Возврат из подпрограммы
 
-The GoSub\(\) dialplan application does not return automatically once it is done executing. If you’re done with the call, you can of course use Hangup\(\); however, if you don’t want to disconnect, but rather need to return the call from where it came, you can use the Return\(\) application.
+Приложение диалплана `GoSub()` не возвращается автоматически после выполнения подпрограммы. Если вы закончили с вызовом, то можете, конечно, использовать `Hangup()`однако, если вы не хотите отключаться, а скорее вернуть вызов оттуда, откуда он пришел, вы можете использовать приложение `Return()`.
 
-Since you can nest subroutines within subroutines and also execute them one after another, as you get into more complex subroutines you will find this an essential capability.
+Поскольку вы можете вложить подпрограмму в подпрограмму, а также выполнять их одну за другой, когда попадаете в более сложные подпрограммы, то вскоре обнаружите, что это весьма полезная возможность.
 
-## Local Channels
+## Локальные \(Local\) каналы
 
 Local channels are a method of executing other areas of the dialplan from the Dial\(\) application \(as opposed to sending the call out a channel\). Think of them as subroutines you can call from within Dial\(\).
 
