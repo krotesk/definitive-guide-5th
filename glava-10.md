@@ -565,21 +565,22 @@ exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
 
 ## Локальные \(Local\) каналы
 
-Local channels are a method of executing other areas of the dialplan from the Dial\(\) application \(as opposed to sending the call out a channel\). Think of them as subroutines you can call from within Dial\(\).
+Каналы Local - это метод выполнения других областей диалплана из приложения `Dial()` \(в отличие от отправки вызова из канала\). Думайте о них как о подпрограммах, которые вы можете вызвать из `Dial()`.
 
-They may seem like a bit of a strange concept when you first start using them, but believe us when we tell you they can be the answer to a problem you can’t figure out any other way. You will almost certainly want to make use of them when you start writing advanced dialplans. The best way to illustrate the use of local channels is through an example. Let’s suppose we have a situation where we need to ring multiple people, but we need to provide delays of different lengths before dialing each of the members. The use of local channels is the solution to the problem.
+Они могут показаться немного странной концепцией, когда вы впервые начинаете их использовать, но поверьте нам, когда мы говорим вам, что они могут быть ответом на проблему, которую вы не можете решить никаким другим способом. Вы почти наверняка захотите использовать их, когда начнете писать расширенные диалпланы. Лучший способ проиллюстрировать использование локальных каналов - на примере. Предположим, у нас есть ситуация, когда нам нужно позвонить нескольким людям, но нам нужно обеспечить задержки разной длины перед набором каждого из участников. Использование локальных каналов является решением проблемы.
 
-With the Dial\(\) application, you can certainly ring multiple endpoints \(see extension 110 in your dialplan for an example of this\), but all three channels will ring at the same time, and for the same length of time.
+С помощью приложения `Dial()` вы, конечно, можете звонить на несколько конечных точек \(см. расширение 110 в вашем диалплане для иллюстрации этого\), но все три канала будут звонить одновременно и в течение одного и того же периода времени.
 
-exten =&gt; 110,1,Dial\(${UserA\_DeskPhone}&${UserA\_SoftPhone}&${UserB\_SoftPhone}\)
+```text
+exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
+ same => n,Hangup()
+```
 
- same =&gt; n,Hangup\(\)
+Однако, допустим, мы хотим ввести некоторые задержки до звонка пользователю, а также прекратить звонить в разные места в разное время. Использование локальных каналов дает нам независимый контроль над каждым из каналов, которые мы хотим набрать, поэтому мы можем вводить задержки и контролировать период времени, в течение которого каждый канал звонит независимо.
 
-However, let’s say we want to introduce some delays prior to ringing a user, and also stop ringing locations at different times. Using local channels gives us independent control over each of the channels we want to dial, so we can introduce delays and control the period of time for which each channel rings independently.
+Допустим, у нас есть небольшая компания, где администратор в первую очередь отвечает за входящие звонки, но есть также два члена команды, которым поручено резервное копирование приема, и, наконец, владелец хочет помочь, если это необходимо.
 
-Let’s say we have a small company, where the receptionist is primarily responsible for the incoming calls, but there are also two team members who are tasked with backing up reception, and finally the owner wants to help out if need be too.
-
-These are the requirements:
+Таковы требования:
 
 * The reception phone should ring right away, and keep ringing and not stop until answered.
 * The team member phones shouldn’t ring for the first 9 seconds, at which point they can ring until answered.
