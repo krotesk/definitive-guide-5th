@@ -578,91 +578,72 @@ exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
 
 Однако, допустим, мы хотим ввести некоторые задержки до звонка пользователю, а также прекратить звонить в разные места в разное время. Использование локальных каналов дает нам независимый контроль над каждым из каналов, которые мы хотим набрать, поэтому мы можем вводить задержки и контролировать период времени, в течение которого каждый канал звонит независимо.
 
-Допустим, у нас есть небольшая компания, где администратор в первую очередь отвечает за входящие звонки, но есть также два члена команды, которым поручено резервное копирование приема, и, наконец, владелец хочет помочь, если это необходимо.
+Допустим, у нас есть небольшая компания, где в первую очередь на входящие звонки отвечает администратор, но есть также два участника команды, которым поручено отвечать на вызовы, и, наконец, может помочь владелец, если это необходимо.
 
 Таковы требования:
 
-* The reception phone should ring right away, and keep ringing and not stop until answered.
-* The team member phones shouldn’t ring for the first 9 seconds, at which point they can ring until answered.
-* The owner’s phone should only ring if the call has gone on for 12 seconds with no answer. Also, we’re pretending it’s a cell phone, and thus should stop ringing 18 seconds later so that the call is not answered by the cell phone voicemail.
+* Телефон на стойке регистрации должен звонить сразу, и продолжать звонить и не останавливаться, пока не ответят.
+* Телефоны участников команды не должны звонить в течение первых 9 секунд, после чего они могут звонить, пока не ответят.
+* Телефон владельца должен звонить только в том случае, если вызов оставался без ответа в течение 12 секунд. Кроме того, мы притворяемся, что это сотовый телефон, и поэтому должны прекратить звонить через 18 секунд, чтобы на вызов не ответила голосовая почта сотового телефона.
 
-We’ll use our existing configured channels to play the various roles. If you have any way to do so, please try to have them all registered somewhere so they can all ring when called. It’ll give you a much better idea of what’s going on when testing.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406696296)
+Мы будем использовать наши существующие настроенные каналы, чтобы использовать различные функции. Если у вас есть какой-либо способ сделать это, пожалуйста, постарайтесь, чтобы все они были зарегистрированы где-то, чтобы они могли звонить при вызове. Это даст вам гораздо лучшее представление о том, что происходит при тестировании.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html#idm46178406696296)
 
-This is a great time for a subroutine:
+Это прекрасное время для подпрограммы:
 
-\[subDialDelay\]
-
-exten =&gt; \_\[a-zA-Z0-9\].,1,Noop\(channel ${ARG1}, pre-delay ${ARG2}, timeout ${ARG3}\)
-
-; same =&gt; n,Progress\(\) ; Optional; Signals back that the call is proceeding
+```text
+[subDialDelay]
+exten => _[a-zA-Z0-9].,1,Noop(channel ${ARG1}, pre-delay ${ARG2}, timeout ${ARG3})
+; same => n,Progress() ; Optional; Signals back that the call is proceeding
+ same => n,Wait(${ARG2}) ; how long to wait before dialing
+ same => n,Dial(${ARG1},${ARG3}) ; timeout can be blank (infinite)
+ same => n,Hangup()
+```
 
 {% hint style="info" %}
+**Примечание** 
 
+У вас уже есть подпрограмма в нижней части файла. Добавьте её туда же, чтобы все ваши подпрограммы были сгруппированы вместе.
 {% endhint %}
-
- same =&gt; n,Wait\(${ARG2}\) ; how long to wait before dialing
-
- same =&gt; n,Dial\(${ARG1},${ARG3}\) ; timeout can be blank \(infinite\)
-
- same =&gt; n,Hangup\(\)
-
-**Note**
-
-You already have a subroutine at the bottom of the file. Add this one down there too so all your subroutines end up grouped together.
 
 Now we want a context in which we’ll build out the extensions to be used by the local channel:
 
+```text
 ;LOCAL CHANNELS
+[localDialDelay]
+exten => receptionist,1,Gosub(subDialDelay,${EXTEN},1(${UserA_DeskPhone},0,600))
+exten => team_one,1,Gosub(subDialDelay,${EXTEN},1(${UserA_SoftPhone},9,600))
+exten => team_two,1,Gosub(subDialDelay,${EXTEN},1(${UserB_DeskPhone},9,600))
+exten => owner,1,Gosub(subDialDelay,${EXTEN},1(${UserB_SoftPhone},12,18))
+```
 
-\[localDialDelay\]
-
-exten =&gt; receptionist,1,Gosub\(subDialDelay,${EXTEN},1\(${UserA\_DeskPhone},0,600\)\)
-
-exten =&gt; team\_one,1,Gosub\(subDialDelay,${EXTEN},1\(${UserA\_SoftPhone},9,600\)\)
-
-exten =&gt; team\_two,1,Gosub\(subDialDelay,${EXTEN},1\(${UserB\_DeskPhone},9,600\)\)
-
-exten =&gt; owner,1,Gosub\(subDialDelay,${EXTEN},1\(${UserB\_SoftPhone},12,18\)\)
-
+{% hint style="info" %}
 **Note**
 
 Even though the destination for a local channel is really just dialplan—the same as you might jump to with a Goto\(\)—these constructs tend to be very special-purpose, and fit into the dialplan better in their own area, down with the subroutines. That’s why we named the context with the prefix local. It’s not required, but makes things easier to make sense of.
+{% endhint %}
 
 Now we stitch it all together in our \[sets\] context.
 
 First, let’s provide a way to dial each local channel individually, so we can sanity check each one to be sure it’s doing what it should.
 
-exten =&gt; 103,1,Gosub\(subDialUser,${EXTEN},1\(${UserB\_SoftPhone},${EXTEN},default,24\)\)
-
+```text
+exten => 103,1,Gosub(subDialUser,${EXTEN},1(${UserB_SoftPhone},${EXTEN},default,24))
 ; These are for testing individually before we put them together
-
-exten =&gt; 104,1,Dial\(Local/receptionist@localDialDelay\)
-
-exten =&gt; 105,1,Dial\(Local/team\_one@localDialDelay\)
-
-exten =&gt; 106,1,Dial\(Local/team\_two@localDialDelay\)
-
-exten =&gt; 107,1,Dial\(Local/owner@localDialDelay\)
-
+exten => 104,1,Dial(Local/receptionist@localDialDelay)
+exten => 105,1,Dial(Local/team_one@localDialDelay)
+exten => 106,1,Dial(Local/team_two@localDialDelay)
+exten => 107,1,Dial(Local/owner@localDialDelay)
 Finally, let’s deliver the finished product.
-
-exten =&gt; 107,1,Dial\(Local/owner@localDialDelay\)
-
+exten => 107,1,Dial(Local/owner@localDialDelay)
 ;We're going to assign some variables in order to
-
 ;keep the dial string easier to read
-
-exten =&gt; 108,1,Noop\(DialDelay\)
-
- same =&gt; n,Set\(Recpn=Local/receptionist@localDialDelay\)
-
- same =&gt; n,Set\(Team1=Local/team\_one@localDialDelay\)
-
- same =&gt; n,Set\(Team2=Local/team\_two@localDialDelay\)
-
- same =&gt; n,Set\(Boss=Local/owner@localDialDelay\)
-
- same =&gt; n,Dial\(${Recpn}&${Team1}&${Team2}&${Boss},600\)
+exten => 108,1,Noop(DialDelay)
+ same => n,Set(Recpn=Local/receptionist@localDialDelay)
+ same => n,Set(Team1=Local/team_one@localDialDelay)
+ same => n,Set(Team2=Local/team_two@localDialDelay)
+ same => n,Set(Boss=Local/owner@localDialDelay)
+ same => n,Dial(${Recpn}&${Team1}&${Team2}&${Boss},600)
+```
 
 You really need to register a few phones and try this out, to see it all come together.
 
@@ -677,9 +658,11 @@ The solution we have created here is perfect for learning about local channels, 
 * We haven’t really handled overflow here. What happens if nobody answers? It doesn’t matter in the lab, but you can be sure it’ll matter in a production environment.
 * Dial\(\) expects ringing back from the destination. If all of your local channels have a Wait\(\) delay, the caller will hear silence until something indicates ringing. You can fix this by having Dial\(\) fake the ringing with the 'r' option, or by adding a dummy local channel that just returns ringing.
 
+{% hint style="info" %}
 **Note**
 
 If you check the sample dialplan, we’ve added a solution to the silence problem on delayed local channels
+{% endhint %}
 
 That’s it. Local channels: build them piece-by-piece and you’ll be delivering a powerful dialplan in no time.
 
