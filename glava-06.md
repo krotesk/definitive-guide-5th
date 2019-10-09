@@ -733,7 +733,11 @@ exten => 102,1,Dial(${UserB_DeskPhone},10)
 exten => 103,1,Dial(${UserB_SoftPhone})
 exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
 exten => 200,1,Answer()
-Let’s update the test menu as well:
+```
+
+Теперь давайте обновим наше тестовое меню:
+
+```text
 [TestMenu]
 exten => start,1,Answer()
  same => n,Background(enter-ext-of-person)
@@ -755,7 +759,7 @@ exten => i,1,Playback(pbx-invalid)
 
 Редко имеет смысл жестко кодировать данные в диалплане. Почти всегда лучше использовать переменную.
 
-Убедитесь, что вы протестировали это чтобы убедиться, что у вас нет никаких опечаток, а также посмотреть, как это выглядит в Asterisk CLI при выполнении:
+Проверьте диалплан на предмет опечаток и  протестируйте его. Также вы можете посмотреть как это выглядит в Asterisk CLI при выполнении:
 
 ```text
 # asterisk -rvvvvvv
@@ -777,7 +781,6 @@ exten => i,1,Playback(pbx-invalid)
 
 ```text
 exten => 204,1,Answer()
- same => n,Answer()
  same => n,Set(ONETWO=12)
  same => n,Set(THREEFOUR=34)
  same => n,SayDigits(${ONETWO}${THREEFOUR}) ; проще простого
