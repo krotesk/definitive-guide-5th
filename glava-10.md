@@ -683,97 +683,92 @@ Asterisk предоставляет простой механизм для хр�
 
 ### Хранение данных в AstDB
 
-To store a new value in the Asterisk database, we use the Set\(\) application with the DB\(\) function. For example, to assign the count key in the test family with the value of 1, we would write the following:
+Чтобы сохранить новое значение в базе данных Asterisk, мы используем приложение `Set()` с функцией `DB()`. Например, чтобы присвоить ключу `count` в семействе `test` значение `1`, мы напишем следующее:
 
-exten =&gt; 216,1,NoOp\(\)
+```text
+exten => 216,1,NoOp()
+ same => n,Set(DB(testkey/count)=1)
+```
 
- same =&gt; n,Set\(DB\(testkey/count\)=1\)
+Сделайте тестовый вызов 216, чтобы установить значение. Обратите внимание, что если ключ с именем `count` уже существует в семействе `test`, его значение будет перезаписано новым \(в этом случае значение жестко закодировано, поэтому оно будет перезаписано с тем же значением, но позже мы увидим, как можем изменить значение и сохранить его\).
 
-Make a test call to 216 to set the value. Note that if a key named count already exists in the test family, its value will be overwritten with the new value \(in this case, the value is hardcoded so obviously will get overwritten with the same value, but later we’ll see how we can change the value, and have that stored\).
+Вы также можете сохранять значения из командной строки Asterisk, запустив команду `database put` _`family key value`_. Для нашего примера, вы должны ввести `database put test count 1`.
 
-You can also store values from the Asterisk command line, by running the command database put family key value. For our example, you would type database put test count 1.
+Итак, пока мы это делаем, давайте также добавим значение в базу данных из консоли:
 
-So, while we’re at it, let’s also plug a value into the database from the console:
+```text
+*CLI> database put somekey somevalue 42
+```
 
-\*CLI&gt; database put somekey somevalue 42
+А теперь запросим базу данных из консоли, чтобы увидеть, какие значения там находятся:
 
-Let’s query the database from the console to see what values are in there:
+```text
+*CLI> database show
+```
 
-\*CLI&gt; database show
+Если все хорошо, вы должны увидеть результат, подобный следующему:
 
-If all is well, you should see output similar to the following:
-
-/pbx/UUID : d562019a-d2c4-4b88-bcd9-602b3b46fe07
-
-/somekey/count : 1
-
-/somekey/somevalue : 42
-
-/testkey/count : 1
-
+```text
+/pbx/UUID                             : d562019a-d2c4-4b88-bcd9-602b3b46fe07
+/somekey/count                        : 1
+/somekey/somevalue                    : 42
+/testkey/count                        : 1
 4 results found.
+localhost*CLI>
+```
 
-localhost\*CLI&gt;
+### Получение данных из AstDB
 
-### Retrieving Data from the AstDB
+Чтобы извлечь значение из базы данных Asterisk и присвоить его переменной, мы снова будем использовать приложение `Set()` и функцию `DB()`. Давайте получим значение некоторого значения \(из семейства `somekey`\), назначим его переменной `THE_ANSWER`, а затем передадим значение вызывающему объекту:
 
-To retrieve a value from the Asterisk database and assign it to a variable, we will again use the Set\(\) application and the DB\(\) function. Let’s retrieve the value of somevalue \(from the somekey family\), assign it to a variable called THE\_ANSWER, and then speak the value to the caller:
+```text
+exten => 217,1,NoOp()
+ same => n,Set(THE_ANSWER=${DB(somekey/somevalue)})
+ same => n,Answer()
+ same => n,SayNumber(${THE_ANSWER})
+```
 
-exten =&gt; 217,1,NoOp\(\)
+Вы также можете проверить значение данного ключа из командной строки Asterisk, запустив команду `database getd`_`family key`_. Чтобы просмотреть все содержимое базы данных AstDB, используйте команду `database show`.
 
- same =&gt; n,Set\(THE\_ANSWER=${DB\(somekey/somevalue\)}\)
+### Удаление данных из AstDB
 
- same =&gt; n,Answer\(\)
+Существует два способа удаления данных из базы данных Asterisk. Для удаления ключа можно использовать приложение `DB_DELETE()`. Оно принимает путь к ключу в качестве аргументов, например:
 
- same =&gt; n,SayNumber\(${THE\_ANSWER}\)
+```text
+; удаляет ключ и возвращает его значение за один шаг
+exten => 218,1,Verbose(0, We just blew away ${DB_DELETE(somekey/somevalue)})
+```
 
-You may also check the value of a given key from the Asterisk command line by running the command database get family key. To view the entire contents of the AstDB, use the database show command.
+Вы также можете удалить все семейство ключей с помощью приложения `DBdeltree()`. Приложение `DBdeltree()` принимает один аргумент: имя семейства ключей для удаления. Чтобы удалить все семейство `test`, выполните следующие действия:
 
-### Deleting Data from the AstDB
+```text
+exten => 219,1,DBdeltree(somekey)
+```
 
-There are two ways to delete data from the Asterisk database. To delete a key, you can use the DB\_DELETE\(\) application. It takes the path to the key as its arguments, like this:
+Чтобы удалить ключи и семейства ключей из базы данных AstDB через интерфейс командной строки, используйте команды `database del` _`key`_ и `database deltree` _`family`_ соответственно.
 
-; deletes the key and returns its value in one step
+Если вы сейчас позвоните по номеру 217, то увидите, что ничего не сказано, потому что база данных ничего не возвращает. Вы также можете запустить `database show` из CLI и отметить, что это семейство и ключ были удалены.
 
-exten =&gt; 218,1,Verbose\(0, We just blew away ${DB\_DELETE\(somekey/somevalue\)}\)
-
-You can also delete an entire key family by using the DBdeltree\(\) application. The DBdeltree\(\) application takes a single argument: the name of the key family to delete. To delete the entire test family, do the following:
-
-exten =&gt; 219,1,DBdeltree\(somekey\)
-
-To delete keys and key families from the AstDB via the command-line interface, use the database del key and database deltree family commands, respectively.
-
-If you call extension 217 now, you will see that there is nothing said, because nothing is returned by the database. You can also run database show from the CLI, and note that that family and key have been removed.
-
-### Using the AstDB in the Dialplan
+### Использование AstDB в диалплане
 
 There are an infinite number of ways to use the Asterisk database in a dialplan. To introduce the AstDB, we’ll look at two simple examples. The first is a simple counting example to show that the Asterisk database is persistent \(it even survives system reboots\). In the second example, we’ll use the BLACKLIST\(\) function to evaluate whether or not a number is on the blacklist and should be blocked.
 
 To begin the counting example, let’s first retrieve a number \(the value of the count key\) from the database and assign it to a variable named COUNT. If the key doesn’t exist, DB\(\) will return NULL \(no value\). Therefore, we can use the ISNULL\(\) function to verify whether or not a value was returned. If not, we will initialize the AstDB with the Set\(\) application, where we will set the value in the database to 1. This will only happen if the database entry does not exist:
 
-exten =&gt; 220,1,NoOp\(\)
-
- same =&gt; n,Set\(COUNT=${DB\(test/count\)}\) ; retrieve current value in database
-
- same =&gt; n,GotoIf\($\[${ISNULL\(${COUNT}\)}\]?firstcount:saycount\) ; is there a value?
-
- same =&gt; n\(firstcount\),Set\(DB\(test/count\)=1\) ; set the value to 1
-
- same =&gt; n,Goto\(saycount\)
-
- same =&gt; n\(saycount\),NoOp\(\)
-
- same =&gt; n,Answer
-
- same =&gt; n,SayNumber\(${COUNT}\)
-
- same =&gt; n,Goto\(increment\) ; not reqd but a good habit
-
- same =&gt; n\(increment\),Set\(COUNT=$\[${COUNT} + 1\]\) ; increment by one
-
- same =&gt; n,Set\(DB\(test/count\)=${COUNT}\) ; and assign new value to database
-
- same =&gt; n,Goto\(saycount\) ; loop back and say it again
+```text
+exten => 220,1,NoOp()
+ same => n,Set(COUNT=${DB(test/count)}) ; retrieve current value in database
+ same => n,GotoIf($[${ISNULL(${COUNT})}]?firstcount:saycount) ; is there a value?
+ same => n(firstcount),Set(DB(test/count)=1) ; set the value to 1
+ same => n,Goto(saycount)
+ same => n(saycount),NoOp()
+ same => n,Answer
+ same => n,SayNumber(${COUNT})
+ same => n,Goto(increment) ; not reqd but a good habit
+ same => n(increment),Set(COUNT=$[${COUNT} + 1]) ; increment by one
+ same => n,Set(DB(test/count)=${COUNT}) ; and assign new value to database
+ same => n,Goto(saycount) ; loop back and say it again
+```
 
 Test this out. Listen to it count for a while, and then hang up. When you dial this extension again, it will continue counting from where it left off. The value stored in the database will be persistent, even across a restart of Asterisk.
 
@@ -798,17 +793,14 @@ The ConfBridge\(\) application allows multiple callers to converse together, as 
 
 In this chapter we are focused on the dialplan, so we’re only going to demonstrate a basic audio conference bridge:
 
+```text
 $ sudo -u asterisk vim /etc/asterisk/confbridge.conf
-
-\[general\]
-
-\[default\_user\]
-
+[general]
+[default_user]
 type=user
-
-\[default\_bridge\]
-
+[default_bridge]
 type=bridge
+```
 
 After building the confbridge.conf file, we need to load the app\_confbridge.so module. This can be done at the Asterisk console:
 
@@ -830,19 +822,15 @@ We discussed functions earlier in this chapter, but there’s more to say. There
 
 CALLERID\(\) supports many different datatypes, but you’ll find that you’ll typically use one of name or num.
 
-exten =&gt; 222,1,Noop\(CALLERID function\)
-
- same =&gt; n,Noop\(CALLERID currently ${CALLERID\(all\)}\)
-
- same =&gt; n,Set\(CALLERID\(num\)=4169671111\)
-
- same =&gt; n,Noop\(CALLERID now ${CALLERID\(all\)}\)
-
- same =&gt; n,Set\(CALLERID\(name\)="Somename"\)
-
- same =&gt; n,Noop\(CALLERID now ${CALLERID\(all\)}\)
-
- same =&gt; n,Hangup\(\)
+```text
+exten => 222,1,Noop(CALLERID function)
+ same => n,Noop(CALLERID currently ${CALLERID(all)})
+ same => n,Set(CALLERID(num)=4169671111)
+ same => n,Noop(CALLERID now ${CALLERID(all)})
+ same => n,Set(CALLERID(name)="Somename")
+ same => n,Noop(CALLERID now ${CALLERID(all)})
+ same => n,Hangup()
+```
 
 Don’t worry about the rest of them. If you need ’em, you’ll know what they are or why you want to use them.
 
@@ -850,41 +838,31 @@ Don’t worry about the rest of them. If you need ’em, you’ll know what they
 
 CHANNEL\(\) allows you to interact with an absolute boatload of data relating to the channel. Some items allow you to modify them, while others will only be useful for reference \(for example, peerip will allow you to read, but not change, the IP address of the peer\). There are also channel variables that only work with certain channel types \(for example, pjsip items can of course only be used on PJSIP channels\).
 
-exten =&gt; 223,1,Noop\(CHANNEL function\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Noop\(CHANNEL\(name\) is ${CHANNEL\(name\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(musicclass\) is ${CHANNEL\(musicclass\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(rtcp,all\_jitter\) is ${CHANNEL\(rtcp,all\_jitter\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(rtcp,all\_loss\) is ${CHANNEL\(rtcp,all\_loss\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(rtcp,all\_rtt\) is ${CHANNEL\(rtcp,all\_rtt\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(rtcp,txcount\) is ${CHANNEL\(rtcp,txcount\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(rtcp,rxcount\) is ${CHANNEL\(rtcp,rxcount\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(pjsip,local\_uri\) is ${CHANNEL\(pjsip,local\_uri\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(pjsip,remote\_uri\) is ${CHANNEL\(pjsip,remote\_uri\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(pjsip,request\_uri\) is ${CHANNEL\(pjsip,request\_uri\)}\)
-
- same =&gt; n,Noop\(CHANNEL\(pjsip,local\_tag\) is ${CHANNEL\(pjsip,local\_tag\)}\)
+```text
+exten => 223,1,Noop(CHANNEL function)
+ same => n,Answer()
+ same => n,Noop(CHANNEL(name) is ${CHANNEL(name)})
+ same => n,Noop(CHANNEL(musicclass) is ${CHANNEL(musicclass)})
+ same => n,Noop(CHANNEL(rtcp,all_jitter) is ${CHANNEL(rtcp,all_jitter)})
+ same => n,Noop(CHANNEL(rtcp,all_loss) is ${CHANNEL(rtcp,all_loss)})
+ same => n,Noop(CHANNEL(rtcp,all_rtt) is ${CHANNEL(rtcp,all_rtt)})
+ same => n,Noop(CHANNEL(rtcp,txcount) is ${CHANNEL(rtcp,txcount)})
+ same => n,Noop(CHANNEL(rtcp,rxcount) is ${CHANNEL(rtcp,rxcount)})
+ same => n,Noop(CHANNEL(pjsip,local_uri) is ${CHANNEL(pjsip,local_uri)})
+ same => n,Noop(CHANNEL(pjsip,remote_uri) is ${CHANNEL(pjsip,remote_uri)})
+ same => n,Noop(CHANNEL(pjsip,request_uri) is ${CHANNEL(pjsip,request_uri)})
+ same => n,Noop(CHANNEL(pjsip,local_tag) is ${CHANNEL(pjsip,local_tag)})
+```
 
 ### CURL\(\)
 
 CURL\(\) is a simple yet powerful function that provides a one-liner method for resolving URLs, which in many cases is all you need for a basic interaction with an external web service.
 
-exten =&gt; 224,1,Noop\(CURL function\)
-
- same =&gt; n,Set\(ExternalIP=${CURL\(http://whatismyip.akamai.com\)}\)
-
- same =&gt; n,Noop\(The external IP address is ${ExternalIP}\)
+```text
+exten => 224,1,Noop(CURL function)
+ same => n,Set(ExternalIP=${CURL(http://whatismyip.akamai.com)})
+ same => n,Noop(The external IP address is ${ExternalIP})
+```
 
 If you need a more complex interaction with an external service, it could be that you are going to want an AGI program of some sort. Still, you can embed a ton of data in a URL, and for simplicity, CURL\(\) is hard to beat.
 
@@ -896,79 +874,64 @@ CUT\(varname,char-delim,range-spec\)
 
 It can be visually tricky, as the delimiter character can be difficult to see nested in between two commas \(for example, if the delimiter was a dot/decimal/period\). Let’s expand on the previous example to see what it’s good for \(and give you a visual example of how the delimiter can get lost in the syntax\).
 
-exten =&gt; 225,1,Noop\(CUT function\)
+```text
+exten => 225,1,Noop(CUT function)
+ same => n,Set(ExternalIP=${CURL(http://whatismyip.akamai.com)})
+ same => n,Noop(The external IP address is ${ExternalIP})
+ same => n,Answer()
+ same => n,SayDigits(=${CUT(ExternalIP,.,1)})
+ same => n,Playback(letters/dot)
+ same => n,SayDigits(=${CUT(ExternalIP,.,2)})
+ same => n,Playback(letters/dot)
+ same => n,SayDigits(=${CUT(ExternalIP,.,3)})
+ same => n,Playback(letters/dot)
+ same => n,SayDigits(=${CUT(ExternalIP,.,4)})
+```
 
- same =&gt; n,Set\(ExternalIP=${CURL\(http://whatismyip.akamai.com\)}\)
+{% hint style="info" %}
+**Примечание**
 
- same =&gt; n,Noop\(The external IP address is ${ExternalIP}\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,SayDigits\(=${CUT\(ExternalIP,.,1\)}\)
-
- same =&gt; n,Playback\(letters/dot\)
-
- same =&gt; n,SayDigits\(=${CUT\(ExternalIP,.,2\)}\)
-
- same =&gt; n,Playback\(letters/dot\)
-
- same =&gt; n,SayDigits\(=${CUT\(ExternalIP,.,3\)}\)
-
- same =&gt; n,Playback\(letters/dot\)
-
- same =&gt; n,SayDigits\(=${CUT\(ExternalIP,.,4\)}\)
-
-**Note**
-
-Note that you call the CUT\(\) function with the braces ${CUT\(\)}, but the variable being referenced inside CUT\(\) is defined without the braces. This is because we are naming the variable, not asking for its contents \(CUT\(\) will deal with the contents, so we just need to name the variable it will be slicing and dicing, and it will dive into what is stored there\).
+Обратите внимание, что вы вызываете функцию `CUT()` с фигурными скобками `${CUT()}`, но переменная, на которую ссылаются внутри `CUT()`, определяется без фигурных скобок. Это связано с тем, что мы вызываем переменную, а не запрашиваем ее содержимое \(`CUT()` будет иметь дело с содержимым, поэтому нам просто нужно назвать переменную, которую она будет резать на ломтики и кубики и погрузится в то, что там хранится\).
+{% endhint %}
 
 ### IF\(\) and STRFTIME\(\)
 
 The combination of IF\(\) and STRFTIME\(\) is a powerful construct, and you will find it an essential part of your dialplan logic:
 
-exten =&gt; 226,1,Noop\(IF\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Playback\(${IF\($\[$\[${STRFTIME\(,,%S\)} % 2\] = 1\]?hear-odd-noise:good-evening\)}\)
+```text
+exten => 226,1,Noop(IF)
+ same => n,Answer()
+ same => n,Playback(${IF($[$[${STRFTIME(,,%S)} % 2] = 1]?hear-odd-noise:good-evening)})
+```
 
 Wait...what?[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406549320)
 
 Let’s break this down \(we’re going to indent the code in an odd manner in order to show the progression of the nested functions and operators\):
 
-exten =&gt; 227,1,Noop\(IF\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Wait\(.5\)
-
- same =&gt; n,Wait\(.5\)
-
- same =&gt; n,Noop\(${STRFTIME\(,,%S\)}\) ; current time - just seconds
-
- same =&gt; n,Noop\($\[ ${STRFTIME\(,,%S\)} % 2 \]\) ; divide by 2 - return remainder
-
- same =&gt; n,Noop\(${IF\($\[ $\[ ${STRFTIME\(,,%S\)} % 2 \] = 1 \]?odd:even\)}\)
-
-same =&gt; n,Playback\(${IF\($\[ $\[ ${STRFTIME\(,,%S\)} % 2 \] = 1 \]?hear-odd-noise:good-evening\)}\)
+```text
+exten => 227,1,Noop(IF)
+ same => n,Answer()
+ same => n,Wait(.5)
+ same => n,Wait(.5)
+ same => n,Noop(${STRFTIME(,,%S)}) ; current time - just seconds
+ same => n,Noop($[ ${STRFTIME(,,%S)} % 2 ]) ; divide by 2 - return remainder
+ same => n,Noop(${IF($[ $[ ${STRFTIME(,,%S)} % 2 ] = 1 ]?odd:even)})
+same => n,Playback(${IF($[ $[ ${STRFTIME(,,%S)} % 2 ] = 1 ]?hear-odd-noise:good-evening)})
+```
 
 The IF\(\) function allows us to pass logic to the Playback\(\) application. We’re effectively saying, “If it’s true that the time, in seconds, is odd, play the hear-odd-noise prompt, otherwise, play the good-evening prompt.”
 
 If we line up the code in a more typical fashion, it looks like this \(note that some of the optional spaces have also been removed\):
 
-exten =&gt; 228,1,Noop\(IF\)
-
- same =&gt; n,Answer\(\)
-
- same =&gt; n,Wait\(.5\)
-
- same =&gt; n,Noop\(${STRFTIME\(,,%S\)}\)
-
- same =&gt; n,Noop\($\[${STRFTIME\(,,%S\)} % 2\]\)
-
- same =&gt; n,Noop\(${IF\($\[$\[${STRFTIME\(,,%S\)} % 2 \] = 1\]?odd:even\)}\)
-
- same =&gt; n,Playback\(${IF\($\[$\[${STRFTIME\(,,%S\)} % 2 \] = 1\]?hear-odd-noise:good-evening\)}\)
+```text
+exten => 228,1,Noop(IF)
+ same => n,Answer()
+ same => n,Wait(.5)
+ same => n,Noop(${STRFTIME(,,%S)})
+ same => n,Noop($[${STRFTIME(,,%S)} % 2])
+ same => n,Noop(${IF($[$[${STRFTIME(,,%S)} % 2 ] = 1]?odd:even)})
+ same => n,Playback(${IF($[$[${STRFTIME(,,%S)} % 2 ] = 1]?hear-odd-noise:good-evening)})
+```
 
 The final line is very difficult to read unless you know how we got there, but it demonstrates the power of nesting.
 
@@ -976,47 +939,43 @@ At first these constructs may seem difficult to write, so break them down and pe
 
 ### LEN\(\)
 
-Being able to return the length of something with the LEN\(\) function can be very handy.
+Возможность возвращать длину чего-либо с помощью функции `LEN()`может быть очень удобной.
 
-exten =&gt; 229,1,Noop\(LEN\)
-
- same =&gt; n,Set\(LengthyString=${RAND\(1,2000\)}\)
-
- same =&gt; n,Noop\(${LEN\(${LengthyString}\)}\)
-
- same =&gt; n,Noop\(${IF\( $\[ ${LEN\(${LengthyString}\)} &lt;= 3 \]?tooshort:youcanride\)}\)
+```text
+exten => 229,1,Noop(LEN)
+ same => n,Set(LengthyString=${RAND(1,2000)})
+ same => n,Noop(${LEN(${LengthyString})})
+ same => n,Noop(${IF( $[ ${LEN(${LengthyString})} <= 3 ]?tooshort:youcanride)})
+```
 
 ### REGEX\(\)
 
-Yes, you can use regular expressions within Asterisk. This is a somewhat advanced topic, not because REGEX\(\) is a complicated function in itself, but because regular expressions are a study in themselves.
 
-Check out [http://www.regular-expressions.info/](http://www.regular-expressions.info/) for more info, or grab a copy of O’Reilly’s Mastering Regular Expressions by Jeffrey E. F. Friedl.
 
-Get used to using other functions in Asterisk, get some experience with regular expressions, and then give REGEX\(\) a try.
+Да, вы можете использовать регулярные выражения в Asterisk. Это несколько продвинутая тема, не потому, что `REGEX()` является сложной функцией сама по себе, а потому что регулярные выражения являются выражениями сами по себе.
+
+Посмотрите [_http://www.regular-expressions.info/_](http://www.regular-expressions.info/) для получения дополнительной информации или возьмите копию _O'Reilly's Mastering Regular Expressions by Jeffrey E. F. Friedl_.
+
+Привыкните к использованию других функций в Asterisk, получите некоторый опыт работы с регулярными выражениями, а затем попробуйте `REGEX()`.
 
 ### STRFTIME\(\)
 
-We just saw the STRFTIME\(\) function in our IF\(\) example. It allows you to return a time in various formats. In general, you want the input to be empty \(which defaults to the current time\). You can also give this function a specific Unix epoch string and it’ll work from that.
+Мы только что видели функцию `STRFTIME()` в нашем примере `IF()`. Она позволяет возвращать время в различных форматах. В общем, ввод должен быть пустым \(что по умолчанию соответствует текущему времени\). Вы также можете дать этой функции определенную строку времени Unix, и она будет работать на основе её.
 
-exten =&gt; 230,1,Noop\(STRFTIME\)
-
- same =&gt; n,Noop\(${STRFTIME\(,,%S\)}\) ; we've seen this before
-
- same =&gt; n,Noop\(${STRFTIME\(,,%B\)}\) ; month
-
- same =&gt; n,Noop\(${STRFTIME\(,,%H\)}\) ; hour in 24hr format
-
- same =&gt; n,Noop\(${STRFTIME\(,,%m\)}\) ; month as a decimal
-
- same =&gt; n,Noop\(${STRFTIME\(,,%M\)}\) ; minute
-
- same =&gt; n,Noop\(${STRFTIME\(,,%Y\)}\) ; year - 4 digits
-
- same =&gt; n,Noop\(${STRFTIME\(,,%Y-%m-%d %H:%m:%S\)}\) ; string some together
+```text
+exten => 230,1,Noop(STRFTIME)
+ same => n,Noop(${STRFTIME(,,%S)}) ; мы уже видели это раньше
+ same => n,Noop(${STRFTIME(,,%B)}) ; месяц
+ same => n,Noop(${STRFTIME(,,%H)}) ; часы в 24-часвовом формате
+ same => n,Noop(${STRFTIME(,,%m)}) ; месяц в десятичном виде
+ same => n,Noop(${STRFTIME(,,%M)}) ; минуты
+ same => n,Noop(${STRFTIME(,,%Y)}) ; год - 4 цифры
+ same => n,Noop(${STRFTIME(,,%Y-%m-%d %H:%m:%S)}) ; всё в одной строке
+```
 
 ## Conclusion
 
-In this chapter, we’ve covered a few more of the many applications in the Asterisk dialplan, and hopefully we’ve given you some more tools that you can use to further experiment with creating your own dialplans. As with other chapters, we invite you to go back and reread any sections that require clarification.
+В этой главе мы рассмотрели еще несколько приложений диалплана Asterisk и, надеюсь, мы дали вам еще несколько инструментов, которые вы можете использовать для дальнейших экспериментов с созданием собственных диалпланов. Как и в других главах, мы приглашаем вас вернуться и перечитать любые разделы, которые требуют уточнения.
 
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-1-marker) Remember that when you reference a variable you can call it by its name, but when you refer to a variable’s value, you have to use the dollar sign and brackets around its name.
 
