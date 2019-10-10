@@ -751,32 +751,32 @@ exten => 219,1,DBdeltree(somekey)
 
 ### Использование AstDB в диалплане
 
-There are an infinite number of ways to use the Asterisk database in a dialplan. To introduce the AstDB, we’ll look at two simple examples. The first is a simple counting example to show that the Asterisk database is persistent \(it even survives system reboots\). In the second example, we’ll use the BLACKLIST\(\) function to evaluate whether or not a number is on the blacklist and should be blocked.
+Существует бесконечное количество способов использования базы данных Asterisk в диалплане. Чтобы представить AstDB, мы рассмотрим два простых примера. Первый простой пример подсчета показывает, что база данных Asterisk является постоянной \(она даже переживает перезагрузку системы\). Во втором примере мы будем использовать функцию `BLACKLIST()`, чтобы оценить находится ли номер в черном списке и должен ли он быть заблокирован.
 
-To begin the counting example, let’s first retrieve a number \(the value of the count key\) from the database and assign it to a variable named COUNT. If the key doesn’t exist, DB\(\) will return NULL \(no value\). Therefore, we can use the ISNULL\(\) function to verify whether or not a value was returned. If not, we will initialize the AstDB with the Set\(\) application, where we will set the value in the database to 1. This will only happen if the database entry does not exist:
+Чтобы начать пример с подсчетом, давайте сначала извлечем число \(значение ключа `count`\) из базы данных и назначим его переменной с именем `COUNT`. Если ключ не существует - `DB()` вернет значение `NULL` \(нет значения\). Поэтому мы можем использовать функцию `ISNULL()`, чтобы проверить, было ли возвращено значение. Если нет -  мы инициализируем AstDB с помощью приложения `Set ()`, где установим значение в базе данных равным `1`. Это произойдет только в том случае, если этой записи базы данных не существует:
 
 ```text
 exten => 220,1,NoOp()
- same => n,Set(COUNT=${DB(test/count)}) ; retrieve current value in database
- same => n,GotoIf($[${ISNULL(${COUNT})}]?firstcount:saycount) ; is there a value?
- same => n(firstcount),Set(DB(test/count)=1) ; set the value to 1
+ same => n,Set(COUNT=${DB(test/count)}) ; получаем текущее значение базы данных
+ same => n,GotoIf($[${ISNULL(${COUNT})}]?firstcount:saycount) ; есть ли значение?
+ same => n(firstcount),Set(DB(test/count)=1) ; устанавливаем значение 1
  same => n,Goto(saycount)
  same => n(saycount),NoOp()
  same => n,Answer
  same => n,SayNumber(${COUNT})
- same => n,Goto(increment) ; not reqd but a good habit
- same => n(increment),Set(COUNT=$[${COUNT} + 1]) ; increment by one
- same => n,Set(DB(test/count)=${COUNT}) ; and assign new value to database
- same => n,Goto(saycount) ; loop back and say it again
+ same => n,Goto(increment) ; не требуется, но хорошая привычка
+ same => n(increment),Set(COUNT=$[${COUNT} + 1]) ; увеличение на единицу
+ same => n,Set(DB(test/count)=${COUNT}) ; и присвоение нового значения базе данных
+ same => n,Goto(saycount) ; вернемся и повторим снова
 ```
 
-Test this out. Listen to it count for a while, and then hang up. When you dial this extension again, it will continue counting from where it left off. The value stored in the database will be persistent, even across a restart of Asterisk.
+Проверьте это. Послушайте, как он считает какое-то время, а затем повесьте трубку. Когда вы снова наберете этот номер, он продолжит отсчет с того места, где остановился. Значение, сохраненное в базе данных, будет сохраняться даже при перезапуске Asterisk.
 
-In the early days of Asterisk, the built-in database was essential. Today, however, it’s not as commonly used. It’s probably good for setting a few semaphores here and there, but for the most part, if you want to store data, use one of the relational database backends \(we discuss relational database integration in later chapters\).
+В первое время встроенная база данных Asterisk была необходима. Сегодня, однако, она не так часто используется. Она, вероятно, хороша для установки нескольких семафоров здесь и там, но по большей части, если вы хотите хранить данные, используйте один из бэкэндов реляционной базы данных \(мы обсудим интеграцию реляционных баз данных в последующих главах\).
 
-## Handy Asterisk Features
+## Полезные функции Asterisk
 
-Now that we’ve gone over some more of the basics, let’s look at a few popular functions that have been incorporated into Asterisk.
+Теперь, когда мы рассмотрели некоторые из основ, давайте рассмотрим несколько популярных функций, которые были включены в Asterisk.
 
 ### Conferencing with ConfBridge\(\)
 
