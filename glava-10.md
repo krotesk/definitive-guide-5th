@@ -602,10 +602,10 @@ exten => _[a-zA-Z0-9].,1,Noop(channel ${ARG1}, pre-delay ${ARG2}, timeout ${ARG3
 {% hint style="info" %}
 **Примечание** 
 
-У вас уже есть подпрограмма в нижней части файла. Добавьте её туда же, чтобы все ваши подпрограммы были сгруппированы вместе.
+У вас уже есть подпрограмма в нижней части файла. Добавьте новую туда же, чтобы все ваши подпрограммы были сгруппированы вместе.
 {% endhint %}
 
-Now we want a context in which we’ll build out the extensions to be used by the local channel:
+Теперь нам нужен контекст, в котором мы будем создавать расширения, которые будут использоваться локальным каналом:
 
 ```text
 ;LOCAL CHANNELS
@@ -617,26 +617,33 @@ exten => owner,1,Gosub(subDialDelay,${EXTEN},1(${UserB_SoftPhone},12,18))
 ```
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-Even though the destination for a local channel is really just dialplan—the same as you might jump to with a Goto\(\)—these constructs tend to be very special-purpose, and fit into the dialplan better in their own area, down with the subroutines. That’s why we named the context with the prefix local. It’s not required, but makes things easier to make sense of.
+Несмотря на то, что назначение для локального канала на самом деле является просто диалпланом — так же, как вы могли бы перейти с помощью `Goto()`— эти конструкции, как правило, очень специализированы и вписываются в диалплан лучше в своей собственной области, внизу с подпрограммами. Вот почему мы назвали контекст с префиксом `local`. Это необязательно, но делает вещи легче для понимания.
 {% endhint %}
 
-Now we stitch it all together in our \[sets\] context.
+Теперь мы сшиваем все это вместе в нашем контексте `[sets]`.
 
-First, let’s provide a way to dial each local channel individually, so we can sanity check each one to be sure it’s doing what it should.
+Во-первых, давайте предоставим возможность набирать каждый локальный канал индивидуально, чтобы мы могли проверить каждый канал и убедиться что он делает то, что должен.
 
 ```text
 exten => 103,1,Gosub(subDialUser,${EXTEN},1(${UserB_SoftPhone},${EXTEN},default,24))
-; These are for testing individually before we put them together
+
+; Они предназначены для тестирования по отдельности, прежде чем мы соберем их вместе
 exten => 104,1,Dial(Local/receptionist@localDialDelay)
 exten => 105,1,Dial(Local/team_one@localDialDelay)
 exten => 106,1,Dial(Local/team_two@localDialDelay)
 exten => 107,1,Dial(Local/owner@localDialDelay)
-Finally, let’s deliver the finished product.
+
+```
+
+Наконец, давайте доставим готовый продукт.
+
+```text
 exten => 107,1,Dial(Local/owner@localDialDelay)
-;We're going to assign some variables in order to
-;keep the dial string easier to read
+
+; Мы собираемся назначить некоторые переменные, 
+; чтобы сохранить простоту чтения строки набора
 exten => 108,1,Noop(DialDelay)
  same => n,Set(Recpn=Local/receptionist@localDialDelay)
  same => n,Set(Team1=Local/team_one@localDialDelay)
@@ -645,36 +652,36 @@ exten => 108,1,Noop(DialDelay)
  same => n,Dial(${Recpn}&${Team1}&${Team2}&${Boss},600)
 ```
 
-You really need to register a few phones and try this out, to see it all come together.
+Вам действительно нужно зарегистрировать несколько телефонов и попробовать это, чтобы увидеть все это вместе.
 
-The solution we have created here is perfect for learning about local channels, but it has a few problems that need to be understood if you ever want to put it into production:
+Решение, которое мы создали, идеально подходит для изучения локальных каналов, но у него есть несколько проблем, которые нужно понять, если вы когда-нибудь захотите запустить его в продакшен:
 
-* Even though we have set a dial timeout, you will find that SIP endpoints have minds of their own. It’s not uncommon for a SIP endpoint to have its own ideas about timeout. So, you might set it to ring for 600 seconds, and wonder why it drops the call after a minute or so. You could spend hours troubleshooting your dialplan, only to discover the problem was a setting at the other end. Test each piece of the solution before you glue them all together.
-* Cell phones have their own voicemail, and if that answers the call, Asterisk will connect the call to that “answered” channel. One way around this is to hang up before that happens, and then call immediately back. It’s ugly though, and not recommended.
-* Cell phones will often go immediately to a voicemail if they’re out of range or turned off. That counts as an answer as far as Asterisk is concerned. This solution does not handle that.
-* Call setup to a cell phone \(i.e., the time between when you dial and when it starts ringing\) typically takes a dozen seconds or so.
-* Remember that a softphone on a cell phone is not at all the same as a phone call to that cell phone. One is a SIP connection, the other is a PSTN call. \(You can actually ring both at the same time if you want, but that’s not necessarily a good idea.\)
-* Some types of smartphones will give priority to incoming GSM calls. If you are on a call on the softphone, and somebody calls your cell number, the softphone may get put on hold. Different phones handle this differently.
-* We haven’t really handled overflow here. What happens if nobody answers? It doesn’t matter in the lab, but you can be sure it’ll matter in a production environment.
-* Dial\(\) expects ringing back from the destination. If all of your local channels have a Wait\(\) delay, the caller will hear silence until something indicates ringing. You can fix this by having Dial\(\) fake the ringing with the 'r' option, or by adding a dummy local channel that just returns ringing.
+* Несмотря на то, что мы установили тайм-аут набора номера, вы обнаружите, что конечные точки SIP имеют собственное мнение об этом. Это не редкость для конечной точки SIP, чтобы иметь свои собственные идеи о таймауте. Таким образом, вы можете установить его на звонок в течение 600 секунд и задаться вопросом, почему он сбрасывает вызов через минуту или около того. Вы можете потратить часы на устранение неполадок вашего диалплана, только чтобы обнаружить, что проблема была настройкой на другом конце. Проверьте каждый кусок, прежде чем склеить их все вместе.
+* Сотовые телефоны имеют свою собственную голосовую почту, и если она отвечает на вызов, Asterisk подключит вызов к этому “отвеченному” каналу. Один из способов обойти это - повесить трубку до того, как это произойдет, а затем немедленно перезвонить. Это некрасиво и не рекомендуется.
+* Сотовые телефоны часто сразу переходят на голосовую почту, если находятся вне зоны действия сети или выключены. Это считается ответом для Asterisk. Это решение не справляется с подобной проблемой.
+* Настройка вызова на сотовый телефон \(т.е. время между моментом набора и началом вызова\) обычно занимает около дюжины секунд или около того.
+* Помните, что софтфон на мобильном телефоне совсем не похож на телефонный звонок на этот мобильный телефон. Первый - это SIP-соединение, а другой - это вызов ТфОП. \(Вы можете звонить одновременно если хотите, но это не всегда хорошая идея.\)
+* Некоторые типы смартфонов будут отдавать приоритет входящим GSM-вызовам. Если вы отвечаете на вызов по софтфону, и кто-то звонит на ваш номер мобильного телефона, софтфон может быть поставлен на удержание. Разные телефоны справляются с этим по-разному.
+* Мы действительно не справились с переполнением здесь. Что будет если никто не ответит? Это не имеет значения в лаборатории, но можете быть уверены, что это будет иметь значение в продакшене.
+* `Dial()` ожидает ответный звонок из пункта назначения. Если все ваши локальные каналы имеют задержку `Wait()`, вызывающий абонент будет слышать тишину, пока что-то не укажет на звонок. Вы можете исправить это, используя`Dial()` имитируя сигнал вызова опцией `'r'` или добавив фиктивный локальный канал, который просто возвращает сигнал вызова.
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-If you check the sample dialplan, we’ve added a solution to the silence problem on delayed local channels
+Если вы проверите образец диалплана, мы добавили решение проблемы тишины на задержанных локальных каналах.
 {% endhint %}
 
-That’s it. Local channels: build them piece-by-piece and you’ll be delivering a powerful dialplan in no time.
+Вот и все. Локальные каналы: создавайте их по частям, и вы в кратчайшие сроки предоставите мощный диалплан.
 
-They’re incredibly useful when building complex queueing applications as well.
+Они невероятно полезны при создании сложных приложений очередей.
 
-## Using the Asterisk Database
+## Использование базы данных Asterisk
 
-Asterisk provides a simple mechanism for storing data called the Asterisk database \(AstDB\). This is not an external relational database, but simply an SQLite-based backend for storing simple key/value pairs.
+Asterisk предоставляет простой механизм для хранения данных, называемый _Asterisk database_ \(AstDB\). Это не внешняя реляционная база данных, а просто серверная часть на основе SQLite для хранения простых пар ключ/значение.
 
-The Asterisk database stores its data in groupings called families, with values identified by keys. Within a family, a key may be used only once. For example, if we had a family called test, we could store only one value with a key called count. Each stored value must be associated with a family.
+База данных Asterisk хранит свои данные в группах, называемых _семействами \(families\)_, со значениями, определяемыми _ключами \(keys\)_. В семье ключ может быть использован только один раз. Например, если бы у нас было семейство `test`, мы могли бы хранить только одно значение с ключом `count`. Каждое сохраненное значение должно быть связано с семейством.
 
-### Storing Data in the AstDB
+### Хранение данных в AstDB
 
 To store a new value in the Asterisk database, we use the Set\(\) application with the DB\(\) function. For example, to assign the count key in the test family with the value of 1, we would write the following:
 
