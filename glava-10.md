@@ -778,20 +778,20 @@ exten => 220,1,NoOp()
 
 Теперь, когда мы рассмотрели некоторые из основ, давайте рассмотрим несколько популярных функций, которые были включены в Asterisk.
 
-### Conferencing with ConfBridge\(\)
+### Концеренц-связь с ConfBridge\(\)
 
-The ConfBridge\(\) application allows multiple callers to converse together, as if they were all in the same physical location. Some of the main features include:
+Приложение `ConfBridge()` позволяет нескольким абонентам общаться друг с другом как если бы они все находились в одном физическом месте. Некоторые из основных функций включают в себя:
 
-* The ability to create password-protected conferences
-* Conference administration \(mute conference, lock conference, or kick off participants\)
-* The option of muting all but one participant \(useful for company announcements, broadcasts, etc.\)
-* Static or dynamic conference creation
-* High-definition audio that can be mixed at sample rates ranging from 8 kHz to 96 kHz
-* Video capabilities, including the addition of dynamically switching video feeds based on loudest talker
-* Dynamically controlled menu system for both conference administrators and users
-* Additional options available in the confbridge.conf configuration file
+* Возможность создания защищенных паролем конференций 
+* Администрирование конференции \(отключение звука, блокировка или запуск участников\)
+* Возможность отключение всех, кроме одного участника \(полезно для объявлений компаний, радиопередач и др.\) 
+* Статическое или динамическое создание конференции 
+* Звук высокой четкости, который может быть микширован при частоте дискретизации от 8 кГц до 96 кГц 
+* Видео-возможности, включая добавление динамического переключения видео-каналов на самого громкого говоруна
+* Динамически управляемая система меню для администраторов конференций и пользователей 
+* Дополнительные опции доступны в _confbridge.conf_
 
-In this chapter we are focused on the dialplan, so we’re only going to demonstrate a basic audio conference bridge:
+В этой главе мы сосредоточены на диалплане, поэтому собираемся продемонстрировать только базовый мост аудиоконференции:
 
 ```text
 $ sudo -u asterisk vim /etc/asterisk/confbridge.conf
@@ -802,25 +802,28 @@ type=user
 type=bridge
 ```
 
-After building the confbridge.conf file, we need to load the app\_confbridge.so module. This can be done at the Asterisk console:
+После создания файла _confbridge.conf_, нам нужно загрузить модуль `app_confbridge.so`. Это можно сделать в консоли Asterisk:
 
-\*CLI&gt; module load app\_confbridge.so
+```text
+*CLI> module load app_confbridge.so
+```
 
-With the module loaded, we can build a simple dialplan to access our conference bridge:
+С загруженным модулем мы можем создать простой диалплан для доступа к нашему конференц-мосту:
 
-exten =&gt; 221,1,NoOp\(\)
+```text
+exten => 221,1,NoOp()
+ same => n,ConfBridge(${EXTEN})
+```
 
- same =&gt; n,ConfBridge\(${EXTEN}\)
+Это только верхушка айсберга для проведения конференций. Мы сделали базовую конфигурацию, но есть гораздо больше возможностей для настройки. Мы рассмотрим их более подробно в [Главе 11](glava-11.md).
 
-This is just the tip of the iceberg for conferencing. We’ve got the base configuration done, but there is much more functionality to be configured. We’ll cover it in a little more detail in [Chapter 11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22asterisk-SysAdmin).
+## Полезные функции диалплана
 
-## Handy Dialplan Functions
-
-We discussed functions earlier in this chapter, but there’s more to say. There are currently around 150 dialplan functions provided by the Asterisk dialplan. Here is a small, curated list of a few worth experimenting with.
+Мы обсуждали функции ранее в этой главе, но у нас есть что сказать ещё. В настоящее время существует около 150 функций, предоставляемых диалпланом Asterisk. Вот небольшой, кураторский список из тех, с которыми стоит поэкспериментировать.
 
 ### CALLERID\(\)
 
-CALLERID\(\) supports many different datatypes, but you’ll find that you’ll typically use one of name or num.
+`CALLERID()` поддерживает множество различных типов данных, но вы обнаружите, что обычно используете одно из `name` или `num`.
 
 ```text
 exten => 222,1,Noop(CALLERID function)
@@ -832,7 +835,7 @@ exten => 222,1,Noop(CALLERID function)
  same => n,Hangup()
 ```
 
-Don’t worry about the rest of them. If you need ’em, you’ll know what they are or why you want to use them.
+Об остальных не беспокойntcm. Если они вам понадобятся, вы будете знать, что они обозначают и почему вы хотите их использовать.
 
 ### CHANNEL\(\)
 
