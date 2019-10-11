@@ -839,7 +839,7 @@ exten => 222,1,Noop(CALLERID function)
 
 ### CHANNEL\(\)
 
-CHANNEL\(\) allows you to interact with an absolute boatload of data relating to the channel. Some items allow you to modify them, while others will only be useful for reference \(for example, peerip will allow you to read, but not change, the IP address of the peer\). There are also channel variables that only work with certain channel types \(for example, pjsip items can of course only be used on PJSIP channels\).
+`CHANNEL()` позволяет взаимодействовать с загрузкой абсолютных данных, относящихся к каналу. Некоторые элементы позволяют изменять их, в то время как другие будут полезны только для справки \(например, `peerip` позволит вам прочитать, но не изменить, IP-адрес узла\). Существуют также переменные канала, которые работают только с определенными типами каналов \(например, элементы `pjsip`, конечно же могут использоваться только на каналах PJSIP\).
 
 ```text
 exten => 223,1,Noop(CHANNEL function)
@@ -859,7 +859,7 @@ exten => 223,1,Noop(CHANNEL function)
 
 ### CURL\(\)
 
-CURL\(\) is a simple yet powerful function that provides a one-liner method for resolving URLs, which in many cases is all you need for a basic interaction with an external web service.
+`CURL()` - это простая, но мощная функция, предоставляющая однострочный метод разрешения URL-адресов, который во многих случаях является всем необходимым для базового взаимодействия с внешним веб-сервисом.
 
 ```text
 exten => 224,1,Noop(CURL function)
@@ -867,15 +867,17 @@ exten => 224,1,Noop(CURL function)
  same => n,Noop(The external IP address is ${ExternalIP})
 ```
 
-If you need a more complex interaction with an external service, it could be that you are going to want an AGI program of some sort. Still, you can embed a ton of data in a URL, and for simplicity, CURL\(\) is hard to beat.
+Если вам нужно более сложное взаимодействие с внешним сервисом, возможно, вам понадобится какая-то программа AGI. Тем не менее, вы можете встроить тонну данных в URL и простоту `CURL()` трудно превзойти.
 
 ### CUT\(\)
 
-If you need to slice-and-dice your variables, you’ll find the CUT\(\) function essential. The form is simple:
+Если вам нужно нарезать ваши переменные, вы найдете функцию `CUT()` весьма полезной. Форма проста:
 
-CUT\(varname,char-delim,range-spec\)
+```text
+CUT(varname,char-delim,range-spec)
+```
 
-It can be visually tricky, as the delimiter character can be difficult to see nested in between two commas \(for example, if the delimiter was a dot/decimal/period\). Let’s expand on the previous example to see what it’s good for \(and give you a visual example of how the delimiter can get lost in the syntax\).
+Это может быть визуально сложно, так как символ разделителя может быть трудно увидеть вложенным между двумя запятыми \(например, если разделитель был точкой/десятичной дробью\). Давайте развернем предыдущий пример, чтобы увидеть, для чего он хорош \(и дать вам визуальный пример того, как разделитель может потеряться в синтаксисе\).
 
 ```text
 exten => 225,1,Noop(CUT function)
@@ -899,46 +901,46 @@ exten => 225,1,Noop(CUT function)
 
 ### IF\(\) and STRFTIME\(\)
 
-The combination of IF\(\) and STRFTIME\(\) is a powerful construct, and you will find it an essential part of your dialplan logic:
+Комбинация `IF()` и `STRFTIME()` является мощной конструкцией, и вы найдете ее неотъемлемой частью логики своего диалплана:
 
 ```text
 exten => 226,1,Noop(IF)
- same => n,Answer()
- same => n,Playback(${IF($[$[${STRFTIME(,,%S)} % 2] = 1]?hear-odd-noise:good-evening)})
+  same => n,Answer()
+  same => n,Playback(${IF($[$[${STRFTIME(,,%S)} % 2] = 1]?hear-odd-noise:good-evening)})
 ```
 
-Wait...what?[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406549320)
+Подождите...что?[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406549320)
 
-Let’s break this down \(we’re going to indent the code in an odd manner in order to show the progression of the nested functions and operators\):
+Давайте разберем это \(мы сделаем отступы в коде таким образом, чтобы показать прогрессию вложенных функций и операторов\):
 
 ```text
 exten => 227,1,Noop(IF)
- same => n,Answer()
- same => n,Wait(.5)
- same => n,Wait(.5)
- same => n,Noop(${STRFTIME(,,%S)}) ; current time - just seconds
- same => n,Noop($[ ${STRFTIME(,,%S)} % 2 ]) ; divide by 2 - return remainder
- same => n,Noop(${IF($[ $[ ${STRFTIME(,,%S)} % 2 ] = 1 ]?odd:even)})
+  same => n,Answer()
+  same => n,Wait(.5)
+                 same => n,Wait(.5)
+               same => n,Noop(${STRFTIME(,,%S)}) ; current time - just seconds
+            same => n,Noop($[ ${STRFTIME(,,%S)} % 2 ]) ; divide by 2 - return remainder
+    same => n,Noop(${IF($[ $[ ${STRFTIME(,,%S)} % 2 ] = 1 ]?odd:even)})
 same => n,Playback(${IF($[ $[ ${STRFTIME(,,%S)} % 2 ] = 1 ]?hear-odd-noise:good-evening)})
 ```
 
-The IF\(\) function allows us to pass logic to the Playback\(\) application. We’re effectively saying, “If it’s true that the time, in seconds, is odd, play the hear-odd-noise prompt, otherwise, play the good-evening prompt.”
+Функция `IF()` позволяет передавать логику в приложение `Playback()`. Мы фактически говорим "Если это правда, что время в секундах нечетное, сыграйте подсказку `hear-odd-noise`, в противном случае сыграйте `good-evening`".
 
-If we line up the code in a more typical fashion, it looks like this \(note that some of the optional spaces have also been removed\):
+Если мы выстроим код более типичным образом, он выглядит так \(Обратите внимание, что некоторые необязательные пробелы также были удалены\):
 
 ```text
 exten => 228,1,Noop(IF)
- same => n,Answer()
- same => n,Wait(.5)
- same => n,Noop(${STRFTIME(,,%S)})
- same => n,Noop($[${STRFTIME(,,%S)} % 2])
- same => n,Noop(${IF($[$[${STRFTIME(,,%S)} % 2 ] = 1]?odd:even)})
- same => n,Playback(${IF($[$[${STRFTIME(,,%S)} % 2 ] = 1]?hear-odd-noise:good-evening)})
+  same => n,Answer()
+  same => n,Wait(.5)
+  same => n,Noop(${STRFTIME(,,%S)})
+  same => n,Noop($[${STRFTIME(,,%S)} % 2])
+  same => n,Noop(${IF($[$[${STRFTIME(,,%S)} % 2 ] = 1]?odd:even)})
+  same => n,Playback(${IF($[$[${STRFTIME(,,%S)} % 2 ] = 1]?hear-odd-noise:good-evening)})
 ```
 
-The final line is very difficult to read unless you know how we got there, but it demonstrates the power of nesting.
+Последнюю строку очень трудно понять, если вы не знаете, как мы туда попали, но она демонстрирует силу вложенности.
 
-At first these constructs may seem difficult to write, so break them down and perform them line by line, and eventually they’ll get easier \(and your dialplan will subsequently become more powerful\). Play with them.
+Сначала эти конструкции могут показаться трудными для записи, поэтому разбейте их и выполните построчно, и в конечном итоге они станут проще для пониманпия \(и ваш диалплан впоследствии станет более мощным\). Играйте с ними.
 
 ### LEN\(\)
 
@@ -952,8 +954,6 @@ exten => 229,1,Noop(LEN)
 ```
 
 ### REGEX\(\)
-
-
 
 Да, вы можете использовать регулярные выражения в Asterisk. Это несколько продвинутая тема, не потому, что `REGEX()` является сложной функцией сама по себе, а потому что регулярные выражения являются выражениями сами по себе.
 
@@ -980,21 +980,21 @@ exten => 230,1,Noop(STRFTIME)
 
 В этой главе мы рассмотрели еще несколько приложений диалплана Asterisk и, надеюсь, мы дали вам еще несколько инструментов, которые вы можете использовать для дальнейших экспериментов с созданием собственных диалпланов. Как и в других главах, мы приглашаем вас вернуться и перечитать любые разделы, которые требуют уточнения.
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-1-marker) Remember that when you reference a variable you can call it by its name, but when you refer to a variable’s value, you have to use the dollar sign and brackets around its name.
+[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-1-marker) Помните, что когда вы ссылаетесь на переменную, вы можете вызывать ее по ее имени, но когда вы ссылаетесь на _значение_ переменной, вы должны использовать знак доллара и скобки вокруг ее имени.
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-2-marker) For more on regular expressions, grab a copy of the ultimate reference, Jeffrey E. F. Friedl’s [Mastering Regular Expressions](http://shop.oreilly.com/product/9780596528126.do) \(O’Reilly, 2006\), or visit [http://www.regular-expressions.info](http://www.regular-expressions.info/).
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-2-marker) Для получения дополнительной информации о регулярных выражениях возьмите копию справочника Jeffrey E. F. Friedl’s [_Mastering Regular Expressions_](http://shop.oreilly.com/product/9780596528126.do) \(O’Reilly, 2006\), или посетите [_http://www.regular-expressions.info_](http://www.regular-expressions.info/).
 
-[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-3-marker) If you don’t know what a ^ has to do with regular expressions, you simply must read [Mastering Regular Expressions](http://shop.oreilly.com/product/9780596528126.do). It will change your life!
+[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-CHP-6-FN-3-marker) Если вы не знаете, что ^ имеет отношение к регулярным выражениям, то просто обязаны прочитать [Mastering Regular Expressions](http://shop.oreilly.com/product/9780596528126.do) \(Освоение регулярный выражений\). Это изменит вашу жизнь!
 
-[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406809256-marker) If you want to test this \(which you do\), you can pick one of your working lab devices, and in the asterisk database, under the ps\_endpoints table, set the callerid field to '8885551212'. Then you can make a call from it to 214 to see the block in action.
+[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406809256-marker) Если вы хотите проверить это \(что вы делаете\), то можете выбрать одно из ваших рабочих лабораторных устройств, и в базе данных Asterisk под таблицей `ps_endpoints` установить поле callerid в '`8885551212`'. Затем вы можете позвонить с него на номера 214, чтобы увидеть блок в действии. 
 
-UPDATE asterisk.ps\_endpoints SET callerid='8885551212' WHERE id='&lt;endpoint you chose as the victim&gt;'
+UPDATE asterisk.ps\_endpoints SET callerid='8885551212' WHERE id='&lt;конечная точка, которую вы выбрали в качестве жертвы&gt;'
 
-[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406801064-marker) But we do it this way because it’s easier to read.
+[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406801064-marker) Но мы делаем это так, потому что так легче читать.
 
-[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406763720-marker) We have no idea how to implement Easter, but are open to suggestions.
+[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406763720-marker) Мы не знаем, как проводить Пасху, но открыты для предложений.
 
-[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406696296-marker) Obsolete Android phones and tablets can be great for this.
+[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406696296-marker) Устаревшие телефоны и планшеты на базе Android могут отлично подойти для этого.
 
-[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406549320-marker) There is a C language function named STRFTIME\(\) that returns the current time as a formatted string. This works similarly to that. In fact, the format portion of the function takes the exact same syntax as the C function.
+[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22idm46178406549320-marker) Существует функция языка C с именем `STRFTIME()`, которая возвращает текущее время в виде отформатированной строки. Здесь она работает аналогично. Фактически, часть формата функции принимает тот же синтаксис, что и функция в C.
 
