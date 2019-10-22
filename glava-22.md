@@ -10,9 +10,9 @@ description: Безопасность
 
 Безопасность вашей системы Asterisk имеет решающее значение, особенно если система подключена к Интернету. Злоумышленники могут заработать много денег, используя системы для бесплатных телефонных звонков. В этой главе даются советы о том, как обеспечить более надежную защиту для вашего развертывания VoIP.
 
-## Scanning for Valid Accounts
+## Сканирование действительных учетных записей
 
-If you expose your Asterisk system to the public internet, one of the things you will almost certainly see is a scan for valid accounts. [Example 22-1](22.%20Security%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22example-accountscan) contains log entries from one of the authors’ production Asterisk systems.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396108536) This scan began with checking various common usernames, then later went on to scan for numbered accounts. It is common for people to name SIP accounts the same as extensions on the PBX. This scan takes advantage of that fact.
+Если вы выставляете свою систему Asterisk в общедоступный Интернет, одна из вещей, которую вы почти наверняка увидите - это сканирование действительных учетных записей. Пример 22-1 содержит записи лога с одной из производственных систем Asterisk авторов.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396108536) Это сканирование началось с проверки различных общих имен пользователей, а затем перешло к сканированию числовых аккаунтов. Обычно пользователи называют учетные записи SIP так же, как и внутренние номера на АТС. Это сканирование использует этот факт.
 
 {% hint style="info" %}
 **Подсказка**
@@ -20,43 +20,32 @@ If you expose your Asterisk system to the public internet, one of the things you
 Используйте нечисловые имена пользователей для своих учетных записей VoIP, чтобы их было сложнее угадать. Например, в этой книге мы используем MAC-адрес SIP-телефона в качестве имени учетной записи в Asterisk.
 {% endhint %}
 
-#### Example 22-1. Log excerpts from account scanning
+#### Пример 22-1. Отрывок лога сканирования учетной записи
 
-\[Aug 22 15:17:15\] NOTICE\[25690\] chan\_sip.c: Registration from
-
-'"123"&lt;sip:123@127.0.0.1&gt;' failed for '203.86.167.220:5061' - No matching peer
-
+```text
+[Aug 22 15:17:15] NOTICE[25690] chan_sip.c: Registration from
+'"123"<sip:123@127.0.0.1>' failed for '203.86.167.220:5061' - No matching peer
 found
-
-\[Aug 22 15:17:15\] NOTICE\[25690\] chan\_sip.c: Registration from
-
-'"1234"&lt;sip:1234@127.0.0.1&gt;' failed for '203.86.167.220:5061' - No matching peer
-
+[Aug 22 15:17:15] NOTICE[25690] chan_sip.c: Registration from
+'"1234"<sip:1234@127.0.0.1>' failed for '203.86.167.220:5061' - No matching peer
 found
-
-\[Aug 22 15:17:15\] NOTICE\[25690\] chan\_sip.c: Registration from
-
-'"12345"&lt;sip:12345@127.0.0.1&gt;' failed for '203.86.167.220:5061' - No matching peer
-
+[Aug 22 15:17:15] NOTICE[25690] chan_sip.c: Registration from
+'"12345"<sip:12345@127.0.0.1>' failed for '203.86.167.220:5061' - No matching peer
 found
-
 ...
+[Aug 22 15:17:17] NOTICE[25690] chan_sip.c: Registration from
+'"100"<sip:100@127.0.0.1>' failed for '203.86.167.220:5061' - No matching peer found
+[Aug 22 15:17:17] NOTICE[25690] chan_sip.c: Registration from
+'"101"<sip:101@127.0.0.1>' failed for '203.86.167.220:5061' - No matching peer found
+```
 
-\[Aug 22 15:17:17\] NOTICE\[25690\] chan\_sip.c: Registration from
+В любой системе логи будут полны попыток вторжения. Это просто характер подключения систем к интернету. В этой главе мы обсудим некоторые способы настройки вашей системы таким образом, чтобы она имела надежные механизмы для решения этих проблем.
 
-'"100"&lt;sip:100@127.0.0.1&gt;' failed for '203.86.167.220:5061' - No matching peer found
+## Уязвимости аутентификации
 
-\[Aug 22 15:17:17\] NOTICE\[25690\] chan\_sip.c: Registration from
+В первом разделе этой главы обсуждалось сканирование имен пользователей. Даже если у вас есть имена пользователей, которые трудно угадать, очень важно, чтобы у вас были надежные пароли. Если злоумышленник может получить действительное имя пользователя, он, скорее всего, попытается подобрать пароль. Надежные пароли делают это намного сложнее.
 
-'"101"&lt;sip:101@127.0.0.1&gt;' failed for '203.86.167.220:5061' - No matching peer found
-
-The logs on any system will be full of intrusion attempts. This is simply the nature of connecting systems to the internet. In this chapter, we will discuss some of the ways to configure your system so that it will have robust mechanisms to deal with these things.
-
-## Authentication Weaknesses
-
-The first section of this chapter discussed scanning for usernames. Even if you have usernames that are difficult to guess, it is critical that you have strong passwords as well. If an attacker is able to obtain a valid username, they will likely attempt to brute-force the password. Strong passwords make this much more difficult.
-
-The default authentication scheme of the SIP protocol is weak. Authentication is done using an MD5 challenge-and-response mechanism. If an attacker is able to capture any call traffic, such as a SIP call made from a laptop on an open wireless network, it will be much easier to work on brute-forcing the password, since it will not require authentication requests to the server.
+Схема аутентификации по умолчанию SIP-протокола является слабой. Аутентификация выполняется с помощью механизма вызова и ответа MD5. Если злоумышленник может перехватить любой трафик, например SIP-вызов, выполненный с ноутбука в открытой беспроводной сети, ему будет намного проще работать с брутфорсом паролей, поскольку это не потребует запросов аутентификации у сервера.
 
 {% hint style="info" %}
 **Подсказка**
@@ -66,169 +55,177 @@ The default authentication scheme of the SIP protocol is weak. Authentication is
 
 ## Fail2ban
 
-The previous two sections discussed attacks involving scanning for valid usernames and brute-forcing passwords. [Fail2ban](http://www.fail2ban.org/wiki/index.php/Main_Page) is an application that can watch your Asterisk logs and update firewall rules to block the source of an attack in response to too many failed authentication attempts.
+В предыдущих двух разделах рассматривались атаки, связанные со сканированием действительных имен пользователей и подбором паролей брутфорсом. [Fail2ban](http://www.fail2ban.org/wiki/index.php/Main_Page) - это приложение, которое может просматривать журналы Asterisk и обновлять правила брандмауэра, чтобы блокировать источник атаки в ответ на слишком большое количество неудачных попыток аутентификации.
 
-**Tip**
+{% hint style="info" %}
+**Подсказка**
 
-Use Fail2ban when exposing Voice over IP services on untrusted networks. It will automatically update the firewall rules to block the sources of attacks.
+Используйте Fail2ban при предоставлении услуг Voice over IP в ненадежных сетях. Оно автоматически обновит правила брандмауэра, чтобы заблокировать источники атак.
+{% endhint %}
 
-### Installation
+### Установка
 
-Fail2ban is available as a package in many distributions. Alternatively, you can install it from source by downloading it from the Fail2ban website. To install Fail2ban on RHEL, you must have the EPEL repository enabled \(which was handled during [Chapter 3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22asterisk-Install)\). You can install Fail2ban by running the following command:
+Fail2ban доступен в виде пакета во многих дистрибутивах. Кроме того, вы можете установить его из исходников, загрузив с веб-сайта Fail2ban. Чтобы установить Fail2ban на RHEL, необходимо включить репозиторий EPEL \(который был рассмотрен в [Главе 3](glava-03.md)\). Вы можете установить Fail2ban, выполнив следующую команду:
 
+```text
 $ sudo yum install fail2ban
+```
 
-**Note**
+{% hint style="info" %}
+**Примечание**
 
-The installation of Fail2ban from a package will include a startup script to ensure that it runs when the machine boots up. If you install from source, make sure that you take the necessary steps to ensure that Fail2ban is always running.
+Установка Fail2ban из пакета будет включать скрипт запуска, чтобы гарантировать запуск при загрузке компьютера. Если вы устанавливаете из исходных кодов, убедитесь, что вы предпринимаете необходимые шаги для гарантированной постоянной работы Fail2ban.
+{% endhint %}
 
-### Configuration
+### Конфигурация
 
-First up, we’ll want to configure the security log in Asterisk, which Fail2ban is able to make use of.
+Во-первых, мы хотим настроить журнал безопасности в Asterisk, который Fail2ban может использовать.
 
+```text
 $ sudo vim /etc/asterisk/logger.conf
+```
 
-Uncomment the \(or add a\) line that reads security =&gt; security, and edit the dateformat so Fail2ban understands the logfile.
+Раскомментировать \(или добавить\) строку, которая разрешает чтение `security => security` и измените `dateformat` даты для понимания её в журнале fail2ban.
 
-\[general\]
-
-exec\_after\_rotate=gzip -9 ${filename}.2;
-
+```text
+[general]
+exec_after_rotate=gzip -9 ${filename}.2;
 dateformat = %F %T
+[logfiles]
+;debug => debug
+security => security
+;console => notice,warning,error,verbose
+console => notice,warning,error,debug
+messages => notice,warning,error
+full => notice,warning,error,debug,verbose,dtmf,fax
+```
 
-\[logfiles\]
+Затем перезагрузите logger Asterisk:
 
-;debug =&gt; debug
-
-security =&gt; security
-
-;console =&gt; notice,warning,error,verbose
-
-console =&gt; notice,warning,error,debug
-
-messages =&gt; notice,warning,error
-
-full =&gt; notice,warning,error,debug,verbose,dtmf,fax
-
-Then reload the Asterisk logger:
-
+```text
 $ sudo asterisk -rx 'logger reload'
+```
 
-Since current versions of Fail2ban already come with an Asterisk jail definition, all we need to do is enable it:
+Поскольку текущие версии Fail2ban уже поставляются с определением изолятора Asterisk, все, что нам нужно сделать, это включить его:
 
-The current best practice is to create a file /etc/fail2ban/jail.local for this purpose \(technically you can put it in /etc/fail2ban/jail.conf, but this is more likely to be overwritten\):
+Для этого рекомендуется создать файл _/etc/fail2ban/jail.local_ \(технически вы можете поместить его в _/etc/fail2ban/jail.conf_, но он скорее всего будет перезаписан\):
 
+```text
 $ sudo vim /etc/fail2ban/jail.local
 
-\[asterisk\]
-
-enabled = true
-
-filter = asterisk
-
-action = iptables-allports\[name=ASTERISK, protocol=all\]
-
- sendmail\[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org\]
-
-logpath = /var/log/asterisk/messages
-
- /var/log/asterisk/security
-
+[asterisk]
+enabled  = true
+filter   = asterisk
+action   = iptables-allports[name=ASTERISK, protocol=all]
+          sendmail[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org]
+logpath  = /var/log/asterisk/messages
+          /var/log/asterisk/security
 maxretry = 5
-
 findtime = 21600
+bantime  = 86400
+```
 
-bantime = 86400
+Мы установили запрет на 24 часа, но вы можете сделать время больше или меньше, как пожелаете \(время запрета определяется в секундах, так что его необходимо рассчитать\). Поскольку большинство атакующих хостов меняются через несколько часов, нет никакого вреда в разблокировании IP-адреса через 24 часа. Если хост атакует снова, он снова будет заблокирован.
 
-We’ve set up the ban for 24 hours, but you can do longer or shorter times as well if you prefer \(the bantime is defined in seconds, so calculate accordingly\). Since most attacking hosts move on after a few hours, there’s no harm in unblocking an IP after 24 hours. If the host attacks again, they’ll be blocked again.
+О, вы также можете указать ему игнорировать ваш IP \(или любые другие IP-адреса, с которых можно получать попытки подключения\). Если вы случайно заблокировали себя, когда делали какую-то лабораторную работу и неправильно регистрировались, не волнуйтесь, вы в конечном итоге сделаете это с собой \(если, конечно, не создадите список игнорирования для соответствующих IP-адресов\).
 
-Oh, you might also want to tell it to ignore your IP \(or any other IP addresses that are OK to receive connection attempts from\). If you haven’t yet accidentally gotten yourself blocked because you were doing some lab work and misregistering, don’t worry, you will eventually do this to yourself \(unless, of course, you create an ignore list for appropriate IPs\).
-
-\[DEFAULT\]
-
-ignoreip = &lt;ip address\(es\), separated by commas&gt;
-
-\[asterisk\]
-
+```text
+[DEFAULT]
+ignoreip = <ip-адрес(а), разделенные запятыми>
+[asterisk]
 enabled = true
-
 filter = asterisk
-
-action = iptables-allports\[name=ASTERISK, protocol=all\]
-
- sendmail\[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org\]
-
+action = iptables-allports[name=ASTERISK, protocol=all]
+ sendmail[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org]
 logpath = /var/log/asterisk/messages
-
  /var/log/asterisk/security
-
 maxretry = 5
-
 findtime = 21600
-
 bantime = 86400
+```
 
-Restart Fail2ban and you’re good to go.
+Перезапустите Fail2ban и все будет хорошо.
 
+```text
 $ sudo systemctl reload fail2ban
+```
 
-Test it out if you can, from an IP address you don’t mind being blocked \(for example, an extra computer in your lab that can be the test subject for this\). Attempt to register using bad credentials, and after five attempts \(or whatever you set maxretry to\), that IP should be blocked.
+Проверьте это, если можете, с IP-адреса, который вы не против заблокировать \(например, дополнительный компьютер в вашей лаборатории, который может стать объектом тестирования в данном случае\). Попытайтесь зарегистрироваться с использованием неверных учетных данных, и после пяти попыток \(или любого другого значения, для которого вы установили `maxretry`\) этот IP-адрес должен быть заблокирован.
 
-You can see what addresses the Asterisk jail is blocking with the command:
+Вы можете увидеть, какие адреса блокирует Asterisk jail, с помощью команды:
 
+```text
 $ sudo fail2ban-client status asterisk
+```
 
-And if you want to unblock an IP,[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396052456) the following command should do so.
+И если вы хотите разблокировать IP,[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html#idm46178396052456) следующая команда должна сделать это.
 
-$ sudo fail2ban-client set asterisk unbanip ip to unban
+```text
+$ sudo fail2ban-client set asterisk unbanip <ip для разбанивания>
+```
 
-More information about Fail2ban can be found at the [Fail2ban wiki](http://www.fail2ban.org/wiki/index.php/Main_Page).
+Дополнительную информацию о Fail2ban можно найти на странице [Fail2ban wiki](http://www.fail2ban.org/wiki/index.php/Main_Page).
 
-## Encrypted Media
+## Шифрование медиапотока
 
-While we gave examples in this book that used encryption, be aware that you can configure SIP so that media will be sent unencrypted. In that case, anyone intercepting the RTP traffic between two SIP peers will be able to use fairly simple tools to extract the audio from those calls.
+В то время как мы приводили в этой книге примеры, которые использовали шифрование, имейте в виду, что вы можете настроить SIP так, что медиапоток будет отправляться в незашифрованном виде. В этом случае любой, кто перехватит RTP-трафик между двумя SIP-узлами, сможет использовать довольно простые инструменты для извлечения звука из этих вызовов.
 
 ## Dialplan Vulnerabilities
 
 The Asterisk dialplan is another area where taking security into consideration is critical. The dialplan can be broken down into multiple contexts to provide access control to extensions. For example, you may want to allow your office phones to make calls out through your service provider. However, you do not want to allow anonymous callers that come into your main company menu to be able to then dial out through your service provider. Use contexts to ensure that only the callers you intend have access to services that cost you money.
 
+{% hint style="info" %}
 **Tip**
 
 Build dialplan contexts with great care. Also, avoid putting any extensions that could cost you money in the \[default\] context.
+{% endhint %}
 
 One of the more recent Asterisk dialplan vulnerabilities to have been discovered and published is the idea of dialplan injection. A dialplan injection vulnerability begins with an extension that has a pattern that ends with the match-all character, a period. Take this extension as an example:
 
-exten =&gt; \_X.,1,Dial\(PJSIP/otherserver/${EXTEN},30\)
+```text
+exten => _X.,1,Dial(PJSIP/otherserver/${EXTEN},30)
+```
 
 The pattern for this extension matches all extensions \(of any length\) that begin with a digit. Patterns like this are pretty common and convenient. The extension then sends this call over to another server using the IAX2 protocol, with a dial timeout of 30 seconds. Note the usage of the ${EXTEN} variable here. That’s where the vulnerability exists.
 
 In the world of Voice over IP, there is no reason that a dialed extension must be numeric. In fact, it is quite common using SIP to be able to dial someone by name. Since it is possible for non-numeric characters to be a part of a dialed extension, what would happen if someone sent a call to this extension?
 
+```text
 1234&DAHDI/g1/12565551212
+```
 
 A call like this is an attempt at exploiting a dialplan injection vulnerability. In the previous extension definition, once ${EXTEN} has been evaluated, the actual Dial\(\) statement that will be executed is:
 
-exten =&gt; \_X.,1,Dial\(PJSIP/otherserver/1234&DAHDI/g1/12565551212,30\)
+```text
+exten => _X.,1,Dial(PJSIP/otherserver/1234&DAHDI/g1/12565551212,30)
+```
 
 If the system has a PRI configured, this call will cause a call to go out on the PRI to a number chosen by the attacker, even though you did not explicitly grant access to the PRI to that caller. This problem can quickly cost you a whole lot of money.
 
 There are several approaches to avoiding this problem. The first and easiest approach is to always use strict pattern matching. If you know the length of extensions you are expecting and expect only numeric extensions, use a strict numeric pattern match. For example, this would work if you are expecting four-digit numeric extensions only:
 
-exten =&gt; \_XXXX,1,Dial\(PJSIP/otherserver/${EXTEN},30\)
+```text
+exten => _XXXX,1,Dial(PJSIP/otherserver/${EXTEN},30)
+```
+
+
 
 Another approach to mitigating dialplan injection vulnerabilities is by using the FILTER\(\) dialplan function. Perhaps you would like to allow numeric extensions of any length. FILTER\(\) makes that easy to achieve safely:
 
-exten =&gt; \_X.,1,Set\(SAFE\_EXTEN=${FILTER\(0-9A-F,${EXTEN}\)}\)
-
- same =&gt; n,Dial\(PJSIP/otherserver/${SAFE\_EXTEN},30\)
+```text
+exten => _X.,1,Set(SAFE_EXTEN=${FILTER(0-9A-F,${EXTEN})})
+ same => n,Dial(PJSIP/otherserver/${SAFE_EXTEN},30)
+```
 
 For more information about the syntax for the FILTER\(\) dialplan function, see the output of the core show function FILTER command at the Asterisk CLI.
 
 A more comprehensive \(but also complex\) approach might be to have all dialed digits validated by functions outside of your dialplan \(for example, database queries that validate the dialed string against user permissions, routing patterns, restriction tables, and so forth\). This is a powerful concept, but beyond the scope of this book.
 
+{% hint style="info" %}
 **Tip**
 
 Be wary of dialplan injection vulnerabilities. Use strict pattern matching or use the FILTER\(\) dialplan function to avoid these problems.
+{% endhint %}
 
 ## Securing Asterisk Network APIs
 
@@ -248,117 +245,90 @@ In your ps\_endpoints table, the permit and deny options allow you to specify IP
 
 ACLs can be defined in /etc/asterisk/acl.conf.
 
-\[named\_acl\_1\]
-
+```text
+[named_acl_1]
 deny=0.0.0.0/0.0.0.0
-
 permit=10.1.1.50
-
 permit=10.1.1.55
-
-\[named\_acl\_2\] ; Named ACLs support IPv6, as well.
-
+[named_acl_2] ; Named ACLs support IPv6, as well.
 deny=::
-
 permit=::1/128
-
-\[local\_phones\]
-
+[local_phones]
 deny=0.0.0.0/0.0.0.0
-
 permit=192.168.0.0/255.255.0.0
+```
 
 Once named ACLs have been defined in acl.conf, have Asterisk load them using the reload acl command. Once loaded, they should be available via the Asterisk CLI:
 
-\*CLI&gt; module reload acl
-
-\*CLI&gt; acl show
-
+```text
+*CLI> module reload acl
+*CLI> acl show
 acl
-
 ---
-
-named\_acl\_1
-
-named\_acl\_2
-
-local\_phones
-
-\*CLI&gt; acl show named\_acl\_1
-
-ACL: named\_acl\_1
-
+named_acl_1
+named_acl_2
+local_phones
+*CLI> acl show named_acl_1
+ACL: named_acl_1
 ---------------------------------------------
-
  0: deny - 0.0.0.0/0.0.0.0
-
  1: allow - 10.1.1.50/255.255.255.255
-
  2: allow - 10.1.1.55/255.255.255.255
+```
 
 Now, instead of having to potentially repeat the same permit and deny entries in multiple places, you can apply an ACL by its name. You will find an acl field in the ps\_endpoints table, which you can use to point to a named ACL in the acl.conf file.
 
-mysql&gt; select id,transport,aors,context,disallow,allow,acl from ps\_endpoints;
-
-\|id \|transport \|aors \|context\|disallow\|allow \|acl \|
-
-\|0000f30A0A01\|transport-udp\|0000f30A0A01\|sets \|all \|ulaw \|NULL\|
-
-\|0000f30B0B02\|transport-udp\|0000f30B0B02\|sets \|all \|ulaw \|NULL\|
-
-\|SOFTPHONE\_A \|transport-udp\|SOFTPHONE\_A \|sets \|all \|ulaw,h264,vp8\|NULL\|
-
-\|SOFTPHONE\_B \|transport-udp\|SOFTPHONE\_B \|sets \|all \|ulaw,h264,vp8\|NULL\|
-
-mysql&gt; update ps\_endpoints
-
- set acl='local\_phones'
-
- where id in \('0000f30A0A01','0000f30B0B02','SOFTPHONE\_A','SOFTPHONE\_B'\)
-
+```text
+mysql> select id,transport,aors,context,disallow,allow,acl from ps_endpoints;
+|id |transport |aors |context|disallow|allow |acl |
+|0000f30A0A01|transport-udp|0000f30A0A01|sets |all |ulaw |NULL|
+|0000f30B0B02|transport-udp|0000f30B0B02|sets |all |ulaw |NULL|
+|SOFTPHONE_A |transport-udp|SOFTPHONE_A |sets |all |ulaw,h264,vp8|NULL|
+|SOFTPHONE_B |transport-udp|SOFTPHONE_B |sets |all |ulaw,h264,vp8|NULL|
+mysql> update ps_endpoints
+ set acl='local_phones'
+ where id in ('0000f30A0A01','0000f30B0B02','SOFTPHONE_A','SOFTPHONE_B')
  ;
+mysql> select id,transport,aors,context,disallow,allow,acl from ps_endpoints;
+|id |transport |aors |context|disallow|allow |acl |
+|0000f30A0A01|transport-udp|0000f30A0A01|sets |all |ulaw |local_phones|
+|0000f30B0B02|transport-udp|0000f30B0B02|sets |all |ulaw |local_phones|
+|SOFTPHONE_A |transport-udp|SOFTPHONE_A |sets |all |ulaw,h264,vp8|local_phones|
+|SOFTPHONE_B |transport-udp|SOFTPHONE_B |sets |all |ulaw,h264,vp8|local_phones|
+```
 
-mysql&gt; select id,transport,aors,context,disallow,allow,acl from ps\_endpoints;
-
-\|id \|transport \|aors \|context\|disallow\|allow \|acl \|
-
-\|0000f30A0A01\|transport-udp\|0000f30A0A01\|sets \|all \|ulaw \|local\_phones\|
-
-\|0000f30B0B02\|transport-udp\|0000f30B0B02\|sets \|all \|ulaw \|local\_phones\|
-
-\|SOFTPHONE\_A \|transport-udp\|SOFTPHONE\_A \|sets \|all \|ulaw,h264,vp8\|local\_phones\|
-
-\|SOFTPHONE\_B \|transport-udp\|SOFTPHONE\_B \|sets \|all \|ulaw,h264,vp8\|local\_phones\|
-
+{% hint style="info" %}
 **Tip**
 
 Use ACLs when possible on all privileged accounts for network services.
+{% endhint %}
 
 Another way you can mitigate security risk is by configuring call limits. The recommended method for implementing call limits is to use the GROUP\(\) and GROUP\_COUNT\(\) dialplan functions. Here is an example that limits the number of calls from each SIP peer to no more than two at a time:
 
-exten =&gt; \_X.,1,Set\(GROUP\(users\)=${CHANNEL\(endpoint\)}\)
+```text
+exten => _X.,1,Set(GROUP(users)=${CHANNEL(endpoint)})
+ same => n,NoOp(${CHANNEL(endpoint)} : ${GROUP_COUNT(${CHANNEL(endpoint)})} calls)
+ same => n,GotoIf($[${GROUP_COUNT(${CHANNEL(endpoint)})} > 2]?denied:continue)
+ same => n(denied),NoOp(There are too many calls up already. Hang up.)
+ same => n,HangUp()
+ same => n(continue),NoOp(continue processing call as normal here ...)
+```
 
- same =&gt; n,NoOp\(${CHANNEL\(endpoint\)} : ${GROUP\_COUNT\(${CHANNEL\(endpoint\)}\)} calls\)
-
- same =&gt; n,GotoIf\($\[${GROUP\_COUNT\(${CHANNEL\(endpoint\)}\)} &gt; 2\]?denied:continue\)
-
- same =&gt; n\(denied\),NoOp\(There are too many calls up already. Hang up.\)
-
- same =&gt; n,HangUp\(\)
-
- same =&gt; n\(continue\),NoOp\(continue processing call as normal here ...\)
-
+{% hint style="info" %}
 **Tip**
 
 Use call limits to ensure that if an account is compromised, it cannot be used to make hundreds of phone calls at a time.
+{% endhint %}
 
 ## Resources
 
 Some security vulnerabilities require modifications to the Asterisk source code to resolve. When those issues are discovered, the Asterisk development team puts out new releases that contain only fixes for the security issues, to allow for quick and easy upgrades. When this occurs, the Asterisk development team also publishes a security advisory document that discusses the details of the vulnerability. We recommend that you subscribe to the [asterisk-announce mailing list](http://lists.digium.com/mailman/listinfo/asterisk-announce) to make sure that you know about these issues when they come up.
 
+{% hint style="info" %}
 **Tip**
 
 Subscribe to the asterisk-announce list to stay up to date on Asterisk security vulnerabilities.
+{% endhint %}
 
 One of the most popular tools for SIP account scanning and password cracking is [SIPVicious](http://sipvicious.org/). We strongly encourage that you take a look at it and use it to audit your own systems. If your system is exposed to the internet, others will likely run SIPVicious against it, so make sure that you do that first.
 
