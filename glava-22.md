@@ -170,39 +170,39 @@ $ sudo fail2ban-client set asterisk unbanip <ip для разбанивания>
 
 В то время как мы приводили в этой книге примеры, которые использовали шифрование, имейте в виду, что вы можете настроить SIP так, что медиапоток будет отправляться в незашифрованном виде. В этом случае любой, кто перехватит RTP-трафик между двумя SIP-узлами, сможет использовать довольно простые инструменты для извлечения звука из этих вызовов.
 
-## Dialplan Vulnerabilities
+## Уязвимости диалплана
 
-The Asterisk dialplan is another area where taking security into consideration is critical. The dialplan can be broken down into multiple contexts to provide access control to extensions. For example, you may want to allow your office phones to make calls out through your service provider. However, you do not want to allow anonymous callers that come into your main company menu to be able to then dial out through your service provider. Use contexts to ensure that only the callers you intend have access to services that cost you money.
+Диалплан Asterisk - это еще одна область, где важна безопасность. Диалплан можно разбить на несколько контекстов для обеспечения управления доступом к расширениям. Например, вы можете разрешить своим офисным телефонам совершать звонки через провайдера. Тем не менее, вы не захотите, чтобы анонимные абоненты, которые попадают в ваше главное меню компании, могли затем набрать номер через вашего провайдера. Используйте контексты, чтобы гарантировать доступ к услугам, которые стоят вам денег, только доверенным абонентам.
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
-Build dialplan contexts with great care. Also, avoid putting any extensions that could cost you money in the \[default\] context.
+Создавайте контексты диалплана с большой осторожностью. Кроме того, избегайте размещения любых расширений, которые могут стоить вам денег в контексте `[default]`.
 {% endhint %}
 
-One of the more recent Asterisk dialplan vulnerabilities to have been discovered and published is the idea of dialplan injection. A dialplan injection vulnerability begins with an extension that has a pattern that ends with the match-all character, a period. Take this extension as an example:
+Одна из последних уязвимостей диалплана Asterisk, обнаруженных и опубликованных - это идея инъекций диалплана. Уязвимость инъекций диалплана начинается с расширения, имеющего шаблон, который заканчивается символом соответствия всему - точкой. Возьмите это расширение в качестве примера:
 
 ```text
 exten => _X.,1,Dial(PJSIP/otherserver/${EXTEN},30)
 ```
 
-The pattern for this extension matches all extensions \(of any length\) that begin with a digit. Patterns like this are pretty common and convenient. The extension then sends this call over to another server using the IAX2 protocol, with a dial timeout of 30 seconds. Note the usage of the ${EXTEN} variable here. That’s where the vulnerability exists.
+Шаблон для этого расширения соответствует всем расширениями \(любой длины\), которые начинаются с цифры. Такие шаблоны довольно распространены и удобны. Затем расширение отправляет этот вызов на другой сервер, используя протокол IAX2, с таймаутом набора 30 секунд. Обратите внимание на использование здесь переменной `${EXTEN}`. Вот где кроется уязвимость.
 
-In the world of Voice over IP, there is no reason that a dialed extension must be numeric. In fact, it is quite common using SIP to be able to dial someone by name. Since it is possible for non-numeric characters to be a part of a dialed extension, what would happen if someone sent a call to this extension?
+В мире Voice over IP нет причин, по которым набираемый номер должен быть числовым. На самом деле, это довольно распространенное использование SIP, чтобы иметь возможность набрать кого-то по имени. Поскольку нечисловые символы могут быть частью набранного добавочного номера, что произойдет, если кто-то отправит вызов на такой добавочный номер?
 
 ```text
 1234&DAHDI/g1/12565551212
 ```
 
-A call like this is an attempt at exploiting a dialplan injection vulnerability. In the previous extension definition, once ${EXTEN} has been evaluated, the actual Dial\(\) statement that will be executed is:
+Подобный вызов является попыткой использования уязвимости инъекции диалплана. В предыдущем определении расширения, как только `${EXTEN}` был вычислен, фактический оператор `Dial()`, который будет исполняться, будет иметь вид:
 
 ```text
 exten => _X.,1,Dial(PJSIP/otherserver/1234&DAHDI/g1/12565551212,30)
 ```
 
-If the system has a PRI configured, this call will cause a call to go out on the PRI to a number chosen by the attacker, even though you did not explicitly grant access to the PRI to that caller. This problem can quickly cost you a whole lot of money.
+Если в системе настроена PRI, этот вызов совершит вызов через PRI на номер, выбранный злоумышленником, даже если вы явно не предоставили доступ к PRI этому абоненту. Эта проблема может стоить вам больших затрат.
 
-There are several approaches to avoiding this problem. The first and easiest approach is to always use strict pattern matching. If you know the length of extensions you are expecting and expect only numeric extensions, use a strict numeric pattern match. For example, this would work if you are expecting four-digit numeric extensions only:
+Существует несколько подходов к решению этой проблемы. Первый и самый простой подход - всегда использовать строгое сопоставление шаблонов. Если вы знаете длину ожидаемых расширений и ожидаете только числовые расширения, используйте строгое соответствие числовому шаблону. Например, такой шаблон будет работать, если вы ожидаете только четырехзначные числовые номера:
 
 ```text
 exten => _XXXX,1,Dial(PJSIP/otherserver/${EXTEN},30)
@@ -210,32 +210,32 @@ exten => _XXXX,1,Dial(PJSIP/otherserver/${EXTEN},30)
 
 
 
-Another approach to mitigating dialplan injection vulnerabilities is by using the FILTER\(\) dialplan function. Perhaps you would like to allow numeric extensions of any length. FILTER\(\) makes that easy to achieve safely:
+Другой подход к смягчению уязвимостей инъекций диалплана заключается в использовании функции диалплана `FILTER()` . Возможно, вы хотели бы разрешить числовые расширения любой длины. `FILTER()` позволяет сделать это легко и безопасно:
 
 ```text
 exten => _X.,1,Set(SAFE_EXTEN=${FILTER(0-9A-F,${EXTEN})})
  same => n,Dial(PJSIP/otherserver/${SAFE_EXTEN},30)
 ```
 
-For more information about the syntax for the FILTER\(\) dialplan function, see the output of the core show function FILTER command at the Asterisk CLI.
+Дополнительные сведения о синтаксисе функции диалплана `FILTER()` см. в выводе данных команды _core show function FILTER_ в Asterisk CLI.
 
-A more comprehensive \(but also complex\) approach might be to have all dialed digits validated by functions outside of your dialplan \(for example, database queries that validate the dialed string against user permissions, routing patterns, restriction tables, and so forth\). This is a powerful concept, but beyond the scope of this book.
+Более комплексный \(но и сложный\) подход может заключаться в проверке всех набранных цифр функциями, не входящими в диалплан \(например, запросы к базе данных, которые проверяют набранную строку на соответствие разрешениям пользователя, шаблонам маршрутизации, таблицам ограничений и т.д.\). Это мощная концепция, но она выходит за рамки данной книги.
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
-Be wary of dialplan injection vulnerabilities. Use strict pattern matching or use the FILTER\(\) dialplan function to avoid these problems.
+Будьте осторожны с уязвимостями инъекциями диалплана. Используйте строгое сопоставление шаблонов или используйте функцию диалплана `FILTER ()` во избежание подобных проблем.
 {% endhint %}
 
-## Securing Asterisk Network APIs
+## Безопасность сетевых API Asterisk
 
-To secure AGI, AMI, and ARI, you will need to carefully consider the following recommended practices:
+Чтобы защитить AGI, AMI и ARI, вам нужно будет тщательно рассмотреть следующие рекомендуемые методы:
 
-* Only allow connections directly to the API from localhost/127.0.0.1.
-* Use an appropriate framework in between the Asterisk API and your client application, and handle connection security through the framework.
-* Control access to the framework and the system through strict firewall rules.
+* Разрешить подключения непосредственно к API только из localhost/127.0.0.1.
+* Используйте соответствующую платформу между API Asterisk и вашим клиентским приложением,а также обрабатывайте безопасность соединения через фреймворк.
+* Контролируйте доступ к фреймворку и системе с помощью строгих правил брандмауэра.
 
-Beyond that, the same sort of security rules and best practices apply that you would follow in any mission-critical web application.
+Кроме того, применяются те же правила безопасности и рекомендации, что и в любом критически важном веб-приложении.
 
 ## Other Risk Mitigation
 
@@ -298,9 +298,9 @@ mysql> select id,transport,aors,context,disallow,allow,acl from ps_endpoints;
 ```
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
-Use ACLs when possible on all privileged accounts for network services.
+Используйте ACL, когда это возможно, на всех привилегированных аккаунтах для сетевых служб.
 {% endhint %}
 
 Another way you can mitigate security risk is by configuring call limits. The recommended method for implementing call limits is to use the GROUP\(\) and GROUP\_COUNT\(\) dialplan functions. Here is an example that limits the number of calls from each SIP peer to no more than two at a time:
@@ -315,34 +315,34 @@ exten => _X.,1,Set(GROUP(users)=${CHANNEL(endpoint)})
 ```
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
-Use call limits to ensure that if an account is compromised, it cannot be used to make hundreds of phone calls at a time.
+Используйте ограничения вызовов, для гарантии что если учетная запись скомпрометирована, ее нельзя использовать для совершения сотен телефонных звонков одновременно.
 {% endhint %}
 
-## Resources
+## Ресурсы
 
 Some security vulnerabilities require modifications to the Asterisk source code to resolve. When those issues are discovered, the Asterisk development team puts out new releases that contain only fixes for the security issues, to allow for quick and easy upgrades. When this occurs, the Asterisk development team also publishes a security advisory document that discusses the details of the vulnerability. We recommend that you subscribe to the [asterisk-announce mailing list](http://lists.digium.com/mailman/listinfo/asterisk-announce) to make sure that you know about these issues when they come up.
 
 {% hint style="info" %}
-**Tip**
+**Подсказка**
 
 Subscribe to the asterisk-announce list to stay up to date on Asterisk security vulnerabilities.
 {% endhint %}
 
 One of the most popular tools for SIP account scanning and password cracking is [SIPVicious](http://sipvicious.org/). We strongly encourage that you take a look at it and use it to audit your own systems. If your system is exposed to the internet, others will likely run SIPVicious against it, so make sure that you do that first.
 
-## Conclusion—A Better Idiot
+## Вывод—Лучший идиот
 
-There is a maxim in the technology industry that states, “As soon as something is made idiot-proof, nature will invent a better idiot.” The point of this statement is that no development effort can be considered complete. There is always room for improvement.
+В технологической индустрии есть принцип, который гласит: "Как только что-то станет идиотским, природа изобретет лучшего идиота." Суть этого заявления заключается в том, что никакие усилия в области развития не могут считаться завершенными. Всегда есть место для улучшения.
 
-When it comes to security, you must always bear in mind that the people who are looking to take advantage of your system are highly motivated. No matter how secure your system is, somebody will always be looking to crack it.
+Когда дело доходит до безопасности, вы всегда должны иметь в виду, что люди, которые хотят воспользоваться вашей системой, очень мотивированы. Независимо от того, насколько безопасна ваша система, кто-то всегда будет искать пути для её взлома.
 
-We’re not advocating paranoia, but we are suggesting that what we have written here is by no means the final word on VoIP security. While we have tried to be as comprehensive as we can be in this book, you must accept responsibility for the security of your system.
+Мы не защищаем паранойю, но предполагаем, что то, что мы описали здесь, ни в коем случае не является последним словом о безопасности VoIP. Несмотря на то, что в этой книге мы постарались быть максимально всеобъемлющими, вы должны взять на себя ответственность за безопасность своей системы.
 
-The criminals are working hard to find weaknesses and exploit them.
+Преступники упорно работают, чтобы найти слабые места и использовать их.
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396108536-marker) The real IP address has been replaced with 127.0.0.1 in the log entries.
+[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396108536-marker) Реальный IP-адрес был заменен на 127.0.0.1 в записях лога.
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396052456-marker) For example, yourself, because you forgot to define ignoreip...
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396052456-marker) Например, себя, потому что вы забыли определить ignoreip...
 
