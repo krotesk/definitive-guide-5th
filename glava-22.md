@@ -117,7 +117,7 @@ $ sudo vim /etc/fail2ban/jail.local
 enabled  = true
 filter   = asterisk
 action   = iptables-allports[name=ASTERISK, protocol=all]
-          sendmail[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org]
+           sendmail[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org]
 logpath  = /var/log/asterisk/messages
           /var/log/asterisk/security
 maxretry = 5
@@ -132,16 +132,17 @@ bantime  = 86400
 ```text
 [DEFAULT]
 ignoreip = <ip-адрес(а), разделенные запятыми>
+
 [asterisk]
-enabled = true
-filter = asterisk
-action = iptables-allports[name=ASTERISK, protocol=all]
- sendmail[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org]
-logpath = /var/log/asterisk/messages
- /var/log/asterisk/security
+enabled  = true
+filter   = asterisk
+action   = iptables-allports[name=ASTERISK, protocol=all]
+           sendmail[name=ASTERISK, dest=me@shifteight.org, sender=fail2ban@shifteight.org]
+logpath  = /var/log/asterisk/messages
+           /var/log/asterisk/security
 maxretry = 5
 findtime = 21600
-bantime = 86400
+bantime  = 86400
 ```
 
 Перезапустите Fail2ban и все будет хорошо.
@@ -214,7 +215,7 @@ exten => _XXXX,1,Dial(PJSIP/otherserver/${EXTEN},30)
 
 ```text
 exten => _X.,1,Set(SAFE_EXTEN=${FILTER(0-9A-F,${EXTEN})})
- same => n,Dial(PJSIP/otherserver/${SAFE_EXTEN},30)
+    same => n,Dial(PJSIP/otherserver/${SAFE_EXTEN},30)
 ```
 
 Дополнительные сведения о синтаксисе функции диалплана `FILTER()` см. в выводе данных команды _core show function FILTER_ в Asterisk CLI.
@@ -231,70 +232,80 @@ exten => _X.,1,Set(SAFE_EXTEN=${FILTER(0-9A-F,${EXTEN})})
 
 Чтобы защитить AGI, AMI и ARI, вам нужно будет тщательно рассмотреть следующие рекомендуемые методы:
 
-* Разрешить подключения непосредственно к API только из localhost/127.0.0.1.
+* Разрешить подключения непосредственно к API только из `localhost/127.0.0.1`.
 * Используйте соответствующую платформу между API Asterisk и вашим клиентским приложением,а также обрабатывайте безопасность соединения через фреймворк.
 * Контролируйте доступ к фреймворку и системе с помощью строгих правил брандмауэра.
 
 Кроме того, применяются те же правила безопасности и рекомендации, что и в любом критически важном веб-приложении.
 
-## Other Risk Mitigation
+## Другие меры по снижению риска
 
-There are other useful features in Asterisk that can be used to mitigate the risk of attacks. The first is to use the permit and deny options to build access control lists \(ACLs\) for privileged accounts. Consider a PBX that has SIP phones on a local network, but also accepts SIP calls from the public internet. Calls coming in over the internet are only granted access to the main company menu, while local SIP phones have the ability to make outbound calls that cost you money. In this case, it is a very good idea to set ACLs to ensure that only devices on your local network can use the accounts for the phones.
+В Asterisk есть и другие полезные функции, которые можно использовать для снижения риска атак. Первый заключается в использовании параметров `permit` и `deny` для создания списков управления доступом \(ACL\) для привилегированных учетных записей. Рассмотрим АТС, которая имеет SIP-телефоны в локальной сети, но также принимает SIP-вызовы через интернет. Такие вызовы получают доступ только к главному меню компании, в то время как локальные SIP-телефоны имеют возможность совершать исходящие вызовы, которые уже стоят денег. В этом случае рекомендуется настроить списки управления доступом, чтобы только устройства в локальной сети могли использовать учетные записи для телефонов.
 
-In your ps\_endpoints table, the permit and deny options allow you to specify IP addresses, but you can also point to a label in the /etc/asterisk/acl.conf file. In fact, ACLs are accepted almost everywhere that connections to IP services are configured. For example, another useful place for ACLs is in /etc/asterisk/manager.conf, to restrict AMI accounts to the single host that is supposed to be using the manager interface.
+В таблице `ps_endpoints` параметры `permit` и `deny` позволяют указать IP-адреса, но также можно указать метку в файле `/etc/asterisk/acl.conf`. Фактически ACL принимаются почти везде, где настроены подключения к IP-службам. Например, еще одно полезное место для ACL находится в файле _/etc/asterisk/manager.conf_, для ограничения учетных записей AMI до одного хоста, который может использовать интерфейс менеджера.
 
-ACLs can be defined in /etc/asterisk/acl.conf.
+ACL можно определить в _/etc/asterisk/acl.conf_.
 
 ```text
 [named_acl_1]
 deny=0.0.0.0/0.0.0.0
 permit=10.1.1.50
 permit=10.1.1.55
-[named_acl_2] ; Named ACLs support IPv6, as well.
+
+[named_acl_2] ; Именованные ACLs также поддерживают IPv6.
 deny=::
 permit=::1/128
+
 [local_phones]
 deny=0.0.0.0/0.0.0.0
 permit=192.168.0.0/255.255.0.0
 ```
 
-Once named ACLs have been defined in acl.conf, have Asterisk load them using the reload acl command. Once loaded, they should be available via the Asterisk CLI:
+Когда именованные ACL были определены в _acl.conf_, попросите Asterisk загрузить их с помощью команды `reload acl`. После загрузки они должны быть доступны через интерфейс командной строки Asterisk:
 
 ```text
 *CLI> module reload acl
+
 *CLI> acl show
+
 acl
 ---
 named_acl_1
 named_acl_2
 local_phones
+
 *CLI> acl show named_acl_1
+
 ACL: named_acl_1
 ---------------------------------------------
- 0: deny - 0.0.0.0/0.0.0.0
- 1: allow - 10.1.1.50/255.255.255.255
- 2: allow - 10.1.1.55/255.255.255.255
+  0: deny - 0.0.0.0/0.0.0.0
+  1: allow - 10.1.1.50/255.255.255.255
+  2: allow - 10.1.1.55/255.255.255.255
 ```
 
-Now, instead of having to potentially repeat the same permit and deny entries in multiple places, you can apply an ACL by its name. You will find an acl field in the ps\_endpoints table, which you can use to point to a named ACL in the acl.conf file.
+Теперь, вместо того, чтобы потенциально повторять одни и те же записи `permit` и `deny` в нескольких местах, вы можете применить ACL по его имени. Вы найдете поле `acl` в таблице `ps_endpoints`, которое можно использовать для указания на именованный ACL в файле _acl.conf_.
 
 ```text
 mysql> select id,transport,aors,context,disallow,allow,acl from ps_endpoints;
-|id |transport |aors |context|disallow|allow |acl |
-|0000f30A0A01|transport-udp|0000f30A0A01|sets |all |ulaw |NULL|
-|0000f30B0B02|transport-udp|0000f30B0B02|sets |all |ulaw |NULL|
-|SOFTPHONE_A |transport-udp|SOFTPHONE_A |sets |all |ulaw,h264,vp8|NULL|
-|SOFTPHONE_B |transport-udp|SOFTPHONE_B |sets |all |ulaw,h264,vp8|NULL|
+
+|id          |transport    |aors        |context|disallow|allow        |acl |
+|0000f30A0A01|transport-udp|0000f30A0A01|sets   |all     |ulaw         |NULL|
+|0000f30B0B02|transport-udp|0000f30B0B02|sets   |all     |ulaw         |NULL|
+|SOFTPHONE_A |transport-udp|SOFTPHONE_A |sets   |all     |ulaw,h264,vp8|NULL|
+|SOFTPHONE_B |transport-udp|SOFTPHONE_B |sets   |all     |ulaw,h264,vp8|NULL|
+
 mysql> update ps_endpoints
- set acl='local_phones'
- where id in ('0000f30A0A01','0000f30B0B02','SOFTPHONE_A','SOFTPHONE_B')
- ;
+        set acl='local_phones'
+        where id in ('0000f30A0A01','0000f30B0B02','SOFTPHONE_A','SOFTPHONE_B')
+       ;
+ 
 mysql> select id,transport,aors,context,disallow,allow,acl from ps_endpoints;
-|id |transport |aors |context|disallow|allow |acl |
-|0000f30A0A01|transport-udp|0000f30A0A01|sets |all |ulaw |local_phones|
-|0000f30B0B02|transport-udp|0000f30B0B02|sets |all |ulaw |local_phones|
-|SOFTPHONE_A |transport-udp|SOFTPHONE_A |sets |all |ulaw,h264,vp8|local_phones|
-|SOFTPHONE_B |transport-udp|SOFTPHONE_B |sets |all |ulaw,h264,vp8|local_phones|
+
+|id          |transport    |aors        |context|disallow|allow        |acl         |
+|0000f30A0A01|transport-udp|0000f30A0A01|sets   |all     |ulaw         |local_phones|
+|0000f30B0B02|transport-udp|0000f30B0B02|sets   |all     |ulaw         |local_phones|
+|SOFTPHONE_A |transport-udp|SOFTPHONE_A |sets   |all     |ulaw,h264,vp8|local_phones|
+|SOFTPHONE_B |transport-udp|SOFTPHONE_B |sets   |all     |ulaw,h264,vp8|local_phones|
 ```
 
 {% hint style="info" %}
@@ -303,15 +314,15 @@ mysql> select id,transport,aors,context,disallow,allow,acl from ps_endpoints;
 Используйте ACL, когда это возможно, на всех привилегированных аккаунтах для сетевых служб.
 {% endhint %}
 
-Another way you can mitigate security risk is by configuring call limits. The recommended method for implementing call limits is to use the GROUP\(\) and GROUP\_COUNT\(\) dialplan functions. Here is an example that limits the number of calls from each SIP peer to no more than two at a time:
+Ещё одним способом снижения риска безопасности является настройка лимитов вызовов. Рекомендуемый метод реализации ограничений вызовов - использование функций диалплана `GROUP()` и `GROUP_COUNT()`. Вот пример, который ограничивает количество вызовов от каждого узла SIP не более чем двумя одновременно:
 
 ```text
 exten => _X.,1,Set(GROUP(users)=${CHANNEL(endpoint)})
- same => n,NoOp(${CHANNEL(endpoint)} : ${GROUP_COUNT(${CHANNEL(endpoint)})} calls)
- same => n,GotoIf($[${GROUP_COUNT(${CHANNEL(endpoint)})} > 2]?denied:continue)
- same => n(denied),NoOp(There are too many calls up already. Hang up.)
- same => n,HangUp()
- same => n(continue),NoOp(continue processing call as normal here ...)
+    same => n,NoOp(${CHANNEL(endpoint)} : ${GROUP_COUNT(${CHANNEL(endpoint)})} calls)
+    same => n,GotoIf($[${GROUP_COUNT(${CHANNEL(endpoint)})} > 2]?denied:continue)
+    same => n(denied),NoOp(There are too many calls up already. Hang up.)
+    same => n,HangUp()
+    same => n(continue),NoOp(continue processing call as normal here ...)
 ```
 
 {% hint style="info" %}
@@ -322,15 +333,15 @@ exten => _X.,1,Set(GROUP(users)=${CHANNEL(endpoint)})
 
 ## Ресурсы
 
-Some security vulnerabilities require modifications to the Asterisk source code to resolve. When those issues are discovered, the Asterisk development team puts out new releases that contain only fixes for the security issues, to allow for quick and easy upgrades. When this occurs, the Asterisk development team also publishes a security advisory document that discusses the details of the vulnerability. We recommend that you subscribe to the [asterisk-announce mailing list](http://lists.digium.com/mailman/listinfo/asterisk-announce) to make sure that you know about these issues when they come up.
+Для устранения некоторых уязвимостей системы безопасности необходимо внести изменения в исходный код Asterisk. Когда эти проблемы обнаруживаются, команда разработчиков Asterisk выпускает новые релизы, содержащие только исправления для проблем безопасности, чтобы обеспечить быстрое и легкое обновление. В этом случае команда разработчиков Asterisk также публикует рекомендательный документ по безопасности, в котором обсуждаются сведения об уязвимости. Мы рекомендуем Вам подписаться на [список рассылки _asterisk-announce_](http://lists.digium.com/mailman/listinfo/asterisk-announce), чтобы убедиться, что вы узнаете об этих проблемах, когда они возникают.
 
 {% hint style="info" %}
 **Подсказка**
 
-Subscribe to the asterisk-announce list to stay up to date on Asterisk security vulnerabilities.
+Подпишитесь на список asterisk-announce, чтобы быть в курсе уязвимостей системы безопасности Asterisk.
 {% endhint %}
 
-One of the most popular tools for SIP account scanning and password cracking is [SIPVicious](http://sipvicious.org/). We strongly encourage that you take a look at it and use it to audit your own systems. If your system is exposed to the internet, others will likely run SIPVicious against it, so make sure that you do that first.
+Одним из самых популярных инструментов для сканирования учетных записей SIP и взлома паролей является [SIPVicious](http://sipvicious.org/). Мы настоятельно рекомендуем вам взглянуть на него и использовать для аудита ваших собственных систем. Если ваша система доступна из интернета, другие, скорее всего, запустят SIPVicious против неё, поэтому убедитесь, что вы сделали это в первую очередь.
 
 ## Вывод—Лучший идиот
 
@@ -344,5 +355,5 @@ One of the most popular tools for SIP account scanning and password cracking is 
 
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396108536-marker) Реальный IP-адрес был заменен на 127.0.0.1 в записях лога.
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396052456-marker) Например, себя, потому что вы забыли определить ignoreip...
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396052456-marker) Например, себя, потому что вы забыли определить `ignoreip`...
 
