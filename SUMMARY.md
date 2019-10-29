@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Начальная страница](README.md)
+* [Asterisk: Окончательное руководство, 5 издание](README.md)
 * [Важные изменения](changelog.md)
 * [Вступление](foreword.md)
 * [Предисловие](preface.md)
