@@ -37,9 +37,9 @@ description: Голосовая почта
 
 Ранее в базе данных MySQL мы установили таблицу, необходимую для голосовой почты, и поэтому сейчас мы  можем создавать в ней почтовые ящики без какой-либо другой конфигурации. Однако, также можно создавать почтовые ящики в  конфигурационном файле /etc/asterisk/voicemail.conf \(в том числе в этом файле можно изменять различные настройки по умолчанию\). Мы продолжим использовать базу данных для создания пользователей и управления ими, поскольку она гораздо лучше подходит для этой задачи, но также  исследуем конфигурационный файл,  чтобы вы могли почувствовать гибкость настройки голосовой почты Asterisk.
 
-The voicemail.conf file contains several sections where various default parameters can be adjusted. For the most part, you won’t need to change any of these; however, you should take a look at the ~/src/asterisk-1.15.&lt;your version&gt;/configs/samples/voicemail.conf.sample file. It contains useful information about various options that can be adjusted.
+Файл voicemail.conf содержит несколько секций, в которых могут быть переопределены различные предустановленные параметры. В большинстве случаев вам не понадобится их менять; однако  вы можете  посмотреть в файл примера  ~/src/asterisk-1.15.&lt;your version&gt;/configs/samples/voicemail.conf.sample. Он содержит полезную информацию о различных настройках.
 
-We have provided a simple voicemail.conf file next. If you wish to tweak the basic configuration beyond this, simply add or edit the relevant option.
+Далее мы рассмотрим простейший voicemail.conf файл. Если у вас  возникнет желание доработать базовую конфигурацию, просто добавьте или измените соответствующие опции.
 
 ### An Initial voicemail.conf File
 
