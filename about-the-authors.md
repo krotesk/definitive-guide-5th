@@ -1,4 +1,4 @@
-# About the Authors
+# Об авторах
 
 **Jim Van Meggelen** is a founding partner and CTO of Clearly Core Inc., a Canada-based provider of open source telephony solutions. He has nearly 30 years of enterprise telecom experience, with extensive knowledge of both legacy telecom and VoIP.
 

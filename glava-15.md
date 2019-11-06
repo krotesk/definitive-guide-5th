@@ -2,7 +2,7 @@
 description: Интеграция реляционной базы данных
 ---
 
-# Глава 15
+# Глава 15. Интеграция реляционной базы данных
 
 Few things are harder to put up with than the annoyance of a good example.
 

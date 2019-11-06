@@ -2,7 +2,7 @@
 description: Состояния устройств
 ---
 
-# Глава 13
+# Глава 13. Состояния устройств
 
 Out of clutter, find simplicity.
 

@@ -2,36 +2,36 @@
 description: Голосовая почта
 ---
 
-# Глава 8
+# Глава 8. Голосовая почта
 
-> _Просто оставьте сообщение, может быть, я позвоню._ 
+> _Просто оставьте сообщение, может быть, я перезвоню._ 
 >
 > -- Джо Уолш
 
-Before email and instant messaging became ubiquitous, voicemail was a popular method of electronic messaging. Even though most people now prefer text-based messaging systems, voicemail remains an essential component of any PBX.
+До того как почта и мгновенные сообщения стали широко распространены, голосовая почта была очень популярна. Даже теперь, когда большинство людей предпочитает обмениваться текстовыми сообщениями, голосовая почта является важным компонентом любой телефонной станции.
 
-Asterisk has a reasonably flexible voicemail system named Comedian Mail.[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407606744) Voicemail in Asterisk is provided in the dialplan by the app\_voicemail.so module.
+В Астериск есть достаточно гибкая система голосовой почты называемая Comedian Mail \[^1\]. В диалплане она реализуется посредством модуля app\_voicemail.so.
 
-#### A Caveat About Voicemail in Asterisk
+#### Предупреждение о модуле голосовой почты в Астериск
 
-The app\_voicemail module is one of the oldest in Asterisk, and it suffers from many limitations, especially when compared to other modules that have enjoyed a steady evolution. The code itself is something few have the nerve to mess with, and thus new features for this module are unlikely to ever appear. You need to understand that app\_voicemail doesn’t just provide a dialplan application; there are all sorts of things that have to happen to ensure this all works, such as storage and file management, interaction with the email system of the operating system, time zone awareness, file formatting, security, plus a whole basket of various parameters that might need to be set. The app\_voicemail module does all of that, and as a result it ends up being a sort of kludgy subsystem \(on traditional PBXs, the voicemail was in fact a completely separate machine\).
+Модуль app\_voicemail один из старейших в Астериск, как следствие он имеет много ограничений, особенно если сравнивать его с другими, постоянно усовершенствуемыми модулями. Код модуля настолько устарел, что ни у кого не возникает желания с ним разбираться, и поэтому очень маловероятно появление в нем новых функций. Вы должны понимать что app\_voicemail не просто предоставляет элемент диалплана; для работы голосовой почты должно произойти много событий, например хранение и управление файлами, взаимодействие с почтовой системой операционной системы, распознавание временных зон, работы с форматами файлов, вопросы безопасности и еще куча вещей. И хотя app\_voicemail все это делает, в итоге получается довольно неуклюжая подсистема \(стоит заметить, что в традиционных АТС  для голосовой почты выделяется отдельная машина\).
 
-Numerous attempts have been made to re-engineer voicemail, but they’ve all come up short. The reasons are simple: the level of work \(and therefore cost\) required to re-engineer it \(in such a way as to satisfy the needs of a diverse community\), coupled with a lack of cultural interest in voicemail technology in general, have \(thus far\) quickly killed any such initiative.
+ Было предпринято множество попыток реинжинировать голосовую почту, но все они оказались неудачными. Причина проста: объем работ \(а следовательно и стоимость\), необходимых для перепроектирования модуля \(таким образом, чтобы удовлетворить потребности сообщества\), в сочетании с отсутствием интереса к технологии голосовой почты в целом, быстро убивали любую инициативу.
 
-It’s important to state that Asterisk voicemail works, and works well. You’ll probably find it suitable to your needs. If you don’t, the community will suggest that you are more than welcome to take a crack at re-engineering it.
+Тем не менее важно отметить, что голосовая почта в Астериск работает, и работает хорошо. Возможно, она даже удовлетворит ваши потребности. В ином случае сообщество будет более чем благодарно, если вы попытаетесь перепроектировать её.
 
-Some of the features of Asterisk’s voicemail system include:
+Вот некоторые функции, которые включает в себя модуль голосовой почты:
 
-* Unlimited password-protected voicemail boxes, each containing mailbox sub-folders for organizing voicemail
-* Different greetings for busy and unavailable states
-* Default and custom greetings
-* The ability to associate phones with more than one mailbox, and mailboxes with more than one phone
-* Email notification of voicemail, with the voicemail optionally attached as an audio file
-* Voicemail forwarding and broadcasts
-* Message-waiting indicator \(flashing light or stuttered dialtone\) on many types of phones
-* Company directory of employees, based on voicemail boxes
+* Неограниченное количество защищенных паролем ящиков голосовой почты, каждый из которых содержит подпапки для сортировки голосовой почты
+* Различные  приветствия для различных статусов, таких как "недоступен" или "занят"
+* Наличие  предустановленных приветствий и возможность создания собственных
+* Возможность ассоциирования телефонов с несколькими  почтовыми ящиками и почтового ящика с несколькими телефонами
+* Уведомление о голсовом сообщении на электронную почту,  опционально с прикрепленным  аудио файлом
+* Широковещательная голосовая почта и перенаправление голосовой почты
+* Индикатор ожидания сообщения  \(мигающий светодиод или специальный сигнал\) поддерживаемый на многих типах телефонов
+* Справочник сотрудников на основе голосовой почты
 
-We’re now going to take you on a tour of the essential parts of the voicemail configuration file, covering the settings in the general section, the various regional settings that are possible, integration of voicemail into your dialplan, and a brief under-the-hood look at how Asterisk stores voicemail in the Linux filesystem.
+Теперь давайте познакомимся с основными частями конфигурационного файла голосовой почты, включая настройки в разделе Общие, различными возможными региональными настройками, интеграцией голосовой почты в ваш dialplan и проведем краткий обзор того, как Asterisk хранит голосовую почту в файловой системе Linux.
 
 ## The voicemail.conf File
 

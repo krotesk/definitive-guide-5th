@@ -2,7 +2,7 @@
 description: 'Asterisk: A Future for Telephony'
 ---
 
-# Глава 23
+# Глава 23. Asterisk: Будущее телефонии
 
 > _Hey, I just met you,_
 >
