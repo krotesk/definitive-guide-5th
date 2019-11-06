@@ -12,7 +12,7 @@ This chapter discusses several peripheral features common to business telephone 
 
 First up, let’s copy the features.conf file over from the installation directory, and have a look at it:
 
-```text
+```
 $ sudo cp ~/src/asterisk-16.<TAB>/configs/samples/features.conf.sample \
 /etc/asterisk/features.conf
 $ sudo chown asterisk:asterisk /etc/asterisk/features.conf
@@ -422,7 +422,7 @@ In many organizations, there may be a need for both set-based and external pagin
 
 At this point you should have a list of the various channel types that you want to page. Since Page\(\) will nearly always want to signal more than one channel, we recommend setting a global variable in the \[globals\] section of your extensions.conf file that defines the list of channels to include, and then calling the Page\(\) application with that string:
 
-```text
+```
 [globals]
 MULTICAST=MulticastRTP/linksys/239.0.0.1:1234
 ;MULTICAST=MulticastRTP/linksys/239.0.0.1:1234/239.0.0.1:6061 ; if you have SPA phones
@@ -462,7 +462,7 @@ The bridge type defines the conference rooms themselves, the menu type defines m
 
 Let’s lay down a subroutine to get us started:
 
-```text
+```
 [subConference]
 exten => _[0-9].,1,Noop(Creating conference room for ${EXTEN})
  same => n,Goto(${ARG1})
@@ -498,7 +498,7 @@ We can set bridge, user, and menu parameters as in the preceding example. All of
 
 When we call the subroutine, we can pass the user as an argument. Place the following new code in your \[sets\] context after \_55512XX and before \*724:
 
-```text
+```
 exten => _55512XX,1,Answer()
  same => n,Playback(tt-monkeys)
 ; ConfBridge

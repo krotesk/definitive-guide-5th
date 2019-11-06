@@ -80,7 +80,7 @@ description: Сертификаты для безопасности конечн
 
 Мы запустим его следующим образом:
 
-```text
+```
 $ sudo su asterisk -
 $ mkdir /home/asterisk/certs
 $ openssl req -x509 -nodes -newkey rsa:2048 -days 3650 \
@@ -92,13 +92,13 @@ $ openssl req -x509 -nodes -newkey rsa:2048 -days 3650 \
 
 Вы можете добавить следующее в команду, чтобы обойти вопросы \(измените информацию в соответствии с вашей ситуацией\):
 
-```text
+```
 -subj "/C=CA/ST=Ontario/L=Toronto/O=ShiftEight/CN=shifteight.org"
 ```
 
 Полная команда будет выглядеть примерно так:
 
-```text
+```
 $ openssl req -x509 -nodes -newkey rsa:2048 -days 3650 \
 > -keyout /home/asterisk/certs/self-signed.key \
 > -out /home/asterisk/certs/self-signed.crt \
@@ -109,13 +109,13 @@ $ openssl req -x509 -nodes -newkey rsa:2048 -days 3650 \
 
 Вероятно, это хорошая идея, чтобы применить `chmod` к вашим сертификатам так, чтобы только соответствующий пользователь/группа могли получить к ним доступ:
 
-```text
+```
 $ chmod 640 /home/asterisk/certs/*
 ```
 
 Выйдите из аккаунта пользователя asterisk.
 
-```text
+```
 $ exit
 $ who am i # You should be astmin again.
 ```
@@ -132,13 +132,13 @@ $ who am i # You should be astmin again.
 
 `certbot` может быть установлен посредством yum следующим образом:
 
-```text
+```
 $ sudo yum -y install certbot
 ```
 
 После его установки Вам просто нужно выполнить следующее:
 
-```text
+```
 $ sudo certbot certonly
 How would you like to authenticate with the ACME CA?
 -------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 1
 
 При необходимости ответьте на следующие вопросы, а затем вставьте имя хоста, назначенное IP-адресу сервера:
 
-```text
+```
 Please enter in your domain name(s) (comma and/or space separated)  (Enter 'c' 
 to cancel): asteriskbook.shifteight.org
 ```
@@ -161,7 +161,7 @@ to cancel): asteriskbook.shifteight.org
 
 `certbot` будет выполнять свою магию, и если все прошло хорошо, вы должны получить сообщение похожее на следующее:
 
-```text
+```
 IMPORTANT NOTES:
  - Congratulations! Your certificate and chain have been saved at:
    /etc/letsencrypt/live/asteriskbook.shifteight.org/fullchain.pem

@@ -43,7 +43,7 @@ WebRTC обещает изменить все это.
 
 Для этого нам понадобится тип транспорта, который мы добавим в файл _/etc/asterisk/pjsip.conf_:
 
-```text
+```
 [transport-udp]
 type=transport
 protocol=udp
@@ -62,7 +62,7 @@ priv_key_file=/home/asterisk/certs/self-signed.key
 
 В таблицу ps\_aors необходимо добавить две записи:
 
-```text
+```
 INSERT into asterisk.ps_aors 
 (id, max_contacts) 
 values ('WS_PHONE_A', 5), 
@@ -72,7 +72,7 @@ values ('WS_PHONE_A', 5),
 
 Необходимы соответствующие записи ps\_auth:
 
-```text
+```
 INSERT into asterisk.ps_auths 
 (id, auth_type, password, username) 
 values ('WS_PHONE_A','userpass','spiderwrench','WS_PHONE_A'),
@@ -82,7 +82,7 @@ values ('WS_PHONE_A','userpass','spiderwrench','WS_PHONE_A'),
 
 Затем мы создадим сами конечные точки:
 
-```text
+```
 INSERT INTO asterisk.ps_endpoints  
  (id,aors,auth,context, 
  transport,dtls_auto_generate_cert,webrtc,disallow,allow) 
@@ -95,7 +95,7 @@ VALUES
 
 В [Главе 4](glava-04.md) мы уже создали наши сертификаты, поэтому должны иметь возможность использовать их здесь.
 
-```text
+```
 $ ls -l /home/asterisk/certs/
 ```
 
@@ -103,7 +103,7 @@ $ ls -l /home/asterisk/certs/
 
 Теперь нам нужно настроить веб-сервер Asterisk для обработки HTTPS.
 
-```text
+```
 $ sudo vim /etc/asterisk/http.conf
 [general]
 enabled=yes
@@ -117,13 +117,13 @@ tlsprivatekey=/home/asterisk/certs/self-signed.key
 
 Сохранимся и перезапустим Asterisk.
 
-```text
+```
 $ sudo service asterisk restart
 ```
 
 Убедитесь, что Asterisk теперь работает не только на HTTP-сервере, но и на HTTPS:
 
-```text
+```
 *CLI> http show status
 HTTP Server Status:
 Server Enabled and Bound to 0.0.0.0:8088
@@ -137,14 +137,14 @@ Enabled URI's:
 {% hint style="info" %}
 Подсказка: если он не работает, всегда проверяйте _/var/log/messages_ для любых сообщений SELinux.
 
-```text
+```
 $ sudo grep sealert /var/log/messages
 ```
 {% endhint %}
 
 Брандмауэр в настоящее время не настроен для этих портов, поэтому нам нужно добавить несколько правил для обработки:
 
-```text
+```
 $ sudo firewall-cmd --zone=public --add-port=8088/tcp
 $ sudo firewall-cmd --zone=public --add-port=8088/tcp --permanent
 $ sudo firewall-cmd --zone=public --add-port=8089/tcp
@@ -155,7 +155,7 @@ $ sudo firewall-cmd --zone=public --add-port=5061/udp --permanent
 
 На этом этапе вам нужно запустить веб-браузер и установить соединение. Ваш браузер будет жаловаться на соединение, если вы используете самоподписанный сертификат, но он позволит вам осуществить соединение. Это критический шаг, так как вы должны указать вашему браузеру хранить сертификат постоянно, так что WebRTC может использовать соединение WebSocket. Следующий URL-адрес соединит вас:
 
-```text
+```
 https://ip-of-asterisk-server:8089/ws
 ```
 
@@ -171,7 +171,7 @@ https://ip-of-asterisk-server:8089/ws
 
 Хорошо, теперь нам нужен диалаплан для приема наших звонков WebRTC:
 
-```text
+```
 $ vim /etc/asterisk/extensions.conf
 exten => 246,1,Noop()
   same => n,Answer()
@@ -186,7 +186,7 @@ exten => 246,1,Noop()
 
 Давайте воспользуемся им с нашего сервера Asterisk:
 
-```text
+```
 $ cd /var/lib/asterisk/static-http
 $ sudo git clone https://github.com/asterisk/cyber_mega_phone_2k.git
 $ sudo chown -R asterisk:asterisk cyber_mega_phone_2k ; sudo chmod 755 cyber_mega_phone_2k
@@ -194,7 +194,7 @@ $ sudo chown -R asterisk:asterisk cyber_mega_phone_2k ; sudo chmod 755 cyber_meg
 
 Нам понадобится небольшое изменение в конфигурации HTTP-сервера Asterisk, чтобы он мог обслуживать статический контент.
 
-```text
+```
 $ sudo vim /etc/asterisk/http.conf 
 [general]
 enabled=yes
@@ -210,7 +210,7 @@ redirect=/cmp2k /static/cyber_mega_phone_2k/index.html
 
 Сохраните и перезагрузите http-модуль из консоли Asterisk:
 
-```text
+```
 *CLI> module reload http
 ```
 
