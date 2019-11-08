@@ -191,7 +191,7 @@ Attached to: **Bridged Adapter**
 
 Следующие команды можно ввести из командной строки или добавить в простой скрипт оболочки и выполнить таким образом.
 
-```
+```text
 sudo yum -y update &&
 sudo yum -y install epel-release &&
 sudo yum -y install python-pip &&
@@ -236,7 +236,7 @@ Asterisk официально поставляется в виде архива 
  Когда вы видите, что мы указываем &lt;TAB&gt; в имени файла, то мы имеем в виду, что вы должны нажать клавишу Tab на клавиатуре и разрешить автозаполнение, чтобы заполнить то, что она может. Затем следует остальная часть набора текста.
 {% endhint %}
 
-```
+```text
 $ mkdir ~/src
 $ cd ~/src
 $ wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-16-current.tar.gz
@@ -246,7 +246,7 @@ $ cd asterisk-16.<TAB> # вкладка должна заполниться ав
 
 Теперь мы можем выполнить несколько предварительных условий, определенных командой Asterisk, а также проверить среду:
 
-```
+```text
 $ cd contrib/scripts (or cd ~/src/asterisk-16.<TAB>/contrib/scripts
 $ sudo ./install_prereq install # asterisk has a few prerequisites that this simplifies
 $ cd ../..
@@ -257,7 +257,7 @@ Asterisk теперь готов к компиляции и установке, 
 
 ### Компиляция и установка
 
-```
+```text
 $ make menuselect
 ```
 
@@ -292,7 +292,7 @@ Save and Exit \(Сохранить и выйти\).
 
 Еще три команды и Asterisk установлена:
 
-```
+```text
 $ make # это займет несколько минут
  # (в зависимости от скорости вашей системы)
 $ sudo make install # вы должны запустить это с повышенными привилегиями
@@ -309,7 +309,7 @@ _Перезагрузите систему._
 
 Как только загрузка будет завершена, войдите в систему как пользователь `astmin` и временно установите SELinux на `Permissive` \(после каждой загрузки он будет возвращаться к `Enforcing`, поэтому до тех пор, пока мы не разобрались с частью установки SELinux, это должно происходить на каждой загрузке\):
 
-```
+```text
 $ sudo setenforce Permissive
 $ sudo sestatus
 ```
@@ -318,7 +318,7 @@ $ sudo sestatus
 
 Убедитесь, что Asterisk работает со следующей командой:
 
-```
+```text
 $ ps -ef | grep asterisk
 ```
 
@@ -336,7 +336,7 @@ Asterisk configuration files use the semicolon \(;\) character for comments, pri
 
 The modules.conf file gives you fine-grained control over what modules Asterisk will \(and will not\) load. It’s usually not necessary to explicitly define each module in this file, but you could if you wanted to. We’re going to create a very simple file like this:
 
-```
+```text
 $ sudo chown asterisk:asterisk /etc/asterisk ; sudo chmod 664 /etc/asterisk
 $ sudo -u asterisk vim /etc/asterisk/modules.conf
 [modules]
@@ -349,7 +349,7 @@ We’re using ODBC to load many of the configurations of other modules, and we n
 
 Next up, we’re going to tweak the _logger.conf_ file just a bit from the defaults.
 
-```
+```text
 $ sudo -u asterisk vim /etc/asterisk/logger.conf
 [general]
 exec_after_rotate=gzip -9 ${filename}.2;
@@ -369,7 +369,7 @@ You will notice that many lines are commented out. They’re there as a referenc
 
 The next file, asterisk.conf, defines various folders needed for normal operation, as well as parameters needed to run as the asterisk user:
 
-```
+```text
 $ sudo -u asterisk vim /etc/asterisk/asterisk.conf
 [directories](!)
 astetcdir => /etc/asterisk
@@ -452,7 +452,7 @@ Alembic is not used by Asterisk, so the configuration you’ve just performed do
 
 Log into the database now, and review all the tables that have been created:
 
-```
+```text
 $ mysql -u asterisk -p
 mysql> use asterisk;
 mysql> show tables;
@@ -460,7 +460,7 @@ mysql> show tables;
 
 You should see a list similar to this:
 
-```
+```text
 | alembic_version_config      |
 | extensions                  |
 | iaxfriends                  |
@@ -642,7 +642,7 @@ bind=0.0.0.0
 
 Finally, let’s log into the database, and define some sample configurations for PJSIP:
 
-```
+```text
 ---
 - hosts: starfish
   become: yes
@@ -845,7 +845,7 @@ Finally, let’s log into the database, and define some sample configurations fo
 
 Запустите playbook с помощью следующей команды:
 
-```
+```text
 $ ansible-playbook ~/ansible/playbooks/starfish.yml
 ```
 
@@ -853,13 +853,13 @@ $ ansible-playbook ~/ansible/playbooks/starfish.yml
 
 Как только Ansible выполнит назначенные задачи, убедитесь что ODBC может подключиться к базе данных с использованием учетных данных пользователя `asterisk`.
 
-```
+```text
 $ echo "select 1" | isql -v asterisk asterisk password
 ```
 
 Вы должны увидеть результат что-то вроде этого:
 
-```
+```text
 +---------------------------------------+
 | Connected!                            |
 | sql-statement                         |

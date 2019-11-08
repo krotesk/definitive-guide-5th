@@ -136,53 +136,57 @@ Table 2-5. Популярные драйверы каналов
 
 | Имя | Назначение |
 | :--- | :--- |
-| chan\_bridge | Used internally by the ConfBridge\(\) application; should not be used directly |
-| chan\_dahdi | Provides connection to PSTN cards that use DAHDI channel drivers |
-| chan\_local | Provides a mechanism to treat a portion of the dialplan as a channel |
-| chan\_motif | Implements the Jingle protocol, including the ability to connect to Google Talk and Google Voice; introduced in Asterisk 11 |
-| chan\_multicast\_rtp | Provides connection to multicast Realtime Transport Protocol \(RTP\) streams |
-| chan\_pjsip | Session Initiation Protocol \(SIP\) channel driver |
+| chan\_bridge | Используется внутри приложения ConfBridge\(\); не должен использоваться напрямую |
+| chan\_dahdi | Обеспечивает подключение к картам ТфОП, использующим драйверы каналов DAHDI |
+| chan\_local | Предоставляет механизм для обработки части диалплана как канала |
+| chan\_motif | Реализует протокол Jingle, включая возможность подключения к Google Talk и Google Voice; представлен в Asterisk 11 |
+| chan\_multicast\_rtp | Обеспечивает подключение к потокам многоадресного Realtime Transport Protocol \(RTP\) |
+| chan\_pjsip | Драйвер канала Session Initiation Protocol \(SIP\) |
 
 ### Трансляторы кодеков
 
-The codec[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178409283960) translators \(often called transcoders\) allow Asterisk to convert audio stream formats between calls. So if a call comes in on a PRI circuit \(using G.711\) and needs to be passed out a compressed SIP channel \(e.g., using G.729, one of many codecs that SIP can handle\), the relevant codec translator would perform the conversion.
+Трансляторы кодеков[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178409283960) \(часто называемые транскодерами\) позволяют Asterisk конвертировать форматы аудиопотоков между вызовами. Поэтому, если вызов поступает по каналу PRI \(используя G.711\) и должен быть передан в сжатый канал SIP \(например, используя G.729, один из многих кодеков, которые может обрабатывать SIP\), соответствующий транслятор кодека выполнит преобразование.
 
-Codecs are complex algorithms that handle conversion of analog information \(sound, in this case, but could be video as well\) into a digital format. Many codecs provide compression and error correction as well, but this is not a requirement.
+Кодеки-это сложные алгоритмы, которые обрабатывают преобразование аналоговой информации \(в данном случае звука, но также может быть и видео\) в цифровой формат. Многие кодеки также обеспечивают сжатие и исправление ошибок, но это не является обязательным требованием.
 
-**Note**
+{% hint style="info" %}
+**Примечание**
 
-If a codec \(such as G.729\) uses a complex encoding algorithm, heavy use of transcoding can place a massive burden on the CPU. Specialized hardware for the decoding/encoding of G.729 is available from hardware manufacturers such as Sangoma and Digium \(and likely others\).
+Если кодек \(например G.729\) использует сложный алгоритм кодирования, интенсивное использование транскодинга может создать огромную нагрузку на процессор. Специализированное оборудование для декодирования/кодирования G.729 доступно от производителей оборудования, таких как Sangoma и Digium \(и, вероятно, других\).
+{% endhint %}
 
-Asterisk does a fairly good job of supporting codecs, but is mostly focused on the codecs typically used by telephone applications \(as opposed to codes used for, say, music or video such as MP3 or MP4\). These are listed in [Table 2-6](Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition/2.%20Asterisk%20Architecture%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Architecture_id292600).
+Asterisk делает довольно хорошую работу по поддержке кодеков, но в основном сосредоточен на кодеках, обычно используемых телефонными приложениями \(в отличие от кодеков, используемых, скажем, для музыки или видео, таких как MP3 или MP4\). Они перечислены в [Таблице 2-6](Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition/2.%20Asterisk%20Architecture%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Architecture_id292600).
 
-Table 2-6. Common codec translators
+Таблица 2-6. Общие трансляторы кодеков
 
-| Name | Purpose |
+| Имя | Назначение |
 | :--- | :--- |
-| codec\_alaw | A-law PCM codec used all over the world on the PSTN \(except Canada/USA\). This codec \(along with ulaw\) should be enabled on all your channels. |
-| codec\_g729 | Was until recently a patented codec, but is now royalty-free. As of this writing it is still sold by Digium as an add-on, but it can also be found as a free package. It’s a very popular codec if compression is desired \(and CPU use is not an issue\), but it imposes load on the CPU, adds latency to calls, reduces quality slightly, and will not reduce overhead in any way. |
-| codec\_a\_mu | A-law to mu-law direct converter. |
-| codec\_g722 | Wideband audio codec. |
-| codec\_gsm | Global System for Mobile Communications \(GSM\) codec. Very poor sound quality. |
-| codec\_ilbc | Internet Low Bitrate Codec. |
-| codec\_lpc10 | Linear Predictive Coding vocoder \(extremely low bandwidth\). |
-| codec\_opus | Intended to replace speex \(and vorbis\). |
-| codec\_resample | Resamples between 8-bit and 16-bit signed linear. |
-| codec\_speex | Speex codec. |
-| codec\_ulaw | Mu-law PCM codec used on PSTN in Canada/USA. It’s more formally written as μ-law, but not many people have a Greek letter μ on their keyboard, so it’s popularly written as ulaw.[a](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178403326376) This is often the default codec, and should be enabled on all your channels. |
-| [a](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178403326376-marker) Spoken, you should say “mew-law,” but again, you’ll hear this pronounced “you-law” very often. |  |
+| codec\_alaw | Кодек PCM A-law используется во всем мире на ТфОП \(кроме Канады/США\). Этот кодек \(вместе с ulaw\) должен быть включен на всех ваших каналах. |
+| codec\_g729 | До недавнего времени это был запатентованный кодек, но теперь он является бесплатным. На момент написания этой статьи он по-прежнему продается Digium в качестве дополнения, но его также можно найти в виде бесплатного пакета. Это очень популярный кодек, если требуется сжатие \(и использование процессора не является проблемой\), но он накладывает нагрузку на процессор, добавляет задержку к вызовам, немного снижает качество и никоим образом не уменьшает накладные расходы. |
+| codec\_a\_mu | Прямой конвертер A-law в mu-law. |
+| codec\_g722 | Широкополосный аудиокодек. |
+| codec\_gsm | Кодек Global System for Mobile Communications \(GSM\). Очень низкое качество звука. |
+| codec\_ilbc | Интернет-кодек с низким битрейтом \(iLBC\). |
+| codec\_lpc10 | Линейный предсказательный кодирующий вокодер \(чрезвычайно низкая пропускная способность\). |
+| codec\_opus | Предназначен для замены speex \(и vorbis\). |
+| codec\_resample | Пересемлирование между 8-ми и 16-тибитными линейными сигналами. |
+| codec\_speex | Кодек Speex. |
+| codec\_ulaw | Кодек PCM Mu-law, используемый на ТфОП в Канаде/США. Это более формально написано как μ-закон, но не у многих людей есть греческая буква μ на клавиатуре, поэтому обычно пишется как ulaw.a Часто является кодеком по умолчанию, и должен быть включен на всех ваших каналах. |
+| [a](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178403326376-marker) Произносится как  “мью-лоу,” но так же вы часто будете слышать как "ю-лоу". |  |
 
-**Tip**
+{% hint style="info" %}
+**Совет**
 
-Digium distributes some additional useful codec modules: codec\_g729, codec\_silk, codec\_siren7, and codec\_siren14. These codec modules are not open source for various reasons. You must purchase a license to use codec\_g729, but the others are free. You can find them on the [Digium site](http://bit.ly/ZKRPYR).
+Digium предоставляет некоторые дополнительные полезные модули кодеков: codec\_g729, codec\_silk, codec\_siren7 и codec\_siren14. Эти модули кодеков не являются open source по различным причинам. Вы должны приобрести лицензию на использование codec\_g729, но остальные являются бесплатными. Вы можете найти их на [сайте Digium](http://downloads.digium.com/pub/telephony/).
+{% endhint %}
 
-### Format Interpreters
+### Интерпретаторы формата
 
 Format interpreters \([Table 2-7](Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition/2.%20Asterisk%20Architecture%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Architecture_id292825)\) perform a similar function as codec translators, but they do their work on files rather than channels, and handle more than just audio. If you have a recording on a menu that has been stored as GSM, you would need to use a format interpreter to play that recording to any channels not using the GSM codec.[4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178403315272)
 
 If you store a recording in several formats simultaneously \(such as WAV, GSM, etc.\), Asterisk will determine the least costly format[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch02.html%22%20/l%20%22idm46178403313864) to use when a channel needs to play that recording.
 
-Table 2-7. Format interpreters
+Таблица 2-7. Format interpreters
 
 | Name | Plays files stored in |
 | :--- | :--- |
