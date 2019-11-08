@@ -294,9 +294,9 @@ Save and Exit \(Сохранить и выйти\).
 
 ```text
 $ make # это займет несколько минут
- # (в зависимости от скорости вашей системы)
+       # (в зависимости от скорости вашей системы)
 $ sudo make install # вы должны запустить это с повышенными привилегиями
-$ sudo make config # и это
+$ sudo make config  # и это
 ```
 
 {% hint style="danger" %}
@@ -324,17 +324,17 @@ $ ps -ef | grep asterisk
 
 Вы можете увидеть, что демон `/user/sbin/asterisk` запущен \(в настоящее время как пользователь `root`, но мы исправим это в ближайшее время\). Asterisk теперь установлен и работает; однако, есть несколько параметров конфигурации, которые нам нужно сделать, прежде чем система будет полезна.
 
-### Initial Configuration
+### Начальная конфигурация
 
-Asterisk stores its configuration files in the /etc/asterisk folder by default. The Asterisk process itself doesn’t need any configuration files in order to run; however, it will not be usable yet, since none of the features it provides have been specified. We’re going to handle a few of the initial configuration tasks now.
+По умолчанию Asterisk сохраняет свои конфигурационные файлы в директории _/etc/asterisk_. Сам процесс Asterisk для запуска не нуждается в каких-либо файлах конфигурации; однако он пока не будет использоваться, поскольку ни одна из функций, которые он предоставляет, не была указана. Сейчас мы займемся некоторыми задачами начальной настройки.
 
 {% hint style="info" %}
-**Note**
+**Примечание**
 
-Asterisk configuration files use the semicolon \(;\) character for comments, primarily because the hash character \(\#\) is a valid character on a telephone number pad.
+Файлы конфигурации Asterisk используют символ точки с запятой \(;\) для комментариев, главным образом потому, что хэш-символ \(\#\) является допустимым символом на телефонной клавиатуре.
 {% endhint %}
 
-The modules.conf file gives you fine-grained control over what modules Asterisk will \(and will not\) load. It’s usually not necessary to explicitly define each module in this file, but you could if you wanted to. We’re going to create a very simple file like this:
+Файл _modules.conf_ дает вам полный контроль над тем, какие модули Asterisk будут \(и не будут\) загружаться. Обычно нет необходимости явно определять каждый модуль в этом файле, но вы можете это сделать если захотите. Мы собираемся создать очень простой файл, как например:
 
 ```text
 $ sudo chown asterisk:asterisk /etc/asterisk ; sudo chmod 664 /etc/asterisk
@@ -345,9 +345,9 @@ preload=res_odbc.so
 preload=res_config_odbc.so
 ```
 
-We’re using ODBC to load many of the configurations of other modules, and we need this connector available before Asterisk attempts to load anything else, so we’ll pre-load it.
+Мы используем ODBC для загрузки многих конфигураций других модулей, и нам нужно, чтобы этот коннектор был доступен до того, как Asterisk попытается загрузить что-либо еще, поэтому мы предварительно загрузим его. 
 
-Next up, we’re going to tweak the _logger.conf_ file just a bit from the defaults.
+Далее, мы собираемся подкорректировать файл _logger.conf_ предоставляемый по умолчанию.
 
 ```text
 $ sudo -u asterisk vim /etc/asterisk/logger.conf
@@ -365,9 +365,9 @@ full => notice,warning,error,debug,verbose,dtmf,fax
 ;syslog.local0 => notice,warning,error
 ```
 
-You will notice that many lines are commented out. They’re there as a reference, because you’ll find when debugging your system you may want to frequently tweak this file. We’ve found it’s easier to have a few handy lines prepared and commented out, rather than having to look up the syntax each time.
+Вы заметите, что многие строки закомментированы. Они здесь для справки, потому что как выяснится при отладке системы вы можете часто настраивать этот файл. Мы выяснили, что лучше подготовить и закомментировать несколько строк, чем искать синтаксис каждый раз.
 
-The next file, asterisk.conf, defines various folders needed for normal operation, as well as parameters needed to run as the asterisk user:
+Следующий файл, _asterisk.conf,_ определяющий различные директории, необходимые для нормальной работы, а также параметры, необходимые для запуска от имени пользователя `asterisk`:
 
 ```text
 $ sudo -u asterisk vim /etc/asterisk/asterisk.conf
@@ -388,69 +388,77 @@ runuser = asterisk ; The user to run as. The default is root.
 rungroup = asterisk ; The group to run as. The default is root
 ```
 
-We’ll configure more files later on, but these are all we need for the time being.
+Мы настроим остальные файлы позже, а пока это все, что нам нужно на данный момент.
 
-Let’s update the ownership of the files so the asterisk user has proper access to them.
+Давайте обновим права владельца на файлы, чтобы пользователь `asterisk` имел к ним надлежащий доступ.
 
+```text
 $ sudo chown -R asterisk:asterisk {/etc,/var/lib,/var/spool,/var/log,/var/run}/asterisk
+```
 
-We also may need to add a rule to the /etc/tmpfiles.d folder, to allow Asterisk to create a socket at runtime.
+Также может понадобится добавить правило в директорию _/etc/tmpfiles.d_ для разрешения Asterisk создавать сокет во время выполнения.
 
+```text
 $ sudo vim /etc/tmpfiles.d/asterisk.conf
-
 d /var/run/asterisk 0775 asterisk asterisk
+```
 
-\(See man tmpfiles.d for more information.\)
+\(Смотри `man tmpfiles.d` для большей информации\)
 
-Next up, we’re going to initialize the database with the tables Asterisk needs for ODBC-based configuration.
+Далее мы инициализируем базу данных таблицами, необходимыми Asterisk для настройки на основе ODBC.
 
-The Asterisk source files include a contribution that the Digium folks maintain as part of Asterisk, in order to version-control the database tables needed. This greatly simplifies keeping the database correct through the upgrade process.
+Исходные файлы Asterisk включают в себя вклад, который люди Digium поддерживают как часть Asterisk для управления версиями необходимых таблиц базы данных. Это значительно упрощает поддержание корректности базы данных в процессе обновления.
 
-Navigate to the relevant directory and make a copy of the configuration file.
+Перейдите в соответствующий каталог и сделайте копию файла конфигурации.
 
-$ cd ~/src/asterisk-16.&lt;TAB&gt;/contrib/ast-db-manage
-
+```text
+$ cd ~/src/asterisk-16.<TAB>/contrib/ast-db-manage
 $ cp config.ini.sample config.ini
+```
 
-Now, we’re going to open the file and give it the credentials for our database \(which are defined in the Ansible playbook named starfish.yml, under the variable current\_mysql\_asterisk\_password, which we used at the beginning of this chapter\):
+Теперь мы собираемся открыть файл и предоставить ему учетные данные для нашей базы данных \(которые определены в Ansible playbook с именем _starfish.yml_, под переменной `current_mysql_asterisk_password`, которую мы использовали в начале этой главы\):
 
+```text
 $ vim config.ini
+```
 
-Find the lines that look similar to this:
+Найдите строки, которые выглядят примерно так:
 
-\#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
-
+```text
+#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
 sqlalchemy.url = mysql://user:pass@localhost/asterisk
 
-\# Logging configuration
-
-\[loggers\]
-
+# Logging configuration
+[loggers]
 keys = root,sqlalchemy,alembic
 
-Make a copy of it, comment it out, and edit it with the correct credentials:
+```
 
-\#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
+Сделайте его копию, раскомментируйте и отредактируйте с правильными учетными данными:
 
-\#sqlalchemy.url = mysql://user:pass@localhost/asterisk
-
+```text
+#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
+#sqlalchemy.url = mysql://user:pass@localhost/asterisk
 sqlalchemy.url = mysql://asterisk:YouNeedAReallyGoodPasswordHereToo@localhost/asterisk
 
-\# Logging configuration
-
-\[loggers\]
-
+# Logging configuration
+[loggers]
 keys = root,sqlalchemy,alembic
+```
 
-Now, with that very simple bit of configuration, we can use Alembic to automagically configure the database perfectly for Asterisk \(this used to be somewhat painful to do in past versions of Asterisk\):
+Теперь, с этим очень простым битом конфигурации, мы можем использовать Alembic для автоматической настройки базы данных идеально для Asterisk \(это было несколько болезненно делать в прошлых версиях Asterisk\):
 
+```text
 $ alembic -c ./config.ini upgrade head
+```
 
-**Note**
+{% hint style="info" %}
+**Подсказка**
 
-Alembic is not used by Asterisk, so the configuration you’ve just performed does not allow Asterisk to use the database. All it does is run a script that creates the schema and tables Asterisk will use \(you could do this manually as well, but trust us, you want Alembic to handle this\). It’s part of the install/upgrade process. It’s especially useful if you have live tables, with real data in them, and want to be able to upgrade and retain the relevant configuration.
+Перегонный куб не используется Asterisk, поэтому конфигурация, которую вы только что выполнили, не позволяет Asterisk использовать базу данных. Все, что он делает, это запускает скрипт, который создает схему и таблицы, которые будет использовать Asterisk \(вы также можете сделать это вручную, но поверьте нам, лучше чтобы Alembic справился с этим\). Это часть процесса установки/обновления. _Это особенно полезно, если у вас есть живые таблицы с реальными данными в них, и вы хотите иметь возможность обновить и сохранить соответствующую конфигурацию._
+{% endhint %}
 
-Log into the database now, and review all the tables that have been created:
+Войдите в базу данных и просмотрите все созданные таблицы:
 
 ```text
 $ mysql -u asterisk -p
@@ -458,7 +466,7 @@ mysql> use asterisk;
 mysql> show tables;
 ```
 
-You should see a list similar to this:
+Вы должны увидеть список, похожий на этот:
 
 ```text
 | alembic_version_config      |
