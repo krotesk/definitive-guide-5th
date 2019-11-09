@@ -43,45 +43,34 @@ description: Голосовая почта
 
 ### An Initial voicemail.conf File
 
-We recommend the following sample as a starting point. You can refer to ~/asterisk-complete/asterisk/11/configs/voicemail.conf.sample for details on the various settings.
+Мы рекомендуем использовать следующий пример кофигурации как базовый. Вы можете ознакомиться с файлом ~/asterisk-complete/asterisk/11/configs/voicemail.conf.sample для детализации различных настроек.
 
-Place the following in a file named /etc/asterisk/voicemail.conf:
+Разместите следующий код в файле /etc/asterisk/voicemail.conf:
 
+```text
 ; Voicemail Configuration
-
-\[general\]
-
-format=wav49\|wav
-
+[general]
+format=wav49|wav
 serveremail=voicemail@shifteight.org
-
 attach=yes
-
 skipms=3000
-
 maxsilence=10
-
 silencethreshold=128
-
 maxlogins=3
-
 emaildateformat=%A, %B %d, %Y at %r
-
 pagerdateformat=%A, %B %d, %Y at %r
-
 sendvoicemail=yes ; Allow the user to compose and send a voicemail while inside
+[zonemessages]
+eastern=America/New_York|'vm-received' Q 'digits/at' IMp
+central=America/Chicago|'vm-received' Q 'digits/at' IMp
+central24=America/Chicago|'vm-received' q 'digits/at' H N 'hours'
+military=Zulu|'vm-received' q 'digits/at' H N 'hours' 'phonetic/z_p'
+european=Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
+```
 
-\[zonemessages\]
-
-eastern=America/New\_York\|'vm-received' Q 'digits/at' IMp
-
-central=America/Chicago\|'vm-received' Q 'digits/at' IMp
-
-central24=America/Chicago\|'vm-received' q 'digits/at' H N 'hours'
-
-military=Zulu\|'vm-received' q 'digits/at' H N 'hours' 'phonetic/z\_p'
-
-european=Europe/Copenhagen\|'vm-received' a d b 'digits/at' HM
+{% hint style="info" %}
+Настройка Linux сервера для отсылки  почтовых сообщений  администратору
+{% endhint %}
 
 **Note**
 
