@@ -1,55 +1,51 @@
----
-description: Интернационализация
----
-
 # Глава 9. Интернационализация
 
-> **David Duffett**
+> **Дэвид Дюффетт**
 >
-> _English? Who needs to spend time learning that? I’m never going to England!_
+> _Английский? Кто должен тратить время на его изучение? Я никогда не поеду в Англию!_
 >
-> -- Dan Castellaneta
+> -- Дэн Касталланета
 
-Telephony is one of those areas of life where, whether at home or at work, people do not like surprises. When people use phones, anything outside of the norm is an expectation not met, and as someone who is probably in the business of supplying telephone systems, you will know that expectations going unmet can lead to untold misery in terms of the extra work, lost money, and other problems that are associated with customer dissatisfaction.
+Телефония - одна из тех сфер жизни, где люди не любят сюрпризов, будь они дома или на работе. Когда люди пользуются телефонами, все, что выходит за рамки нормы, не оправдывается, и, как человек, который, вероятно занимается поставками телефонных систем, вы будете знать, что неудовлетворенные ожидания могут привести к неописуемым страданиям с точки зрения дополнительной работы, потерянных денег и других проблем, связанных с недовольством клиентов.
 
-In addition to ensuring that the user experience is in keeping with what users expect, there is also the need to make your Asterisk feel “at home.” For example, if an outbound call is placed over an analog line \(FXO\), Asterisk will need to interpret the tones that it “hears” on the line \(busy, ringing, etc.\).
+Помимо того, что пользовательский интерфейс соответствует тому, что ожидают пользователи, также необходимо, чтобы ваш Asterisk чувствовал себя «как дома». Например, если исходящий вызов сделан по аналоговой линии \(FXO\), Asterisk будет нужно интерпретировать тоны, которые он «слышит» на линии \(занято, вызов и т.д.\).
 
-By default \(and maybe as one might expect, since it was “born in the USA”\), Asterisk is configured to work within North America. However, since Asterisk gets deployed in many places and \(thankfully\) people from all over the world make contributions to it, it is quite possible to tune Asterisk for correct operation just about anywhere you choose to deploy it.
+По умолчанию \(а возможно, как и следовало бы ожидать, поскольку он был “рожден в США”\), Asterisk настроен на работу в Северной Америке. Однако, поскольку Asterisk развертывается во многих местах и \(к счастью\) люди со всего мира вносят свой вклад в него, вполне возможно настроить Asterisk для правильной работы практически в любом месте, где вы решите его развернуть. 
 
-If you have been reading this book from the beginning, chapter by chapter, you will have already made some choices during installation and in the initial configuration that will have set up your Asterisk to work in your local area \(and live up to your customers’ expectations\).
+Если вы читали эту книгу с самого начала - глава за главой, вы уже сделали некоторый выбор во время установки и начальной конфигурации, которая настроила ваш Asterisk для работы в вашем регионе \(и оправдает ожидания ваших клиентов\). 
 
-Quite a few of the chapters in this book contain information that will help you internationalize[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html%22%20/l%20%22idm46178407219928) or \(perhaps more properly\) localize your Asterisk implementation. The purpose of this chapter is to provide a single place where all aspects of the changes that need to be made to your Asterisk-based telephone system in this context can be referenced, discussed, and explained. The reason for using the phrase “Asterisk-based telephone system” rather than just “Asterisk” is that some of the changes will need to be made in other parts of the system \(IP phones, ATAs, etc.\), while other changes will be implemented within Asterisk and DAHDI configuration files.
+Довольно много глав в этой книге содержат информацию, которая поможет вам интернационализировать[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html#idm46178407219928) или \(возможно, более правильно\) локализовать вашу реализацию Asterisk. Цель этой главы - обеспечить единое место, куда можно будет ссылаться, обсуждать и объяснять все аспекты изменений, которые необходимо внести в телефонную систему на базе Asterisk в этом контексте. Причина использования фразы "телефонная система на основе Asterisk", а не просто” Asterisk", заключается в том, что некоторые изменения необходимо будет внести в другие части системы \(IP-телефоны, ATAs и т. д.\), в то время как другие изменения будут реализованы в конфигурационных файлах Asterisk и DAHDI. 
 
-Let’s start by getting a list together \(in no particular order\) of the things that may need to be changed in order to optimize your Asterisk-based telephone system for a given location outside of North America. You can shout some out if you like…
+Давайте начнем с составления списка \(не в определенном порядке\) вещей, которые возможно потребуется изменить для оптимизации вашей телефонной системы на основе Asterisk для данного местоположения за пределами Северной Америки. Вы можете выкрикнуть что-нибудь ещё, если хотите.…
 
-* Language/accent of the prompts
-* Physical connectorization for PSTN interfaces \(FXO, BRI, PRI\)
-* Tones heard by users of IP phones and/or ATAs
-* Caller ID format sent and/or received by analog interfaces
-* Tones for analog interfaces to be supplied or detected by Asterisk
-* Format of time/date stamps for voicemail
-* The way the above time/date stamps are announced by Asterisk
-* Patterns within the dialplan \(of IP phones, ATAs, and Asterisk itself if you are using the sample dialplan\)
-* The way to indicate to an analog device that voicemail is waiting \(MWI\)
-* Tones supplied to callers by Asterisk \(these come into play once a user is “inside” the system; e.g., the tones heard during a call transfer\)
+* Язык/акцент подсказок
+* Физическое подключение для интерфейсов ТфОП \(FXO, BRI, PRI\)
+* Тоны, слышимые пользователями IP-телефонов и/или ATA
+* Формат идентификатора вызывающего абонента \(CallerID\), передаваемый и/или принимаемый аналоговыми интерфейсами
+* Сигналы для аналоговых интерфейсов, подаваемые или определяемые Asterisk
+* Формат меток времени/даты для голосовой почты
+* Способ, которым вышеуказанные метки времени/даты объявляются системой Asterisk
+* Шаблоны в диалплане \(IP-телефонов, ATA и самой Asterisk, если вы используете образец диалплана\) 
+* Способ указания аналоговому устройству об ожидании голосовой почты \(MWI\)
+* Тоны, подаваемые абонентам Asterisk \(они вступают в игру, когда пользователь находится “внутри " системы; например, тоны, услышанные во время трансфера вызова\)
 
-We’ll cover everything in this list, adopting a strategy of working from the outer edge of the system toward the very core \(Asterisk itself\). We will conclude with a handy checklist of what you may need to change and where to change it.
+Мы рассмотрим все в этом списке, приняв стратегию работы от внешнего края системы к самому ядру \(самой Asterisk\). Мы закончим с удобным контрольным списком того, что вам может понадобится изменить и где это сделать. 
 
-Although the principles discussed in this chapter will allow you to adapt your Asterisk installation specifically for your region \(or that of your customer\), for the sake of consistency, all of our examples will focus on how to adapt Asterisk for one region: the United Kingdom.
+Хотя принципы, описанные в этой главе, позволят вам адаптировать установку Asterisk специально для вашего региона \(или для вашего клиента\), для обеспечения согласованности все наши примеры будут сосредоточены на том, как адаптировать Asterisk для одного региона: Соединенного Королевства.
 
-## Devices External to the Asterisk Server
+## Внешние устройства по отношению к серверу Asterisk
 
-There are massive differences between a good old-fashioned analog telephone and any one of the large number of IP phones out there, and we need to pick up on one of the really fundamental differences in order to throw light on the next explanation, which covers the settings we might need to change on devices external to Asterisk, such as IP phones.
+Существуют огромные различия между хорошим старомодным аналоговым телефоном и любым из большого количества IP-телефонов, и нам нужно подобрать одно из действительно фундаментальных различий, чтобы пролить свет на следующее объяснение, которое охватывает настройки, которые нам, возможно, придется изменить на устройствах, внешних по отношению к Asterisk, таких как IP-телефоны. 
 
-Have you ever considered the fact that an analog phone is a totally dumb device \(we know that a basic model is very, very cheap\) that needs to connect to an intelligent network \(the PSTN\), whereas an IP phone \(e.g., SIP or IAX2\) is a very intelligent device that connects to a dumb network \(the internet or any regular IP network\)? Figures [9-1](9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22smart_network) and [9-2](9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22dumb_network) illustrate the difference.
+Вы когда-нибудь задумывались о том, что аналоговый телефон - это совершенно немое устройство \(мы знаем, что базовая модель очень, очень дешевая\), которое должно подключаться к интеллектуальной сети \(ТфОП\), тогда как IP-телефон \(например, SIP или IAX2\) - это очень умное устройство, которое подключается к немой сети \(Интернет или любая обычная IP-сеть\)? Рисунки 9-1 и 9-2 проиллюстрируют разницу.
 
 ![](.gitbook/assets/0%20%289%29.png)
 
-#### Figure 9-1. The old days: dumb devices connect to a smart network
+**Рисунок 9-1. Старые времена: немые устройства подключаются к умной сети**
 
 ![](.gitbook/assets/1%20%286%29.png)
 
-#### Figure 9-2. The situation today: smart devices connect through a dumb network
+**Рисунок 9-2. Ситуация на сегодняшний день: умные устройства подключаются через немую сеть**
 
 Could we take two analog phones, connect them directly to each other, and have the functionality we would normally associate with a regular phone? No, of course not, because the network supplies everything: the actual power to the phone, the dialtone \(from the local exchange or CO\), the caller ID information, the ringing tone \(from the remote \[closest to the destination phone\] exchange or CO\), all the signaling required, and so on.
 
