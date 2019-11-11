@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Аннотация с Амазона](README.md)
+* [Аннотация](README.md)
 * [Вступление](foreword.md)
 * [Предисловие](preface.md)
 * [Глава 1. Революция в телефонии](glava-01.md)

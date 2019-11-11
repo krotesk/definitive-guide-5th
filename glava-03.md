@@ -1045,18 +1045,16 @@ asterisk
 
 ### safe\_asterisk
 
-При установке Asterisk с помощью директивы make config создается сценарий safe\_asterisk, который запускается в процессе инициализации Linux при каждой загрузке. Сценарий safe\_asterisk предоставляет следующие преимущества: Автоматически перезагружается Звездочка после аварии Можно настроить отправку электронной почты администратору в случае сбоя Определяет, где хранятся файлы сбоев \(по умолчанию/tmp\) Выполняет сценарий, если произошел сбой Вам не нужно знать слишком много об этом скрипте, кроме того, чтобы понять, что он должен нормально работать. В большинстве сред этот скрипт отлично работает в формате по умолчанию.
+При установке Asterisk с помощью директивы `make config` создается скрипт _safe\_asterisk_, который запускается в процессе `init` Linux при каждой загрузке. 
 
-When you install Asterisk using the make config directive, it will create a script called safe\_asterisk, which is run during the init process of Linux each time you boot.
+Скрипт _safe\_asterisk_ предоставляет следующие преимущества:
 
-The safe\_asterisk script provides the following benefits:
+* Автоматическая перезагрузка Asterisk после аварии
+* Можно настроить отправку электронной почты администратору в случае сбоя
+* Определяет, где хранятся файлы сбоев \(по умолчанию_/tmp_\) 
+* При сбое выполняет скрипт
 
-* Restarts Asterisk automatically after a crash
-* Can be configured to email the administrator if a crash has occurred
-* Defines where crash files are stored \(/tmp by default\)
-* Executes a script if a crash has occurred
-
-You don’t need to know too much about this script, other than to understand that it should normally be running. In most environments this script works fine in its default format.
+Вам не нужно знать слишком много об этом скрипте, кроме понимания того, что он должен работать. В большинстве сред этот скрипт отлично работает в формате по умолчанию.
 
 ## Вывод
 
@@ -1068,7 +1066,7 @@ You don’t need to know too much about this script, other than to understand th
 
 [3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409176504-marker) Под этим мы в основном подразумеваем, что вам удобно управлять системой исключительно из оболочки.
 
-Elastix больше не является продуктом на основе Asterisk или open source.
+4 Elastix больше не является продуктом на основе Asterisk или open source.
 
 [5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html%22%20/l%20%22idm46178409144568-marker) После того, как вы прочтете нашу книгу, конечно же.
 
