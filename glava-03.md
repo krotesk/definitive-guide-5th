@@ -916,97 +916,88 @@ exit
 
 Давайте перезагрузимся, а затем войдем в нашу новую систему Asterisk и посмотрим, что мы создали.
 
-## Validating Your New Asterisk System
+## Проверка вашей новой системы Asterisk
 
-We don’t need to dive too deeply into the system at this point, since all the chapters that follow will be doing exactly that.
+На этом этапе нам не нужно слишком глубоко погружаться в систему, поскольку все последующие главы будут делать именно это. 
 
-So all we need to do is verify that we can log into the system and that the PJSIP endpoints we’ve created are there.
+Поэтому все, что нам нужно сделать сейчас - это проверить что мы можем войти в систему и конечные точки PJSIP, которые мы создали, находятся там.
 
+```text
 $ sudo asterisk -rvvvv
+*CLI> pjsip show endpoints
+```
 
-\*CLI&gt; pjsip show endpoints
+Вы должны увидеть две конечные точки, которые мы создали, представленные ниже:
 
-You should see the two endpoints we created listed as follows:
-
- Endpoint: &lt;Endpoint/CID.....................................&gt; &lt;State.....&gt; &lt;Channels.&gt;
-
- I/OAuth: &lt;AuthId/UserName...........................................................&gt;
-
- Aor: &lt;Aor............................................&gt; &lt;MaxContact&gt;
-
- Contact: &lt;Aor/ContactUri..........................&gt; &lt;Hash....&gt; &lt;Status&gt; &lt;RTT\(ms\)..&gt;
-
- Transport: &lt;TransportId........&gt; &lt;Type&gt; &lt;cos&gt; &lt;tos&gt; &lt;BindAddress..................&gt;
-
- Identify: &lt;Identify/Endpoint.........................................................&gt;
-
- Match: &lt;criteria.........................&gt;
-
- Channel: &lt;ChannelId......................................&gt; &lt;State.....&gt; &lt;Time.....&gt;
-
- Exten: &lt;DialedExten...........&gt; CLCID: &lt;ConnectedLineCID.......&gt;
-
+```text
+Endpoint: <Endpoint/CID.....................................> <State.....> <Channels.>
+   I/OAuth: <AuthId/UserName...........................................................>
+       Aor: <Aor............................................> <MaxContact>
+     Contact: <Aor/ContactUri..........................> <Hash....> <Status> <RTT(ms)..>
+ Transport: <TransportId........> <Type> <cos> <tos> <BindAddress..................>
+  Identify: <Identify/Endpoint.........................................................>
+       Match: <criteria.........................>
+   Channel: <ChannelId......................................> <State.....> <Time.....>
+       Exten: <DialedExten...........> CLCID: <ConnectedLineCID.......>
 ==========================================================================================
-
  Endpoint: 0000f30A0A01 Not in use 0 of inf
-
- InAuth: 1/0000f30A0A01
-
- Transport: transport-udp udp 0 0 0.0.0.0:5060
-
+     InAuth: 1/0000f30A0A01
+  Transport: transport-udp udp 0 0 0.0.0.0:5060
+  
  Endpoint: 0000f30B0B02 Unavailable 0 of inf
-
- InAuth: 2/0000f30B0B02
-
- Transport: transport-udp udp 0 0 0.0.0.0:5060
-
+     InAuth: 2/0000f30B0B02
+  Transport: transport-udp udp 0 0 0.0.0.0:5060
 Objects found: 2
+```
 
-If you don’t see the two endpoints listed, you’ve got a configuration issue. You’re going to have to work backward to ensure you don’t have any errors that prevent Asterisk from connecting to the database and instantiating these two endpoints.
+ Если вы не видите две конечные точки в списке - значит имеется проблема с конфигурацией. Вам придется работать в обратном направлении, чтобы убедиться в отсутствии ошибок, которые мешают Asterisk подключаться к базе данных и создавать экземпляры этих двух конечных точек.
 
-## Common Installation Errors
+## Распространенные ошибки установки
 
-The following conditions \(in no particular order\) cause the majority of installation errors:
+Следующие условия \(в произвольном порядке\) вызывают большинство ошибок установки:
 
-Syntax errors
+Синтаксическая ошибка 
 
-In some cases, substituting a tab for a space can be enough to break something. UnixODBC, for example, has proven to be sensitive to missing spaces between key = value definitions. The best advice we can give here is to use copy/paste whenever possible, as opposed to manual input.
+В некоторых случаях замены табуляции на пробел может быть достаточно, чтобы что-то сломать. UnixODBC, например, оказался чувствительным к отсутствию пробелов между определениями `key = value`. Лучший совет, который мы можем здесь дать - это использовать копирование/вставку, когда это возможно, в отличие от ручного ввода. 
 
-Permissions problems
+Проблемы с разрешениями 
 
-These can be annoying to resolve, but error messages will generally provide the clues you need. The /var/log/messages file is often a gold mine for useful clues.
+Они могут раздражать, но сообщения об ошибках, как правило, содержат необходимы подсказки. Файл _/var/log/messages_ часто является золотой жилой для полезных подсказок. 
 
-Missing steps
+Недостающие шаги 
 
-A missed step might not have any noticeable effects until many steps later. Double-check everything, and verify functionality before moving on.
+Пропущенный шаг может не иметь заметных эффектов до тех пор, пока не пройдет много шагов. Дважды проверяйте все и проверяйте функциональность, прежде чем двигаться дальше. 
 
-Credentials problems
+Проблемы с учетными данными 
 
-Always verify that the users and passwords you create work manually, before using them in a configuration file.
+Всегда проверяйте вручную, что созданные пользователи и пароли работают, прежде чем использовать их в файле конфигурации. 
 
-It’s not possible nor necessary to dig into every warning and error message you might see, but if we’ve provided a test to run, and it doesn’t produce anything like we said it should, you should probably work through that step again until you’ve figured out what’s going on.
+Невозможно и не нужно копаться в каждом предупреждении и сообщении об ошибке, которое вы можете увидеть, но если мы предусмотрели тестовый запуск и он не производит ничего, как мы указали, вы, вероятно, должны снова пройти этот шаг, пока не выясните, что происходит.
 
-## Some Final Configuration Notes
+## Некоторые финальные заметки по конфигурации
 
-Once installed, Asterisk will have created an environment for itself in your Linux machine. The following sections have some useful tidbits of information about how you can interact with your new Asterisk installation.
+После установки Asterisk создаст среду для себя на вашей Linux-машине. В следующих разделах приведены некоторые полезные сведения о том, как можно взаимодействовать с новой установкой Asterisk.
 
-### Sample Configuration Files for Future Reference
+### Примеры файлов конфигурации для дальнейшего использования
 
-Even though we warned you not to run the sudo make samples command during the installation \(because that will fill your /etc/asterisk directory with a bunch of stuff you don’t want\), the sample files are nevertheless a fantastic reference. In your Asterisk source directory, you will find the following two directories:
+Несмотря на то, что мы предупреждали вас не запускать команду `sudo make samples` во время установки \(потому что это заполнит ваш каталог _/etc/asterisk_ кучей вещей, которые вам не нужны\), файлы примеров тем не менее являются фантастической ссылкой. В директории с исходниками Астериска, вы найдете их в двух следующих каталогах:
 
-~/src/asterisk-16.&lt;TAB&gt;/configs/basic-pbx
+```text
+~/src/asterisk-16.<TAB>/configs/basic-pbx
+~/src/asterisk-16.<TAB>/configs/samples
+```
 
-~/src/asterisk-16.&lt;TAB&gt;/configs/samples
+Файлы в этих папках стоит прочитать \(особенно для любого модуля, с которым вы работаете и хотите исследовать, как что-то сделать\). 
 
-The files in those folders are worth reading through \(especially for any module you’re working with and want to research how to do something\).
+Прочтите их когда у вас появится возможность.
 
-Give them a read when you have a chance.
+{% hint style="danger" %}
+**ПРЕДУПРЕЖДЕНИЕ**
 
-**Warning**
+Запуск `make samples` в системе, в которой уже есть файлы конфигурации, приведет к перезаписи существующих файлов.
+{% endhint %}
 
-Running make samples on a system that already has configuration files will overwrite the existing files.
-
-### The Asterisk Shell Command
+### Командная оболочка Asterisk
 
 Asterisk can be run either as a daemon or as an application. In general, you will want to run it as an application when you are building, testing, and troubleshooting, and as a daemon when you put it into production.
 
