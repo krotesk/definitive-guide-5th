@@ -999,49 +999,53 @@ Objects found: 2
 
 ### Командная оболочка Asterisk
 
-Asterisk can be run either as a daemon or as an application. In general, you will want to run it as an application when you are building, testing, and troubleshooting, and as a daemon when you put it into production.
+Asterisk можно запустить как демон или как приложение. В общем, вы можете запустить его как приложение, когда создаете, тестируете и устраняете неполадки, и как демон при запуске его в продакшен. 
 
-The command to start Asterisk is the same regardless of whether you’re running it as a daemon or an application:
+Команда запуска Asterisk одинакова независимо от того, выполняется ли он как демон или как приложение:
 
+```text
 asterisk
+```
 
-However, without any arguments, this command will assume certain defaults and start Asterisk as a background application. In other words, you never want to run the command asterisk on its own, but rather will want to pass some options to it to better define the behavior you are looking for. The following list provides some examples of common usages:
+Однако без каких-либо аргументов эта команда будет принимать определенные значения по умолчанию и запускать Asterisk в качестве фонового приложения. Другими словами, не стоит запускать команду `asterisk` самостоятельно, а лучше передавать ей некоторые параметры, чтобы лучше определить поведение, которое вы ожидаете. В следующем списке приведены некоторые примеры общего использования:
 
--h
+`-h`
 
-This command displays a helpful list of the options you can use. For a complete list of all the options and their descriptions, run the command man asterisk.
+Эта команда отображает список полезных возможных параметров для использования. Для получения полного списка всех параметров и их описаний выполните команду `man asterisk`.
 
--c
+`-c`
 
-This option starts Asterisk as an application \(in the foreground\). This means that Asterisk is tied to your user session. In other words, if you close your user session by logging out or losing the connection, Asterisk dies. This is the option you will typically use when building, testing, and debugging, but you would not want to use it in production. If you started Asterisk in this manner, type core stop now at the CLI prompt to stop Asterisk and exit.
+Эта опция запускает Asterisk как приложение \(на переднем плане\). Это означает, что Asterisk привязан к сеансу пользователя. Другими словами, если вы закроете сеанс пользователя, выйдя из системы или потеряв соединение, Asterisk умрет. Этот параметр обычно используется при создании, тестировании и отладке, но его не следует использовать в рабочей среде. Если вы запустили Asterisk таким образом, введите `core stop now` в командной строке CLI, чтобы остановить Asterisk и выйти.
 
--v, -vv, -vvv, -vvvv, etc.
+`-v, -vv, -vvv, -vvvv`, etc.
 
-This option can be used with other options \(e.g., -cvvv\) in order to increase the verbosity of the console output. It does exactly the same thing as the CLI command core set verbose n where n is any integer between 0 and 5 \(any integer greater than 5 will work, but will not provide any more verbosity\). Sometimes it’s useful to not set the verbosity at all. For example, if you are looking to see only startup errors, notices, and warnings, leaving verbosity off will prevent all the other startup messages from being displayed.
+Эта опция может использоваться с другими опциями \(например -`cvvv`\) для увеличения детализации вывода консоли. Она делает точно то же самое, что и команда CLI `core set verbose` _`n`_, где _`n`_-любое целое число между 0 и 5 \(любое целое число больше 5 будет работать, но не будет предоставлять больше подробностей\). Иногда полезно вообще не задавать уровень детализации. Например, если вы хотите видеть только ошибки запуска, уведомления и предупреждения, отключение детализации предотвратит отображение всех других сообщений запуска.
 
--d, -dd, -ddd, -dddd, etc.
+`-d, -dd, -ddd, -dddd`, etc.
 
-This option can be used in the same way as -v, but instead of normal output, this will specify the level of debug output \(which is primarily useful for developers who wish to troubleshoot problems with the code\). You will also need to enable output of debugging information in the logger.conf file \(which we will cover in more detail in [Chapter 21](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch21.html%22%20/l%20%22asterisk-Monitoring)\).
+Этот параметр можно использовать так же, как и `-v`, но вместо обычного вывода он будет указывать уровень вывода отладки \(что в первую очередь полезно для разработчиков, которые устраняют проблемы с кодом\). Также необходимо включить вывод отладочной информации в файл _logger.conf_ \(который мы рассмотрим более подробно в [Главе 21](glava-21.md)\).
 
--r
+`-r`
 
-This command is essential if you want to connect to the CLI of an Asterisk process running as a daemon. You will probably use this option more than any other for Asterisk systems that are in production. This option will only work if you have a daemonized instance of Asterisk already running. To exit the CLI when this option has been used, type exit.
+Эта команда необходима если вы хотите подключиться к CLI процесса Asterisk, работающего как демон. Вы, вероятно, будете использовать этот параметр больше чем любой другой для систем Asterisk, которые находятся в продакшене. Этот параметр будет работать только в том случае, если у вас уже запущен демонизированный экземпляр Asterisk. Чтобы выйти из интерфейса командной строки при использовании этого параметра, введите `exit`.
 
--T
+`-T`
 
-This option will add a timestamp to CLI output.
+Эта опция добавит метку времени к выводу CLI.
 
--x
+`-x`
 
-This command allows you to pass a string to Asterisk that will be executed as if it had been typed at the CLI. As an example, to get a quick listing of all the channels in use without having to start the Asterisk console, simply type asterisk -rx 'core show channels' from the shell, and you’ll get the output you are looking for.
+Эта команда позволяет передать строку в Asterisk, которая будет выполнена так, как если бы она была введена в CLI. Например, чтобы получить быстрый список всех используемых каналов без необходимости запуска консоли Asterisk, просто введите `asterisk-rx "core show channels"` из оболочки, и получите результат в котором нуждаетесь.
 
--g
+`-g`
 
-This option instructs Asterisk to dump a core file if it crashes.
+Этот параметр указывает Asterisk сделать дамп ядра, если оно аварийно завершает работу. 
 
-We recommend you try out a few combinations of these commands to see what they do.
+Мы рекомендуем вам попробовать несколько комбинаций этих команд, чтобы увидеть их в действии.
 
 ### safe\_asterisk
+
+При установке Asterisk с помощью директивы make config создается сценарий safe\_asterisk, который запускается в процессе инициализации Linux при каждой загрузке. Сценарий safe\_asterisk предоставляет следующие преимущества: Автоматически перезагружается Звездочка после аварии Можно настроить отправку электронной почты администратору в случае сбоя Определяет, где хранятся файлы сбоев \(по умолчанию/tmp\) Выполняет сценарий, если произошел сбой Вам не нужно знать слишком много об этом скрипте, кроме того, чтобы понять, что он должен нормально работать. В большинстве сред этот скрипт отлично работает в формате по умолчанию.
 
 When you install Asterisk using the make config directive, it will create a script called safe\_asterisk, which is run during the init process of Linux each time you boot.
 
