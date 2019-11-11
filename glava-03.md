@@ -188,51 +188,29 @@ mkdir -p ~/ansible/playbooks
 
 Мы установили Ansible просто потому, что это быстрый и простой способ получить все зависимости. Мы написали playbook для выполнения следующих операций:
 
-1. Установка dnf, vim, wget, и MySQL-python.
+1. Установка `dnf`, `vim`, `wget`, и `MySQL-python`.
 2. Установка репозитория MySQL community-edition.
-3. Установка mysql-server.
-4. Настройка некоторых переменных при установке mysql-server.
+3. Установка `mysql-server`.
+4. Настройка некоторых переменных при установке `mysql-server`.
 5. Запуск демона mysql-server.
 6. Изменение некоторых данных MySQL \(создание пользователей, установка паролей\).
 7. Создание базы данных/схемы MySQL для использования в Asterisk.
 8. Применение некоторых рекомендаций по безопасности \(удаление анонимного пользователя, тестовая база данных и т.д.\).
-9. Создание пользователя asterisk.
-10. Создание пользователя astmin.
+9. Создание пользователя `asterisk`.
+10. Создание пользователя `astmin`.
 11. Установка зависимостей для ODBC.
 12. Установка некоторых диагностических инструментов.
 13. Настройка брандмауэра для разрешения трафика SIP и RTP.
 14. Редактирование некоторых файлов конфигурации ODBC.
 
-Создайте план Ansible в файле _~/ansible/playbooks/starfish.yml_.
-
-Вот тебе план:
-
-Система, которую вы только что построили, на самом деле не намного больше, чем базовая загрузочная система. Для того, чтобы подготовить её к установке Asterisk, есть несколько вещей, которые нам нужно будет установить в первую очередь.
-
-Следующие команды можно ввести из командной строки или добавить в простой скрипт оболочки и выполнить таким образом.
-
-```text
-sudo yum -y update &&
-sudo yum -y install epel-release &&
-sudo yum -y install python-pip &&
-sudo yum -y install vim wget dnf&&
-sudo pip install alembic ansible &&
-sudo pip install --upgrade pip &&
-sudo mkdir /etc/ansible &&
-sudo chown astmin:astmin /etc/ansible &&
-sudo echo "[starfish]" >> /etc/ansible/hosts &&
-sudo echo "localhost ansible_connection=local" >> /etc/ansible/hosts &&
-mkdir -p ~/ansible/playbooks
-```
-
-Мы установили Ansible просто потому, что это быстрый и простой способ получить выполнение всех зависимостей. Мы написали план для выполнения следующих операций:
-
 Все это можно сделать вручную, но это просто много для набора и Ansible действительно хорош в оптимизации этого процесса.
+
+Создайте план Ansible в файле _~/ansible/playbooks/starfish.yml_.
 
 {% hint style="info" %}
 **Примечание**
 
-Файл libmyodbc8a.so является версионным, поэтому, если у вас нет версии 8 UnixODBC:
+Файл _libmyodbc8a.so_ является версионным, поэтому, если у вас нет версии 8 UnixODBC:
 
 1. Запустите playbook в первый раз \(чтобы установить библиотеку UnixODBC\).
 2. Узнайте, какой файл был установлен в _/usr/lib64/libmyodbc&lt;version&gt;a.so_.
@@ -240,421 +218,7 @@ mkdir -p ~/ansible/playbooks
 4. Сохраните и повторно запустите playbook \(который затем обновит файлы конфигурации, чтобы указать на правильную библиотеку\).
 {% endhint %}
 
-## Установка Asterisk
-
-Asterisk официально поставляется в виде архива \(как исходный код\), и его необходимо загрузить, извлечь и скомпилировать.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409043048) Это не трудно сделать когда у вас удовлетворены все зависимости. Между написанием этой книги и вашим чтением ее, возможно, были некоторые изменения в различных зависимостях, поэтому вам процесс установки, возможно, придется запускать немного иначе. Часто бывает трудно понять разницу между сообщением об ошибке, которое можно безопасно проигнорировать, и сообщением, указывающим на критическую проблему; однако, как правило, вы должны были выявить и устранить все ошибки в предыдущих процессах, прежде чем приступать к этому шагу. Если ваши зависимости отсортированы, установка Asterisk будет проходить гладко.
-
-### Загрузка и необходимые компоненты
-
-Выйдите из системы и снова войдите в систему как пользователь `astmin`.[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409035896)
-
-Введите следующие команды из командной консоли, чтобы загрузить исходный код Asterisk:
-
-{% hint style="info" %}
-**Примечание**
-
- Когда вы видите, что мы указываем &lt;TAB&gt; в имени файла, то мы имеем в виду, что вы должны нажать клавишу Tab на клавиатуре и разрешить автозаполнение, чтобы заполнить то, что она может. Затем следует остальная часть набора текста.
-{% endhint %}
-
-```text
-$ mkdir ~/src
-$ cd ~/src
-$ wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-16-current.tar.gz
-$ tar zxvf asterisk-16-current.tar.gz
-$ cd asterisk-16.<TAB> # вкладка должна заполниться автоматически (если она не имеет более одного совпадения)
-```
-
-Теперь мы можем выполнить несколько предварительных условий, определенных командой Asterisk, а также проверить среду:
-
-```text
-$ cd contrib/scripts (or cd ~/src/asterisk-16.<TAB>/contrib/scripts
-$ sudo ./install_prereq install # asterisk has a few prerequisites that this simplifies
-$ cd ../..
-$ ./configure --with-jansson-bundled
-```
-
-Asterisk теперь готов к компиляции и установке, но есть несколько настроек, которые стоит внести в конфигурацию перед компиляцией.
-
-### Компиляция и установка
-
-```text
-$ make menuselect
-```
-
-Вы увидите меню, в котором представлены различные параметры, которые можно выбрать для компилятора. Для перемещения используйте клавиши со стрелками и Tab, а для выбора/отмены выбора - клавишу Enter. По большей части, значения по умолчанию должны быть в порядке, но мы хотим сделать несколько настроек для звуковых файлов, чтобы убедиться, что у нас есть все звуки, которые мы хотим, в лучшем формате.
-
-{% hint style="info" %}
-**Примечание**
-
-На этом этапе вы также можете выбрать другие языки, которые захотите иметь в своей системе. Мы рекомендуем вам выбрать форматы WAV и G722 \(а также G729, если вам необходимо его поддерживать\).
-{% endhint %}
-
-Под Codec Translators \(`--- External ---`\):
-
-* Выбрать `[*] codec_opus`
-* Выбрать `[*] codec_silk`
-* Выбрать `[*] codec_siren7`
-* Выбрать `[*] codec_siren14`
-* Выбрать `[*] codec_g729a`
-
-Под Core Sound Packages:
-
-* Убрать `[*] CORE-SOUNDS-EN-GSM`
-* Выбрать `[*] CORE-SOUNDS-EN-WAV`
-* Выбрать `[*] CORE-SOUNDS-EN-G722`
-
-Под Extras Sound Packages:
-
-* Выбрать `[*] EXTRA-SOUNDS-EN-WAV`
-* Выбрать `[*] EXTRA-SOUNDS-EN-G722`
-
-Save and Exit \(Сохранить и выйти\).
-
-Еще три команды и Asterisk установлена:
-
-```text
-$ make # это займет несколько минут
-       # (в зависимости от скорости вашей системы)
-$ sudo make install # вы должны запустить это с повышенными привилегиями
-$ sudo make config  # и это
-```
-
-{% hint style="danger" %}
-**Предупреждение**
-
-По завершении выполнения команды `make config` будут предложены некоторые команды для установки примеров файлов конфигурации. Для целей этой книги, _вы **не** должны этого делать_. Мы будем создавать необходимые файлы вручную, поэтому примеры файлов будут служить только тому, чтобы нарушить и запутать этот процесс. Сказав это, отметим что примеры файлов полезны, и мы будем упоминать их на протяжении всей этой книги, так как они являются отличным справочным материалом.
-{% endhint %}
-
-_Перезагрузите систему._
-
-Как только загрузка будет завершена, войдите в систему как пользователь `astmin` и временно установите SELinux на `Permissive` \(после каждой загрузки он будет возвращаться к `Enforcing`, поэтому до тех пор, пока мы не разобрались с частью установки SELinux, это должно происходить на каждой загрузке\):
-
-```text
-$ sudo setenforce Permissive
-$ sudo sestatus
-```
-
-Это должно показать `Current mode: permissive`
-
-Убедитесь, что Asterisk работает со следующей командой:
-
-```text
-$ ps -ef | grep asterisk
-```
-
-Вы можете увидеть, что демон `/user/sbin/asterisk` запущен \(в настоящее время как пользователь `root`, но мы исправим это в ближайшее время\). Asterisk теперь установлен и работает; однако, есть несколько параметров конфигурации, которые нам нужно сделать, прежде чем система будет полезна.
-
-### Начальная конфигурация
-
-По умолчанию Asterisk сохраняет свои конфигурационные файлы в директории _/etc/asterisk_. Сам процесс Asterisk для запуска не нуждается в каких-либо файлах конфигурации; однако он пока не будет использоваться, поскольку ни одна из функций, которые он предоставляет, не была указана. Сейчас мы займемся некоторыми задачами начальной настройки.
-
-{% hint style="info" %}
-**Примечание**
-
-Файлы конфигурации Asterisk используют символ точки с запятой \(;\) для комментариев, главным образом потому, что хэш-символ \(\#\) является допустимым символом на телефонной клавиатуре.
-{% endhint %}
-
-Файл _modules.conf_ дает вам полный контроль над тем, какие модули Asterisk будут \(и не будут\) загружаться. Обычно нет необходимости явно определять каждый модуль в этом файле, но вы можете это сделать если захотите. Мы собираемся создать очень простой файл, как например:
-
-```text
-$ sudo chown asterisk:asterisk /etc/asterisk ; sudo chmod 664 /etc/asterisk
-$ sudo -u asterisk vim /etc/asterisk/modules.conf
-[modules]
-autoload=yes
-preload=res_odbc.so
-preload=res_config_odbc.so
-```
-
-Мы используем ODBC для загрузки многих конфигураций других модулей, и нам нужно, чтобы этот коннектор был доступен до того, как Asterisk попытается загрузить что-либо еще, поэтому мы предварительно загрузим его. 
-
-Далее, мы собираемся подкорректировать файл _logger.conf_ предоставляемый по умолчанию.
-
-```text
-$ sudo -u asterisk vim /etc/asterisk/logger.conf
-[general]
-exec_after_rotate=gzip -9 ${filename}.2;
-[logfiles]
-;debug => debug
-;security => security
-console => notice,warning,error,verbose
-;console => notice,warning,error,debug
-messages => notice,warning,error
-full => notice,warning,error,debug,verbose,dtmf,fax
-;full-json => [json]debug,verbose,notice,warning,error,dtmf,fax
-;syslog keyword : This special keyword logs to syslog facility
-;syslog.local0 => notice,warning,error
-```
-
-Вы заметите, что многие строки закомментированы. Они здесь для справки, потому что как выяснится при отладке системы вы можете часто настраивать этот файл. Мы выяснили, что лучше подготовить и закомментировать несколько строк, чем искать синтаксис каждый раз.
-
-Следующий файл, _asterisk.conf,_ определяющий различные директории, необходимые для нормальной работы, а также параметры, необходимые для запуска от имени пользователя `asterisk`:
-
-```text
-$ sudo -u asterisk vim /etc/asterisk/asterisk.conf
-[directories](!)
-astetcdir => /etc/asterisk
-astmoddir => /usr/lib/asterisk/modules
-astvarlibdir => /var/lib/asterisk
-astdbdir => /var/lib/asterisk
-astkeydir => /var/lib/asterisk
-astdatadir => /var/lib/asterisk
-astagidir => /var/lib/asterisk/agi-bin
-astspooldir => /var/spool/asterisk
-[options]
-astrundir => /var/run/asterisk
-astlogdir => /var/log/asterisk
-astsbindir => /usr/sbin
-runuser = asterisk ; The user to run as. The default is root.
-rungroup = asterisk ; The group to run as. The default is root
-```
-
-Мы настроим остальные файлы позже, а пока это все, что нам нужно на данный момент.
-
-Давайте обновим права владельца на файлы, чтобы пользователь `asterisk` имел к ним надлежащий доступ.
-
-```text
-$ sudo chown -R asterisk:asterisk {/etc,/var/lib,/var/spool,/var/log,/var/run}/asterisk
-```
-
-Также может понадобится добавить правило в директорию _/etc/tmpfiles.d_ для разрешения Asterisk создавать сокет во время выполнения.
-
-```text
-$ sudo vim /etc/tmpfiles.d/asterisk.conf
-d /var/run/asterisk 0775 asterisk asterisk
-```
-
-\(Смотри `man tmpfiles.d` для большей информации\)
-
-Далее мы инициализируем базу данных таблицами, необходимыми Asterisk для настройки на основе ODBC.
-
-Исходные файлы Asterisk включают в себя вклад, который люди Digium поддерживают как часть Asterisk для управления версиями необходимых таблиц базы данных. Это значительно упрощает поддержание корректности базы данных в процессе обновления.
-
-Перейдите в соответствующий каталог и сделайте копию файла конфигурации.
-
-```text
-$ cd ~/src/asterisk-16.<TAB>/contrib/ast-db-manage
-$ cp config.ini.sample config.ini
-```
-
-Теперь мы собираемся открыть файл и предоставить ему учетные данные для нашей базы данных \(которые определены в Ansible playbook с именем _starfish.yml_, под переменной `current_mysql_asterisk_password`, которую мы использовали в начале этой главы\):
-
-```text
-$ vim config.ini
-```
-
-Найдите строки, которые выглядят примерно так:
-
-```text
-#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
-sqlalchemy.url = mysql://user:pass@localhost/asterisk
-
-# Logging configuration
-[loggers]
-keys = root,sqlalchemy,alembic
-
-```
-
-Сделайте его копию, раскомментируйте и отредактируйте с правильными учетными данными:
-
-```text
-#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
-#sqlalchemy.url = mysql://user:pass@localhost/asterisk
-sqlalchemy.url = mysql://asterisk:YouNeedAReallyGoodPasswordHereToo@localhost/asterisk
-
-# Logging configuration
-[loggers]
-keys = root,sqlalchemy,alembic
-```
-
-Теперь, с этим очень простым битом конфигурации, мы можем использовать Alembic для автоматической настройки базы данных идеально для Asterisk \(это было несколько болезненно делать в прошлых версиях Asterisk\):
-
-```text
-$ alembic -c ./config.ini upgrade head
-```
-
-{% hint style="info" %}
-**Подсказка**
-
-Alembic не используется Asterisk, поэтому конфигурация, которую вы только что выполнили, не позволяет Asterisk использовать базу данных. Все, что он делает, это запускает скрипт, который создает схему и таблицы, которые будет использовать Asterisk \(вы также можете сделать это вручную, но поверьте нам, лучше чтобы Alembic справился с этим\). Это часть процесса установки/обновления. _Это особенно полезно, если у вас есть живые таблицы с реальными данными в них, и вы хотите обновить и сохранить соответствующую конфигурацию._
-{% endhint %}
-
-Войдите в базу данных и просмотрите все созданные таблицы:
-
-```text
-$ mysql -u asterisk -p
-mysql> use asterisk;
-mysql> show tables;
-```
-
-Вы должны увидеть список, похожий на этот:
-
-```text
-| alembic_version_config      |
-| extensions                  |
-| iaxfriends                  |
-| meetme                      |
-| musiconhold                 |
-| ps_aors                     |
-| ps_asterisk_publications    |
-| ps_auths                    |
-| ps_contacts                 |
-| ps_domain_aliases           |
-| ps_endpoint_id_ips          |
-| ps_endpoints                |
-| ps_globals                  |
-| ps_inbound_publications     |
-| ps_outbound_publishes       |
-| ps_registrations            |
-| ps_resource_list            |
-| ps_subscription_persistence |
-| ps_systems                  |
-| ps_transports               |
-| queue_members               |
-| queue_rules                 |
-| queues                      |
-| sippeers                    |
-| voicemail                   |
-```
-
-Мы пока не собираемся ничего настраивать в базе данных. Сначала нам нужно сделать еще несколько базовых настроек.
-
-Выйдите из CLI базы данных. 
-
-Теперь, когда у нас есть структура базы данных для обработки конфигурации Asterisk, мы расскажем Asterisk, как подключиться к базе данных.
-
-```text
-$ sudo -u asterisk vim /etc/asterisk/res_odbc.conf
-```
-
-Еще раз, вам понадобятся учетные данные, которые вы определили в своем Ansible playbook.
-
-```text
-[asterisk]
-enabled => yes
-dsn => asterisk
-username => asterisk
-password => YouNeedAReallyGoodPasswordHereToo
-pre-connect => yes
-```
-
-### Настройки SELinux
-
-Мы собираемся установить некоторые инструменты SELinux и внести изменения в конфигурацию SELinux для правильной загрузки системы.
-
-{% hint style="info" %}
-**Примечание**
-
-Общий подход состоит в том, чтобы просто отредактировать _/etc/selinux/config_ и установить `enforcing=disabled.` Мы не рекомендуем этого делать, т.к. это полностью отключает SELinux и делает следующие шаги ненужными.
-{% endhint %}
-
-```text
-$ sudo dnf -y install setools setroubleshoot setroubleshoot-server
-$ sudo vim /etc/selinux/config
-```
-
-Вы собираетесь изменить строку `SELINUX=enforcing` на `SELINUX=permissive`. Это гарантирует, что файлы журналов будут показывать потенциальные ошибки SELinux, не блокируя соответствующие процессы. 
-
-Далее мы передадим Asterisk право собственности на файл _/etc/odbc.ini_.
-
-```text
-$ sudo chown asterisk:asterisk /etc/odbc.ini
-$ sudo semanage fcontext -a -t asterisk_etc_t /etc/odbc.ini
-$ sudo restorecon -v /etc/odbc.ini
-$ sudo ls -Z /etc/odbc.ini
-```
-
-Если все хорошо, то вы должны увидеть, что контекст для этого файла был установлен в `asterisk_etc_t`:
-
-```text
--rw-r--r--. asterisk asterisk system_u:object_r:asterisk_etc_t:s0 /etc/odbc.ini
-```
-
-Есть еще несколько ошибок SELinux, которые мы видели здесь во время написания книги. Они могут быть исправлены к тому времени, когда вы читаете это, но не должно быть никакого вреда в их появлении:
-
-```text
-$ sudo /sbin/restorecon -vr /var/lib/asterisk/*
-$ sudo /sbin/restorecon -vr /etc/asterisk*
-```
-
-Перезагрузите систему и проверьте журнал на наличие каких-либо ошибок SELinux, прежде чем мы установим его в enforcing.
-
-```text
-$ sudo grep -i sealert /var/log/messages
-```
-
-Там может быть несколько сообщений, жалующихся на то, что Asterisk не нужно \(например, скрытый файл с именем .odbc.ini\), но до тех пор, пока он не полон ошибок о всевозможных важных компонентах Asterisk, всё должно быть хорошо. Последнее, что вам нужно изменить - это SELinux Boolean, позволяющее Asterisk создавать TTY.
-
-```text
-$ sudo setsebool -P daemons_use_tty 1
-```
-
-Отредактируйте файл _/etc/selinux/config_ еще раз, на этот раз установив `SELINUX=enforcing`. Сохраните и перезагрузите еще раз. 
-
-Убедитесь что Asterisk запущен \(от пользователя `asterisk`\).
-
-```text
-$ ps -ef | grep asterisk
-asterisk 3992 3985 0 16:38 ? 00:00:01 /usr/sbin/asterisk -f -vvvg -c
-```
-
-Хорошо, мы почти закончили с установкой.
-
-### Настройки файрволла
-
-Мы сделаем пару настроек файрволла чтобы подготовить нашу систему для SIP \(и безопасности SIP\).
-
-```text
-$ sudo firewall-cmd --zone=public --add-service=sip --permanent
-$ sudo firewall-cmd --zone=public --add-service=sips --permanent
-```
-
-### Финишные настройки
-
-Your Asterisk system is ready to roll.
-
-Let’s put some initial data into the configuration files, so that in the next chapter we can begin to work with our new Asterisk system.
-
-Since we’re going to use the PJSIP channel for all of our calling, we’re going to tell Asterisk to look for PJSIP configuration in the database:
-
-```text
-$ sudo -u asterisk vim /etc/asterisk/sorcery.conf
-[res_pjsip] ; Realtime PJSIP configuration wizard
-; eventually more modules will use sorcery to connect to the
-; database, but currently only PJSIP uses this
-endpoint=realtime,ps_endpoints
-auth=realtime,ps_auths
-aor=realtime,ps_aors
-domain_alias=realtime,ps_domain_aliases
-contact=realtime,ps_contacts
-[res_pjsip_endpoint_identifier_ip]
-identify=realtime,ps_endpoint_id_ips
-$ sudo -u asterisk vim /etc/asterisk/extconfig.conf
-[settings] ; older mechanism for connecting all other modules to the database
-ps_endpoints => odbc,asterisk
-ps_auths => odbc,asterisk
-ps_aors => odbc,asterisk
-ps_domain_aliases => odbc,asterisk
-ps_endpoint_id_ips => odbc,asterisk
-ps_contacts => odbc,asterisk
-$ sudo -u asterisk vim /etc/asterisk/modules.conf
-[modules]
-autoload=yes
-preload=res_odbc.so
-preload=res_config_odbc.so
-noload=chan_sip.so ; deprecated SIP module from days gone by
-```
-
-Теперь мы должны поместить один бит конфигурации в файл _pjsip.conf_, определяющий механизм транспорта.
-
-```text
-$ sudo -u asterisk vim /etc/asterisk/pjsip.conf
-[transport-udp]
-type=transport
-protocol=udp
-bind=0.0.0.0
-```
-
-Наконец, давайте войдем в базу данных и определим некоторые примеры конфигураций для PJSIP:
+Вот тебе план:
 
 ```text
 ---
@@ -871,7 +435,7 @@ $ ansible-playbook ~/ansible/playbooks/starfish.yml
 $ echo "select 1" | isql -v asterisk asterisk password
 ```
 
-Вы должны увидеть результат что-то вроде этого:
+Вы должны увидеть результат вроде этого:
 
 ```text
 +---------------------------------------+
@@ -890,67 +454,467 @@ SQLRowCount returns 1
 1 rows fetched
 ```
 
-Если вы не видите сообщение `Connected!`, вам необходимо устранить неполадки в вашей базе данных и установке ODBC. Первое, что вы должны сделать, это убедиться, что можете войти в базу данных из командной строки с помощью пользователя `asterisk` \(`mysql -u asterisk -p`\). Большинство проблем ODBC, как правило, заканчиваются проблемами с учетными данными \(т.е. неправильным паролем или именем пользователя\), поэтому вернитесь назад, чтобы убедиться, что все учетные данные работают так, как должны, и дважды проверьте, что вы не получили никаких проблемных сообщений от Ansible.
+Если вы не видите сообщение `Connected!`, значит вам необходимо устранить неполадки в вашей базе данных и установке ODBC. Первое, что вы должны сделать - это убедиться, что можете войти в базу данных из командной строки с помощью пользователя `asterisk` \(`mysql -u asterisk -p`\). Большинство проблем ODBC, как правило, заканчиваются проблемами с учетными данными \(т.е. неправильным паролем или именем пользователя\), поэтому вернитесь назад, чтобы убедиться, что все учетные данные работают так, как должны, и дважды проверьте, что вы не получили никаких сообщений об ошибках от Ansible.
 
 На момент написания этой статьи версия _jansson_, установленная из репозитория EPEL, является более старой версией, чем требуется для Asterisk, поэтому придется установить ее вручную.
 
 Теперь система готова, и мы готовы загрузить и установить Asterisk.
 
+## Установка Asterisk
+
+Asterisk официально поставляется в виде архива \(как исходный код\), и его необходимо загрузить, извлечь и скомпилировать.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409043048) Это не трудно сделать когда у вас удовлетворены все зависимости. Между написанием этой книги и вашим чтением ее, возможно, были некоторые изменения в различных зависимостях, поэтому вам процесс установки, возможно, придется запускать немного иначе. Часто бывает трудно понять разницу между сообщением об ошибке, которое можно безопасно проигнорировать, и сообщением, указывающим на критическую проблему; однако, как правило, вы должны были выявить и устранить все ошибки в предыдущих процессах, прежде чем приступать к этому шагу. Если ваши зависимости отсортированы, установка Asterisk будет проходить гладко.
+
+### Загрузка и необходимые компоненты
+
+Выйдите из системы и снова войдите в систему как пользователь `astmin`.[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch03.html#idm46178409035896)
+
+Введите следующие команды в командной строке чтобы загрузить исходный код Asterisk:
+
+{% hint style="info" %}
+**Примечание**
+
+ Когда вы видите, что мы указываем &lt;TAB&gt; в имени файла, то мы имеем в виду, что вы должны нажать клавишу Tab на клавиатуре и разрешить автозаполнение возможными вариантами. Затем следует остальная часть набора текста.
+{% endhint %}
+
+```text
+$ mkdir ~/src
+$ cd ~/src
+$ wget https://downloads.asterisk.org/pub/telephony/asterisk/asterisk-16-current.tar.gz
+$ tar zxvf asterisk-16-current.tar.gz
+$ cd asterisk-16.<TAB> # вкладка должна заполниться автоматически (если она не имеет более одного совпадения)
+```
+
+Теперь мы можем выполнить несколько предварительных условий, определенных командой Asterisk, а также проверить среду:
+
+```text
+$ cd contrib/scripts (or cd ~/src/asterisk-16.<TAB>/contrib/scripts
+$ sudo ./install_prereq install # asterisk has a few prerequisites that this simplifies
+$ cd ../..
+$ ./configure --with-jansson-bundled
+```
+
+Asterisk теперь готов к компиляции и установке, но есть несколько настроек, которые стоит внести в конфигурацию перед компиляцией.
+
+### Компиляция и установка
+
+```text
+$ make menuselect
+```
+
+Вы увидите меню, в котором представлены различные параметры, которые можно выбрать для компилятора. Для перемещения используйте клавиши со стрелками и Tab, а для выбора/отмены выбора - клавишу Enter. По большей части, значения по умолчанию должны быть в порядке, но мы хотим сделать несколько настроек для звуковых файлов, чтобы убедиться, что у нас есть все звуки, которые мы хотим, в лучшем формате.
+
+{% hint style="info" %}
+**Примечание**
+
+На этом этапе вы также можете выбрать другие языки, которые захотите иметь в своей системе. Мы рекомендуем вам выбрать форматы WAV и G722 \(а также G729, если вам необходимо его поддерживать\).
+{% endhint %}
+
+Под Codec Translators \(`--- External ---`\):
+
+* Выбрать `[*] codec_opus`
+* Выбрать `[*] codec_silk`
+* Выбрать `[*] codec_siren7`
+* Выбрать `[*] codec_siren14`
+* Выбрать `[*] codec_g729a`
+
+Под Core Sound Packages:
+
+* Убрать `[*] CORE-SOUNDS-EN-GSM`
+* Выбрать `[*] CORE-SOUNDS-EN-WAV`
+* Выбрать `[*] CORE-SOUNDS-EN-G722`
+
+Под Extras Sound Packages:
+
+* Выбрать `[*] EXTRA-SOUNDS-EN-WAV`
+* Выбрать `[*] EXTRA-SOUNDS-EN-G722`
+
+Save and Exit \(Сохранить и выйти\).
+
+Еще три команды и Asterisk установлена:
+
+```text
+$ make              # это займет несколько минут
+                    # (в зависимости от скорости вашей системы)
+$ sudo make install # вы должны запустить это с повышенными привилегиями
+$ sudo make config  # и это
+```
+
+{% hint style="danger" %}
+**Предупреждение**
+
+По завершении выполнения команды `make config` будут предложены некоторые команды для установки примеров файлов конфигурации. Для целей этой книги, _вы **не** должны этого делать_. Мы будем создавать необходимые файлы вручную, поэтому примеры файлов будут служить только тому, чтобы нарушить и запутать этот процесс. Сказав это, отметим что примеры файлов полезны, и мы будем упоминать их на протяжении всей этой книги, так как они являются отличным справочным материалом.
+{% endhint %}
+
+_Перезагрузите систему._
+
+Как только загрузка будет завершена, войдите в систему как пользователь `astmin` и временно установите SELinux на `Permissive` \(после каждой загрузки он будет возвращаться к `Enforcing`, поэтому до тех пор, пока мы не разобрались с частью установки SELinux, это должно происходить на каждой загрузке\):
+
+```text
+$ sudo setenforce Permissive
+$ sudo sestatus
+```
+
+Это должно показать `Current mode: permissive`
+
+Убедитесь, что Asterisk работает со следующей командой:
+
+```text
+$ ps -ef | grep asterisk
+```
+
+Вы можете увидеть, что демон `/user/sbin/asterisk` запущен \(в настоящее время как пользователь `root`, но мы исправим это в ближайшее время\). Asterisk теперь установлен и работает; однако, есть несколько параметров конфигурации, которые нам нужно сделать, прежде чем система будет полезна.
+
+### Начальная конфигурация
+
+По умолчанию Asterisk сохраняет свои конфигурационные файлы в директории _/etc/asterisk_. Сам процесс Asterisk для запуска не нуждается в каких-либо файлах конфигурации; однако он пока не будет использоваться, поскольку ни одна из функций, которые он предоставляет, не была указана. Сейчас мы займемся некоторыми задачами начальной настройки.
+
+{% hint style="info" %}
+**Примечание**
+
+Файлы конфигурации Asterisk используют символ точки с запятой \(;\) для комментариев, главным образом потому, что хэш-символ \(\#\) является допустимым символом на телефонной клавиатуре.
+{% endhint %}
+
+Файл _modules.conf_ дает вам полный контроль над тем, какие модули Asterisk будут \(и не будут\) загружаться. Обычно нет необходимости явно определять каждый модуль в этом файле, но вы можете это сделать если захотите. Мы собираемся создать очень простой файл, как например:
+
+```text
+$ sudo chown asterisk:asterisk /etc/asterisk ; sudo chmod 664 /etc/asterisk
+$ sudo -u asterisk vim /etc/asterisk/modules.conf
+[modules]
+autoload=yes
+preload=res_odbc.so
+preload=res_config_odbc.so
+```
+
+Мы используем ODBC для загрузки многих конфигураций других модулей, и нам нужно, чтобы этот коннектор был доступен до того, как Asterisk попытается загрузить что-либо еще, поэтому мы предварительно загрузим его. 
+
+Далее, мы собираемся подкорректировать файл _logger.conf_ предоставляемый по умолчанию.
+
+```text
+$ sudo -u asterisk vim /etc/asterisk/logger.conf
+[general]
+exec_after_rotate=gzip -9 ${filename}.2;
+[logfiles]
+;debug => debug
+;security => security
+console => notice,warning,error,verbose
+;console => notice,warning,error,debug
+messages => notice,warning,error
+full => notice,warning,error,debug,verbose,dtmf,fax
+;full-json => [json]debug,verbose,notice,warning,error,dtmf,fax
+;syslog keyword : This special keyword logs to syslog facility
+;syslog.local0 => notice,warning,error
+```
+
+Вы заметите, что многие строки закомментированы. Они здесь для справки, потому что как выяснится при отладке системы вы можете часто настраивать этот файл. Мы выяснили, что лучше подготовить и закомментировать несколько строк, чем искать синтаксис каждый раз.
+
+Следующий файл, _asterisk.conf,_ определяющий различные директории, необходимые для нормальной работы, а также параметры, необходимые для запуска от имени пользователя `asterisk`:
+
+```text
+$ sudo -u asterisk vim /etc/asterisk/asterisk.conf
+[directories](!)
+astetcdir => /etc/asterisk
+astmoddir => /usr/lib/asterisk/modules
+astvarlibdir => /var/lib/asterisk
+astdbdir => /var/lib/asterisk
+astkeydir => /var/lib/asterisk
+astdatadir => /var/lib/asterisk
+astagidir => /var/lib/asterisk/agi-bin
+astspooldir => /var/spool/asterisk
+[options]
+astrundir => /var/run/asterisk
+astlogdir => /var/log/asterisk
+astsbindir => /usr/sbin
+runuser = asterisk ; The user to run as. The default is root.
+rungroup = asterisk ; The group to run as. The default is root
+```
+
+Мы настроим остальные файлы позже, а пока это все, что нам нужно на данный момент.
+
+Давайте обновим права владельца на файлы, чтобы пользователь `asterisk` имел к ним надлежащий доступ.
+
+```text
+$ sudo chown -R asterisk:asterisk {/etc,/var/lib,/var/spool,/var/log,/var/run}/asterisk
+```
+
+Также может понадобится добавить правило в директорию _/etc/tmpfiles.d_ для разрешения Asterisk создавать сокет во время выполнения.
+
+```text
+$ sudo vim /etc/tmpfiles.d/asterisk.conf
+d /var/run/asterisk 0775 asterisk asterisk
+```
+
+\(Смотри `man tmpfiles.d` для большей информации\)
+
+Далее мы инициализируем базу данных таблицами, необходимыми Asterisk для настройки на основе ODBC.
+
+Исходные файлы Asterisk включают в себя вклад, который люди Digium поддерживают как часть Asterisk для управления версиями необходимых таблиц базы данных. Это значительно упрощает поддержание корректности базы данных в процессе обновления.
+
+Перейдите в соответствующий каталог и сделайте копию файла конфигурации.
+
+```text
+$ cd ~/src/asterisk-16.<TAB>/contrib/ast-db-manage
+$ cp config.ini.sample config.ini
+```
+
+Теперь мы собираемся открыть файл и предоставить ему учетные данные для нашей базы данных \(которые определены в Ansible playbook с именем _starfish.yml_, под переменной `current_mysql_asterisk_password`, которую мы использовали в начале этой главы\):
+
+```text
+$ vim config.ini
+```
+
+Найдите строки, которые выглядят примерно так:
+
+```text
+#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
+sqlalchemy.url = mysql://user:pass@localhost/asterisk
+
+# Logging configuration
+[loggers]
+keys = root,sqlalchemy,alembic
+
+```
+
+Сделайте её копию, раскомментируйте и отредактируйте с правильными учетными данными:
+
+```text
+#sqlalchemy.url = postgresql://user:pass@localhost/asterisk
+#sqlalchemy.url = mysql://user:pass@localhost/asterisk
+sqlalchemy.url = mysql://asterisk:YouNeedAReallyGoodPasswordHereToo@localhost/asterisk
+
+# Logging configuration
+[loggers]
+keys = root,sqlalchemy,alembic
+```
+
+Теперь, с этой очень простой конфигурацией мы можем использовать Alembic для автоматической настройки базы данных идеальной для Asterisk \(это было несколько болезненно делать в прошлых версиях Asterisk\):
+
+```text
+$ alembic -c ./config.ini upgrade head
+```
+
+{% hint style="info" %}
+**Подсказка**
+
+Alembic не используется Asterisk, поэтому конфигурация, которую вы только что выполнили, не позволяет Asterisk использовать базу данных. Все, что он делает, это запускает скрипт, который создает схему и таблицы, которые будет использовать Asterisk \(вы также можете сделать это вручную, но поверьте нам, лучше чтобы Alembic справился с этим\). Это часть процесса установки/обновления. _Это особенно полезно, если у вас есть живые таблицы с реальными данными в них, и вы хотите обновить и сохранить соответствующую конфигурацию._
+{% endhint %}
+
+Войдите в базу данных и просмотрите все созданные таблицы:
+
+```text
+$ mysql -u asterisk -p
+mysql> use asterisk;
+mysql> show tables;
+```
+
+Вы должны увидеть список, похожий на этот:
+
+```text
+| alembic_version_config      |
+| extensions                  |
+| iaxfriends                  |
+| meetme                      |
+| musiconhold                 |
+| ps_aors                     |
+| ps_asterisk_publications    |
+| ps_auths                    |
+| ps_contacts                 |
+| ps_domain_aliases           |
+| ps_endpoint_id_ips          |
+| ps_endpoints                |
+| ps_globals                  |
+| ps_inbound_publications     |
+| ps_outbound_publishes       |
+| ps_registrations            |
+| ps_resource_list            |
+| ps_subscription_persistence |
+| ps_systems                  |
+| ps_transports               |
+| queue_members               |
+| queue_rules                 |
+| queues                      |
+| sippeers                    |
+| voicemail                   |
+```
+
+Мы пока не собираемся ничего настраивать в базе данных. Сначала нам нужно сделать еще несколько базовых настроек.
+
+Выйдите из CLI базы данных. 
+
+Теперь, когда у нас есть структура базы данных для обработки конфигурации Asterisk, мы расскажем Asterisk, как подключиться к базе данных.
+
+```text
+$ sudo -u asterisk vim /etc/asterisk/res_odbc.conf
+```
+
+Еще раз, вам понадобятся учетные данные, которые вы определили в своем Ansible playbook.
+
+```text
+[asterisk]
+enabled => yes
+dsn => asterisk
+username => asterisk
+password => YouNeedAReallyGoodPasswordHereToo
+pre-connect => yes
+```
+
+### Настройки SELinux
+
+Мы собираемся установить некоторые инструменты SELinux и внести изменения в конфигурацию SELinux для правильной загрузки системы.
+
+{% hint style="info" %}
+**Примечание**
+
+Общий подход состоит в том, чтобы просто отредактировать _/etc/selinux/config_ и установить `enforcing=disabled.` Мы не рекомендуем этого делать, т.к. это полностью отключает SELinux и делает следующие шаги ненужными.
+{% endhint %}
+
+```text
+$ sudo dnf -y install setools setroubleshoot setroubleshoot-server
+$ sudo vim /etc/selinux/config
+```
+
+Вы собираетесь изменить строку `SELINUX=enforcing` на `SELINUX=permissive`. Это гарантирует, что файлы журналов будут показывать потенциальные ошибки SELinux, не блокируя соответствующие процессы. 
+
+Далее мы передадим Asterisk право собственности на файл _/etc/odbc.ini_.
+
+```text
+$ sudo chown asterisk:asterisk /etc/odbc.ini
+$ sudo semanage fcontext -a -t asterisk_etc_t /etc/odbc.ini
+$ sudo restorecon -v /etc/odbc.ini
+$ sudo ls -Z /etc/odbc.ini
+```
+
+Если все хорошо, то вы должны увидеть, что контекст для этого файла был установлен в `asterisk_etc_t`:
+
+```text
+-rw-r--r--. asterisk asterisk system_u:object_r:asterisk_etc_t:s0 /etc/odbc.ini
+```
+
+Есть еще несколько ошибок SELinux, которые мы видели здесь во время написания книги. Они могут быть исправлены к тому времени, когда вы читаете это, но не должно быть никакого вреда в их появлении:
+
+```text
+$ sudo /sbin/restorecon -vr /var/lib/asterisk/*
+$ sudo /sbin/restorecon -vr /etc/asterisk*
+```
+
+Перезагрузите систему и проверьте журнал на наличие каких-либо ошибок SELinux, прежде чем мы установим его в `enforcing`.
+
+```text
+$ sudo grep -i sealert /var/log/messages
+```
+
+Там может быть несколько сообщений, жалующихся на то, что Asterisk не нужно \(например, скрытый файл с именем _.odbc.ini_\), но до тех пор, пока он не полон ошибок о всевозможных важных компонентах Asterisk, всё должно быть хорошо. Последнее, что вам нужно изменить - это SELinux Boolean, позволяющее Asterisk создавать TTY.
+
+```text
+$ sudo setsebool -P daemons_use_tty 1
+```
+
+Отредактируйте файл _/etc/selinux/config_ еще раз, на этот раз установив `SELINUX=enforcing`. Сохраните и перезагрузите еще раз. 
+
+Убедитесь что Asterisk запущен \(от пользователя `asterisk`\).
+
+```text
+$ ps -ef | grep asterisk
+asterisk 3992 3985 0 16:38 ? 00:00:01 /usr/sbin/asterisk -f -vvvg -c
+```
+
+Хорошо, мы почти закончили с установкой.
+
+### Настройки файрволла
+
+Мы сделаем пару настроек файрволла чтобы подготовить нашу систему для SIP \(и безопасности SIP\).
+
+```text
+$ sudo firewall-cmd --zone=public --add-service=sip --permanent
+$ sudo firewall-cmd --zone=public --add-service=sips --permanent
+```
+
+### Финишные настройки
+
+Ваша система Asterisk готова к запуску. 
+
+Давайте поместим некоторые исходные данные в конфигурационные файлы, чтобы в следующей главе мы могли начать работать с нашей новой системой Asterisk. 
+
+Поскольку мы собираемся использовать канал PJSIP для всех вызовов, мы укажем Asterisk искать конфигурацию PJSIP в базе данных:
+
+```text
+$ sudo -u asterisk vim /etc/asterisk/sorcery.conf
+
+[res_pjsip] ; Мастер настройки Realtime PJSIP
+; в конечном итоге больше модулей будут использовать волшебство 
+; для подключения к базе данных, но в настоящее время только PJSIP использует это
+endpoint=realtime,ps_endpoints
+auth=realtime,ps_auths
+aor=realtime,ps_aors
+domain_alias=realtime,ps_domain_aliases
+contact=realtime,ps_contacts
+
+[res_pjsip_endpoint_identifier_ip]
+identify=realtime,ps_endpoint_id_ips
+
+$ sudo -u asterisk vim /etc/asterisk/extconfig.conf
+
+[settings] ; старый механизм для подключения всех других модулей к базе данных
+ps_endpoints => odbc,asterisk
+ps_auths => odbc,asterisk
+ps_aors => odbc,asterisk
+ps_domain_aliases => odbc,asterisk
+ps_endpoint_id_ips => odbc,asterisk
+ps_contacts => odbc,asterisk
+
+$ sudo -u asterisk vim /etc/asterisk/modules.conf
+
+[modules]
+autoload=yes
+preload=res_odbc.so
+preload=res_config_odbc.so
+noload=chan_sip.so ; устаревший SIP-модуль с прошлых дней
+```
+
+Теперь мы должны поместить один бит конфигурации в файл _pjsip.conf_, определяющий механизм транспорта.
+
+```text
+$ sudo -u asterisk vim /etc/asterisk/pjsip.conf
+[transport-udp]
+type=transport
+protocol=udp
+bind=0.0.0.0
+```
+
+Наконец, давайте войдем в базу данных и определим некоторые примеры конфигураций для PJSIP:
+
+```text
 $ mysql -D asterisk -u asterisk -p
 
-mysql&gt;
+mysql>
 
-insert into asterisk.ps\_aors \(id, max\_contacts\) values \('0000f30A0A01', 1\);
-
-insert into asterisk.ps\_aors \(id, max\_contacts\) values \('0000f30B0B02', 1\);
-
+insert into asterisk.ps_aors (id, max_contacts) values ('0000f30A0A01', 1);
+insert into asterisk.ps_aors (id, max_contacts) values ('0000f30B0B02', 1);
 insert
-
- into asterisk.ps\_auths
-
- \(id, auth\_type, password, username\)
-
- values
-
- \('0000f30A0A01', 'userpass', 'not very secure', '0000f30A0A01'\);
-
+  into asterisk.ps_auths
+  (id, auth_type, password, username)
+  values
+  ('0000f30A0A01', 'userpass', 'not very secure', '0000f30A0A01');
 insert
-
- into asterisk.ps\_auths
-
- \(id, auth\_type, password, username\)
-
- values
-
- \('0000f30B0B02', 'userpass', 'hardly to be trusted', '0000f30B0B02'\);
-
+  into asterisk.ps_auths
+  (id, auth_type, password, username)
+  values
+  ('0000f30B0B02', 'userpass', 'hardly to be trusted', '0000f30B0B02');
 insert
-
- into asterisk.ps\_endpoints
-
- \(id, transport, aors, auth, context, disallow, allow, direct\_media\)
-
- values
-
- \('0000f30A0A01', 'transport-udp', '0000f30A0A01', '0000f30A0A01',
-
- 'sets', 'all', 'ulaw', 'no'\);
-
+  into asterisk.ps_endpoints
+  (id, transport, aors, auth, context, disallow, allow, direct_media)
+  values
+  ('0000f30A0A01', 'transport-udp', '0000f30A0A01', '0000f30A0A01',
+  'sets', 'all', 'ulaw', 'no');
 insert
-
- into asterisk.ps\_endpoints
-
- \(id, transport, aors, auth, context, disallow, allow, direct\_media\)
-
- values
-
- \('0000f30B0B02', 'transport-udp', '0000f30B0B02', '0000f30B0B02',
-
- 'sets', 'all', 'ulaw', 'no'\);
-
+  into asterisk.ps_endpoints
+  (id, transport, aors, auth, context, disallow, allow, direct_media)
+  values
+  ('0000f30B0B02', 'transport-udp', '0000f30B0B02', '0000f30B0B02',
+  'sets', 'all', 'ulaw', 'no');
 exit
+```
 
-Let’s reboot, and then we’ll log into our new Asterisk system and have a look at what we’ve created.
+Давайте перезагрузимся, а затем войдем в нашу новую систему Asterisk и посмотрим, что мы создали.
 
 ## Validating Your New Asterisk System
 
