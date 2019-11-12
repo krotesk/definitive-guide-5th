@@ -51,7 +51,7 @@
 
 И наоборот, можем ли мы взять два IP-телефона, подключить их непосредственно друг к другу и получить некоторую разумную функциональность? Конечно можем, потому что весь интеллект находится внутри самих IP—телефонов - они обеспечивают тоны, которые мы слышим \(сигнал вызова, звонок, занято\) и запускают протокол, который выполняет всю необходимую сигнализацию \(обычно SIP\). Фактически, вы можете попробовать это для себя - большинство средних IP-телефонов имеют встроенный коммутатор Ethernet, поэтому вы можете подключить два IP-телефона непосредственно друг к другу с помощью обычного \(прямого\) кабеля Ethernet или просто подключить их через обычный коммутатор. Они должны иметь фиксированные IP-адреса в отсутствие DHCP-сервера, и вы сможете набрать IP-адрес другого телефона, просто используя клавишу \* для точек в адресе.
 
-Рисунок 9-2 указывает на тот факт, что на IP-телефоне мы несем ответственность за настройку всех тонов, которые предоставила бы сеть в былые времена. Это можно сделать одним \(по крайней мере\) из двух способов. Первый заключается в настройке тонов, предоставляемых IP-телефоном на собственном веб-интерфейсе устройства. Вы делаете это, просматривая IP-адрес телефона \(IP-адрес обычно можно получить с помощью опции меню на телефоне\), а затем выбрав соответствующие параметры. Например, на IP-телефоне Yealink тоны устанавливаются на странице веб-графического интерфейса телефона под вкладкой "Тоны" \(где вы найдете список различных типов тонов, которые можно изменить — в случае Yealink это набор, КПВ, занято, перегрузка, ожидание вызова, повторный вызов, запись, информация, заикание, сообщение и автоответ\).
+Рисунок 9-2 указывает на тот факт, что на IP-телефоне мы несем ответственность за настройку всех тонов, которые предоставила бы сеть в былые времена. Это можно сделать одним \(по крайней мере\) из двух способов. Первый заключается в настройке тонов, предоставляемых IP-телефоном на собственном веб-интерфейсе устройства. Вы делаете это, просматривая IP-адрес телефона \(IP-адрес обычно можно получить с помощью опции меню на телефоне\), а затем выбрав соответствующие параметры. Например, на IP-телефоне Yealink тоны устанавливаются на странице веб-графического интерфейса _Телефон_ под вкладкой _Тоны_ \(где вы найдете список различных типов тонов, которые можно изменить — в случае Yealink это набор, КПВ, занято, перегрузка, ожидание вызова, повторный вызов, запись, информация, заикание, сообщение и автоответ\).
 
 Другой способ, которым эта конфигурация может быть применена - это автоматическое предоставление телефону этих настроек. Полное объяснение механизма автопровижинга выходит за рамки этой книги, но как правило вы можете настроить тоны в соответствующих атрибутах необходимых элементов в XML-файле.
 
@@ -69,33 +69,37 @@
 
 Что делать, если вы подключаете аналоговый телефон или линию к карте Digium? Мы рассмотрим это в следующий раз.
 
-## PSTN Connectivity, DAHDI, Digium Cards, and Analog Phones
+## Подключение ТфОП, DAHDI, карт Digium и аналоговых телефонов
 
-Before we get to DAHDI and Asterisk configuration, we need to physically connect to the PSTN. Unfortunately, there are no worldwide standards for these connections; in fact, there are often variations from one part of a given country to another.
+Прежде чем мы перейдем к конфигурации DAHDI и Asterisk, нам нужно физически подключиться к ТфОП. К сожалению, общемировых стандартов для пордобных соединений не существует; на самом деле, даже в разных частях одной страны часто существуют различия. 
 
-Primary Rate Interfaces \(PRIs\) are generally terminated in an RJ45 connection these days, although the impedance of the connections can vary. In some countries \(notably in South America\), it is still possible to find PRIs terminated in two BNC connectors, one for transmit and one for receive.
+Primary Rate Interfaces \(PRI\) обычно оканчиваются соединением RJ45 в настоящее время, хотя импеданс соединений может варьироваться. В некоторых странах \(в частности, в Южной Америке\) все еще можно найти PRI, обжатый двумя разъемами BNC: один для передачи и один для приема. 
 
-Generally speaking, a PRI terminated in an RJ45 will be an ISDN connection, and if you find the connection is made by a pair of BNC connectors \(push-and-twist coaxial connectors\), the likelihood is that you are dealing with an older CAS-based protocol \(like MFCR2\).
+Проще говоря PRI, оконеченный RJ45, будет соединением ISDN, а если вы обнаружите, что соединение выполнено парой разъемов BNC \(push-and-twist coaxial connectors\), велика вероятность что вы имеете дело с более старым протоколом на основе CAS \(например, MFCR2\). 
 
-[Figure 9-3](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22balun-connection/README.md) shows the adapter required if your telco has supplied BNC connectors \(Sangoma/Digium cards require an RJ45 connection\). It is called a balun, as it converts from a balanced connection \(RJ45\) to an unbalanced connection \(the BNCs\), in addition to changing the connection impedance.
+На Рисунке 9-3 показан адаптер, необходимый в том случае, если ваша телефонная компания поставила разъемы BNC \(карты Sangoma/Digium требуют подключения RJ45\). Он называется _balun_, поскольку преобразует из сбалансированного соединения \(RJ45\) в несбалансированное соединение \(BNCs\) в дополнение к изменению импеданса соединения.
 
-#### Note
+{% hint style="info" %}
+#### Примечание
 
-Basic Rate Interfaces \(BRIs\) are common in continental Europe and are almost always supplied via an RJ45 connection.
+Basic Rate Interfaces \(BRIs\) распроастранены в континентальной Европе и почти всегда поставляются через соединение RJ45.
+{% endhint %}
+
+#### 
 
 ![](.gitbook/assets/2%20%285%29.png)
 
-#### Figure 9-3. A balun
+#### Рисунок 9-3. Balun
 
-Analog connections vary massively from place to place—you will know what kind of connector is used in your locality. The important thing to remember is that the analog line is only two wires, and these need to connect to the middle two pins of the RJ11 plug that goes into the Digium card—the other end is the local one. [Figure 9-4](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22bt-plug-diagram/README.md) shows the plug used in the UK, where the two wires are connected to pins 2 and 5.
+Аналоговые соединения сильно различаются в зависимости от местоположения - вы должны знать, какой тип разъема используется в вашей местности. Важно помнить, что аналоговая линия - это только два провода, и они должны подключаться к двум средним контактам разъема RJ11, который входит в плату Digium, другой конец является локальным. На Рисунке 9-4 показан коннектор, используемый в Великобритании, где два провода подключены к контактам 2 и 5.
 
 ![](.gitbook/assets/3%20%281%29.png)
 
-#### Figure 9-4. The BT plug used for analog PSTN connections in the UK \(note only pins 2–5 are present\)
+#### Рисунок 9-4. Штекер BT, используемый для аналоговых соединений ТфОП в Великобритании \(обратите внимание, присутствуют только контакты 2–5\)
 
-The Digium Asterisk Hardware Device Interface, or DAHDI, actually covers a number of things. It contains the kernel drivers for telephony adapter cards that work within the DAHDI framework, as well as automatic configuration utilities and test tools. These parts are contained in two separate packages \(dahdi-linux and dahdi-tools\), but we can also use one complete package, called dahdi-linux-complete. All three packages are available at the [Digium site](http://downloads.digium.com/pub/telephony/).
+Интерфейс аппаратного устройства Digium Asterisk \(Digium Asterisk Hardware Device Interface\) или DAHDI на самом деле охватывает несколько вещей. Он содержит драйверы ядра для плат адаптеров телефонии, которые работают в рамках DAHDI, а также утилиты автоматической настройки и инструменты тестирования. Эти части содержатся в двух отдельных пакетах \(_dahdi-linux_ и _dahdi-tools_\), но мы также можем использовать один полный пакет, который называется _dahdi-linux-complete_. Все три пакета доступны [на сайте Digium](http://downloads.digium.com/pub/telephony/). 
 
-Once you have established the type of PRI connection the telco has given you, there are some further details that you will require in order to properly configure DAHDI and Asterisk \(e.g., whether the connection is ISDN or a CAS-based protocol\). Again, you will find these in [Chapter 7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22asterisk-OutsideConn).
+После того, как вы установили тип соединения PRI, предоставленного вам телекоммуникационным оператором, вам понадобятся некоторые дополнительные сведения для правильной настройки DAHDI и Asterisk \(например, является ли соединение ISDN или протоколом на основе CAS\). Опять же, вы найдете их в [Главе 7](glava-07.md).
 
 ### DAHDI Drivers
 
@@ -103,71 +107,49 @@ The connections where some real localization will need to take place are those o
 
 In the following lines \(taken from the sample configuration that you get with a fresh install of DAHDI\), you will find both the loadzone and defaultzone settings. The loadzone setting allows you to choose which tone set\(s\) the card will both generate \(to feed to analog telephones\) and recognize \(on the connected analog telephone lines\):
 
-\# Tone Zone Data
-
-\# ^^^^^^^^^^^^^^
-
-\# Finally, you can preload some tone zones, to prevent them from getting
-
-\# overwritten by other users \(if you allow non-root users to open /dev/dahdi/\*
-
-\# interfaces anyway\). Also this means they won't have to be loaded at runtime.
-
-\# The format is "loadzone=&lt;zone&gt;" where the zone is a two-letter country code.
-
-\#
-
-\# You may also specify a default zone with "defaultzone=&lt;zone&gt;" where zone
-
-\# is a two-letter country code.
-
-\#
-
-\# An up-to-date list of the zones can be found in the file zonedata.c
-
-\#
-
+```text
+# Tone Zone Data
+# ^^^^^^^^^^^^^^
+# Finally, you can preload some tone zones, to prevent them from getting
+# overwritten by other users (if you allow non-root users to open /dev/dahdi/*
+# interfaces anyway). Also this means they won't have to be loaded at runtime.
+# The format is "loadzone=<zone>" where the zone is a two-letter country code.
+#
+# You may also specify a default zone with "defaultzone=<zone>" where zone
+# is a two-letter country code.
+#
+# An up-to-date list of the zones can be found in the file zonedata.c
+#
 loadzone = us
-
-\#loadzone = us-old
-
-\#loadzone=gr
-
-\#loadzone=it
-
-\#loadzone=fr
-
-\#loadzone=de
-
-\#loadzone=uk
-
-\#loadzone=fi
-
-\#loadzone=jp
-
-\#loadzone=sp
-
-\#loadzone=no
-
-\#loadzone=hu
-
-\#loadzone=lt
-
-\#loadzone=pl
-
+#loadzone = us-old
+#loadzone=gr
+#loadzone=it
+#loadzone=fr
+#loadzone=de
+#loadzone=uk
+#loadzone=fi
+#loadzone=jp
+#loadzone=sp
+#loadzone=no
+#loadzone=hu
+#loadzone=lt
+#loadzone=pl
 defaultzone=us
+#
+```
 
-\#
-
+{% hint style="info" %}
 #### Tip
 
 The /etc/dahdi/system.conf file uses the hash symbol \(\#\) to indicate a comment instead of a semicolon \(;\) like the files in /etc/asterisk.
+{% endhint %}
 
 Although it is possible to load a number of different tone sets \(you can see all the sets of tones in detail in zonedata.c\) and to switch between them, in most practical situations you will only need:
 
-loadzone=uk \# to load the tone set
-
-defaultzone=uk \# to default DAHDI to using that set
+```text
+loadzone=uk # to load the tone set
+defaultzone=uk # to default DAHDI to using that set
+```
 
 …or whichever tones you need for your region.
 
@@ -181,11 +163,13 @@ That’s it at the DAHDI level. We chose the protocol\(s\) for PRI or BRI connec
 
 The relationship between Linux, DAHDI, and Asterisk \(and therefore /etc/dahdi/system.conf and /etc/asterisk/chan\_dahdi.conf\) is shown in [Figure 9-5](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22asterisk-dahdi-relationship/README.md).
 
+{% hint style="info" %}
 #### Tip
 
 Once you have completed your configuration at the DAHDI level \(in /etc/dahdi/system.conf\), you need to perform a dahdi\_cfg -vvv to have DAHDI reread the configuration. This is also a good time to use dahdi\_tool to check that everything appears to be in order at the Linux level.
 
 This way, if things do not work properly after you have configured Asterisk to work with the DAHDI adapters, you can be sure that the problem is confined to chan\_dahdi.conf \(or an \#included dahdi-channels.conf if you are using this part of the dahdi\_genconf output\).
+{% endhint %}
 
 ![](.gitbook/assets/4%20%281%29.png)
 
@@ -205,17 +189,18 @@ Not only is the format different, but the method of telling a telephone \(or Ast
 
 Again, Asterisk defaults to the North American caller ID format \(no entries in /etc/asterisk/chan\_dahdi.conf describe this, it’s just the default\), and in order to change it we will need to make some entries that describe the technical details of the caller ID system. In the case of the UK, the delivery of caller ID information is signaled by a polarity reversal on the telephone line \(in other words, the A and B legs of the pair of telephone wires are temporarily switched over\), and the actual caller ID information is delivered in a format known as V.23 \(frequency shift keying, or FSK\). So the entries in chan\_dahdi.conf to receive UK-style caller ID on any FXO interfaces will look like this:
 
+```text
 cidstart=polarity ; the delivery of caller ID will be
-
-; signaled by a polarity reversal
-
+                  ; signaled by a polarity reversal
 cidsignalling=v23 ; the delivery of the called ID information
-
-; will be in V23 format
+                  ; will be in V23 format
+```
 
 Of course, you may also need to send caller ID using the same local signaling information to any analog phones that are connected to FXS interfaces, and one more entry may be needed, as in some locations the caller ID information is sent after a specified number of rings. If this is the case, you can use this entry:
 
+```text
 sendcalleridafter=2
+```
 
 Before you can make these entries, you will need to establish the details of your local caller ID system \(someone from your local telco or Google could be your friend here, but there is also some good information in the sample /etc/asterisk/chan\_dahdi.conf file\).
 
@@ -229,7 +214,9 @@ The default directory used is /var/lib/asterisk/sounds/en, so how do you change 
 
 There are two ways. One is to set the language in the channel configuration file that calls are arriving through using the language directive. For example, the line:
 
-language=en\_UK
+```text
+language=en_UK
+```
 
 placed in chan\_dahdi.conf, sip.conf, and so on \(to apply generally, or for just a given channel or profile\) will tell Asterisk to use sound files found in /var/lib/asterisk/sounds/en\_UK \(which could contain British-accented prompts\) for all calls that come in through those channels.
 
@@ -237,21 +224,16 @@ The other way is to change the language during a phone call through the dialplan
 
 The following example would allow the caller to choose one of three languages in which to continue the call:
 
-; gives the choice of \(1\) French, \(2\) Spanish, or \(3\) German
-
-exten =&gt; s,1,Background\(choose-language\)
-
-same =&gt; n,WaitExten\(5\)
-
-exten =&gt; 1,1,Set\(CHANNEL\(language\)=fr\)
-
-exten =&gt; 2,1,Set\(CHANNEL\(language\)=es\)
-
-exten =&gt; 3,1,Set\(CHANNEL\(language\)=de\)
-
+```text
+; gives the choice of (1) French, (2) Spanish, or (3) German
+exten => s,1,Background(choose-language)
+same => n,WaitExten(5)
+exten => 1,1,Set(CHANNEL(language)=fr)
+exten => 2,1,Set(CHANNEL(language)=es)
+exten => 3,1,Set(CHANNEL(language)=de)
 ; the next priority for extensions 1, 2, or 3 would be handled here
-
-exten =&gt; \_\[123\],n,Goto\(menu,s,1\)
+exten => _[123],n,Goto(menu,s,1)
+```
 
 If the caller pressed 1, sounds would be played from /var/lib/asterisk/sounds/fr; if he pressed 2, the sounds would come from /var/lib/asterisk/sounds/es; and so on.
 
@@ -271,97 +253,59 @@ Since all these things are connected to voicemail, you would be right to guess t
 
 Here is the \[zonemessages\] part of the sample voicemail.conf file that comes with Asterisk, with UK24 \(for UK people that like 24-hour clock format times\) and UK12 \(for UK people that prefer 12-hour clock format\) zones added:
 
-\[zonemessages\]
-
+```text
+[zonemessages]
 ; Users may be located in different time zones, or may have different
-
 ; message announcements for their introductory message when they enter
-
 ; the voicemail system. Set the message and the time zone each user
-
 ; hears here. Set the user into one of these zones with the tz=attribute
-
 ; in the options field of the mailbox. Of course, language substitution
-
 ; still applies here so you may have several directory trees that have
-
 ; alternate language choices.
-
 ;
-
 ; Look in /usr/share/zoneinfo/ for names of timezones.
-
 ; Look at the manual page for strftime for a quick tutorial on how the
-
 ; variable substitution is done on the values below.
-
 ;
-
 ; Supported values:
-
-; 'filename' filename of a soundfile \(single ticks around the filename
-
-; required\)
-
+; 'filename' filename of a soundfile (single ticks around the filename
+; required)
 ; ${VAR} variable substitution
-
-; A or a Day of week \(Saturday, Sunday, ...\)
-
-; B or b or h Month name \(January, February, ...\)
-
-; d or e numeric day of month \(first, second, ... thirty-first\)
-
+; A or a Day of week (Saturday, Sunday, ...)
+; B or b or h Month name (January, February, ...)
+; d or e numeric day of month (first, second, ... thirty-first)
 ; Y Year
-
 ; I or l Hour, 12 hour clock
-
-; H Hour, 24 hour clock \(single digit hours preceded by "oh"\)
-
-; k Hour, 24 hour clock \(single digit hours NOT preceded by "oh"\)
-
+; H Hour, 24 hour clock (single digit hours preceded by "oh")
+; k Hour, 24 hour clock (single digit hours NOT preceded by "oh")
 ; M Minute, with 00 pronounced as "o'clock"
-
-; N Minute, with 00 pronounced as "hundred" \(US military time\)
-
+; N Minute, with 00 pronounced as "hundred" (US military time)
 ; P or p AM or PM
-
 ; Q "today", "yesterday" or ABdY
-
-; \(\*note: not standard strftime value\)
-
-; q " \(for today\), "yesterday", weekday, or ABdY
-
-; \(\*note: not standard strftime value\)
-
+; (*note: not standard strftime value)
+; q " (for today), "yesterday", weekday, or ABdY
+; (*note: not standard strftime value)
 ; R 24 hour time, including minute
-
 ;
-
-eastern=America/New\_York\|'vm-received' Q 'digits/at' IMp
-
-central=America/Chicago\|'vm-received' Q 'digits/at' IMp
-
-central24=America/Chicago\|'vm-received' q 'digits/at' H N 'hours'
-
-military=Zulu\|'vm-received' q 'digits/at' H N 'hours' 'phonetic/z\_p'
-
-european=Europe/Copenhagen\|'vm-received' a d b 'digits/at' HM
-
-UK24=Europe/London\|'vm-received' q 'digits/at' H N 'hours'
-
-UK12=Europe/London\|'vm-received' Q 'digits/at' IMp
+eastern=America/New_York|'vm-received' Q 'digits/at' IMp
+central=America/Chicago|'vm-received' Q 'digits/at' IMp
+central24=America/Chicago|'vm-received' q 'digits/at' H N 'hours'
+military=Zulu|'vm-received' q 'digits/at' H N 'hours' 'phonetic/z_p'
+european=Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
+UK24=Europe/London|'vm-received' q 'digits/at' H N 'hours'
+UK12=Europe/London|'vm-received' Q 'digits/at' IMp
+```
 
 These zones not only specify a time, but also dictate the way times and dates are ordered and read out.
 
 Having created these zones, we can go to the voicemail context part of voicemail.conf to associate the appropriate mailboxes with the correct zones:
 
-\[default\]
-
-4001 =&gt; 1234,Russell Bryant,rb@shifteight.org,,\|tz=central
-
-4002 =&gt; 4444,David Duffett,dd@shifteight.org,,\|tz=UK24
-
-4003 =&gt; 4450,Mary Poppins,mp@shifteight.org,,\|tz=UK12\|attach=yes
+```text
+[default]
+4001 => 1234,Russell Bryant,rb@shifteight.org,,|tz=central
+4002 => 4444,David Duffett,dd@shifteight.org,,|tz=UK24
+4003 => 4450,Mary Poppins,mp@shifteight.org,,|tz=UK12|attach=yes
+```
 
 As you can see, when we declare a mailbox, we also \(optionally\) associate it with a particular zone. Full details on voicemail can be found in [Chapter 8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22asterisk-Voicemail).
 
@@ -371,33 +315,22 @@ As identified earlier in this chapter, the initial tones that people hear when t
 
 These tones are set in /etc/asterisk/indications.conf. Here is a part of the sample file, where you can see a given region specified by the country directive. We just need to change the country code as appropriate:
 
+```text
 ;
-
 ; indications.conf
-
 ;
-
 ; Configuration file for location specific tone indications
-
 ;
-
 ; NOTE:
-
 ; When adding countries to this file, please keep them in alphabetical
-
 ; order according to the 2-character country codes!
-
 ;
-
-; The \[general\] category is for certain global variables.
-
+; The [general] category is for certain global variables.
 ; All other categories are interpreted as location specific indications
-
 ;
-
-\[general\]
-
+[general]
 country=uk ; default is US, so we have changed it to UK
+```
 
 Your dialplan will need to reflect the numbering scheme for your region. If you do not already know the scheme for your area, your local telecoms regulator will usually be able to supply details of the plan. Also, the example dialplan in /etc/asterisk/extensions.conf is, of course, packed with North American numbers and patterns.
 
@@ -409,67 +342,69 @@ Before we leave the chapter, have a look at [Table 9-1](https://github.com/Krote
 
 Table 9-1. Internationalization cheat sheet
 
-| What to change | Where to change it |
-| :--- | :--- |
-
-
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">Call progress tones</th>
-      <th style="text-align:left">
+      <th style="text-align:left">What to change</th>
+      <th style="text-align:left">Where to change it</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align:left">Call progress tones</td>
+      <td style="text-align:left">
+        <p></p>
         <ul>
           <li>IP phones&#x2014;on the phone itself</li>
           <li>ATAs&#x2014;on the ATA itself</li>
-          <li>Analog phones&#x2014;DAHDI (/etc/dahdi/system.conf)</li>
+          <li>Analog phones&#x2014;DAHDI (<em>/etc/dahdi/system.conf</em>)</li>
         </ul>
-      </th>
+      </td>
     </tr>
-  </thead>
-  <tbody></tbody>
-</table>| Type of PRI/BRI and protocol | DAHDI—/etc/dahdi/system.conf and /etc/asterisk/chan\_dahdi.conf |
-| :--- | :--- |
-
-
-<table>
-  <thead>
     <tr>
-      <th style="text-align:left">Physical PSTN connections</th>
-      <th style="text-align:left">
+      <td style="text-align:left">Type of PRI/BRI and protocol</td>
+      <td style="text-align:left">DAHDI&#x2014;<em>/etc/dahdi/system.conf</em> and <em>/etc/asterisk/chan_dahdi.conf</em>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">Physical PSTN connections</td>
+      <td style="text-align:left">
+        <p></p>
         <ul>
           <li>Balun if required for PRI</li>
           <li>Get the analog pair to middle two pins of the RJ11 connecting to the Digium
             card</li>
         </ul>
-      </th>
+      </td>
     </tr>
-  </thead>
-  <tbody></tbody>
-</table>| Caller ID on analog circuits | Asterisk—/etc/asterisk/chan\_dahdi.conf |
-| :--- | :--- |
-
-
-<table>
-  <thead>
     <tr>
-      <th style="text-align:left">Prompt language and/or accent</th>
-      <th style="text-align:left">
-        <ul>
-          <li>Channel&#x2014;/etc/asterisk/sip.conf, /etc/asterisk/iax.conf, /etc/asterisk/chan_dahdi.conf,
-            etc.</li>
-          <li>Dialplan&#x2014;CHANNEL(language) function</li>
-        </ul>
-      </th>
+      <td style="text-align:left">Caller ID on analog circuits</td>
+      <td style="text-align:left">Asterisk&#x2014;<em>/etc/asterisk/chan_dahdi.conf</em>
+      </td>
     </tr>
-  </thead>
-  <tbody></tbody>
-</table>| Voicemail time/date stamps and pronunciation | Asterisk—/etc/asterisk/voicemail.conf |
-| :--- | :--- |
-
-
-| Tones delivered by Asterisk | Asterisk—/etc/asterisk/indications.conf |
-| :--- | :--- |
-
+    <tr>
+      <td style="text-align:left">Prompt language and/or accent</td>
+      <td style="text-align:left">
+        <p></p>
+        <ul>
+          <li>Channel&#x2014;<em>/etc/asterisk/sip.conf</em>, <em>/etc/asterisk/iax.conf</em>, <em>/etc/asterisk/chan_dahdi.conf</em>,
+            etc.</li>
+          <li>Dialplan&#x2014;<code>CHANNEL(language)</code> function</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">Voicemail time/date stamps and pronunciation</td>
+      <td style="text-align:left">Asterisk&#x2014;<em>/etc/asterisk/voicemail.conf</em>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:left">Tones delivered by Asterisk</td>
+      <td style="text-align:left">Asterisk&#x2014;<em>/etc/asterisk/indications.conf</em>
+      </td>
+    </tr>
+  </tbody>
+</table>May all your Asterisk deployments feel at home…
 
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html%22%20/l%20%22idm46178407219928-marker) i18n is a term used to abbreviate the word internationalization, due to its length. The format is &lt;first\_letter&gt;&lt;number&gt;&lt;last\_letter&gt;, where &lt;number&gt; is the number of letters between the first and last letters. Other words, such as localization \(L10n\) and modularization \(m12n\), have also found a home with this scheme, which Leif finds a little bit ridiculous. More information can be found in the [W3C glossary online](http://www.w3.org/2001/12/Glossary%22%20/l%20%22I18N).
 
