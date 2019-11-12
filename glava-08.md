@@ -83,11 +83,11 @@ The first section of the voicemail.conf file, \[general\], allows you to define 
 | Опция | Значение | Примечание |
 | :--- | :--- | :--- |
 | format | wav49\|gsm\|wav | Для каждого перечисленного формата, Астериск создает  отдельную запись в этом формате, каждый раз когда остается сообщение. Преимущество этого механизма в  экономии ресурсов на транскодировании, которое не надо выполнять, если для записи используется тот же самый кодек что и для канала. Мы любим WAV за высокое качество, и WAV49 потому что  он хорошо сжимается и легок для передачи по почте. Мы не любим GSM за шумы в записи, но он пользуется  некторой популярностью. |
-| serveremail | user@domain |  |
-| attach | yes,no |  |
-|  |  |  |
+| serveremail | user@domain | Адрес в заголовке письма FROM, отображаемый в отправленном с Астериска письме. |
+| attach | yes,no | Если для ящика голосовой почты указан адрес электронной почты, эта опция определяет, будет ли прикреплено записанное сообщение к письму \(если нет, то будет отправлено простое уведомление, и пользователю нужно будет позвонить на голосовую почту чтобы получить свое сообщение\). |
+| maxmsg | 9999 | По умолчанию, Астериск разрешает хранить  максимум 100 сообщений на пользователя. Для пользователей удаляющих прослушанные сообщения это не является проблемой. Для пользовтелей которые предпочитают сохранять свои сообщения, этот лимит будет достигнут очень быстро. С размерами жестких дисков  в наши дни, вы можете легко хранить тысячи сообщений для каждого пользователя. Поэтому, по нашему мнению, можно выставить эту опцию в максимальное значение и позволить пользователям самим управлять этими данными. Имейте в виду, что после нескольких лет хранения, старые сообщения голосовой почты в больших системах могут занимать много места на жестком диске. |
 
-Table 8-1. \[general\] section options for voicemail.conf
+ Table 8-1. \[general\] section options for voicemail.conf
 
 <table>
   <thead>
@@ -98,32 +98,6 @@ Table 8-1. \[general\] section options for voicemail.conf
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td style="text-align:left">format</td>
-      <td style="text-align:left">wav49|gsm|wav</td>
-      <td style="text-align:left">For each format listed, Asterisk creates a separate recording in that
-        format whenever a message is left. The benefit is that some transcoding
-        steps may be saved if the stored format is the same as the codec used on
-        the channel. We like WAV because it is the highest quality, and WAV49 because
-        it is nicely compressed and easy to email. We don&#x2019;t like GSM due
-        to its scratchy sound, but it enjoys some popularity.<a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407560904">a</a>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:left">serveremail</td>
-      <td style="text-align:left">user@domain</td>
-      <td style="text-align:left">When an email is sent from Asterisk, this is the email address that it
-        will appear to come from.<a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407558120">b</a>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:left">attach</td>
-      <td style="text-align:left">yes,no</td>
-      <td style="text-align:left">If an email address is specified for a mailbox, this determines whether
-        the message is attached to the email (if not, a simple message notification
-        is sent, and the user will need to call into voicemail to retrieve their
-        messages).</td>
-    </tr>
     <tr>
       <td style="text-align:left">maxmsg</td>
       <td style="text-align:left">9999</td>
