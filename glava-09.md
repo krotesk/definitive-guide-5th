@@ -10,11 +10,11 @@
 
 Помимо того, что пользовательский интерфейс соответствует тому, что ожидают пользователи, также необходимо, чтобы ваш Asterisk чувствовал себя «как дома». Например, если исходящий вызов сделан по аналоговой линии \(FXO\), Asterisk будет нужно интерпретировать тоны, которые он «слышит» на линии \(занято, вызов и т.д.\).
 
-По умолчанию \(а возможно, как и следовало бы ожидать, поскольку он был “рожден в США”\), Asterisk настроен на работу в Северной Америке. Однако, поскольку Asterisk развертывается во многих местах и \(к счастью\) люди со всего мира вносят свой вклад в него, вполне возможно настроить Asterisk для правильной работы практически в любом месте, где вы решите его развернуть. 
+По умолчанию \(а возможно, как и следовало бы ожидать, поскольку он был “рожден в США”\), Asterisk настроен на работу в Северной Америке. Однако, поскольку Asterisk развертывается во многих местах и \(к счастью\) люди со всего мира вносят свой вклад в него, вполне возможно настроить Asterisk для правильной работы практически в любом месте, где вы решите его развернуть.
 
-Если вы читали эту книгу с самого начала - глава за главой, вы уже сделали некоторый выбор во время установки и начальной конфигурации, которая настроила ваш Asterisk для работы в вашем регионе \(и оправдает ожидания ваших клиентов\). 
+Если вы читали эту книгу с самого начала - глава за главой, вы уже сделали некоторый выбор во время установки и начальной конфигурации, которая настроила ваш Asterisk для работы в вашем регионе \(и оправдает ожидания ваших клиентов\).
 
-Довольно много глав в этой книге содержат информацию, которая поможет вам интернационализировать[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html#idm46178407219928) или \(возможно, более правильно\) локализовать вашу реализацию Asterisk. Цель этой главы - обеспечить единое место, куда можно будет ссылаться, обсуждать и объяснять все аспекты изменений, которые необходимо внести в телефонную систему на базе Asterisk в этом контексте. Причина использования фразы "телефонная система на основе Asterisk", а не просто” Asterisk", заключается в том, что некоторые изменения необходимо будет внести в другие части системы \(IP-телефоны, ATAs и т. д.\), в то время как другие изменения будут реализованы в конфигурационных файлах Asterisk и DAHDI. 
+Довольно много глав в этой книге содержат информацию, которая поможет вам интернационализировать[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html#idm46178407219928) или \(возможно, более правильно\) локализовать вашу реализацию Asterisk. Цель этой главы - обеспечить единое место, куда можно будет ссылаться, обсуждать и объяснять все аспекты изменений, которые необходимо внести в телефонную систему на базе Asterisk в этом контексте. Причина использования фразы "телефонная система на основе Asterisk", а не просто” Asterisk", заключается в том, что некоторые изменения необходимо будет внести в другие части системы \(IP-телефоны, ATAs и т. д.\), в то время как другие изменения будут реализованы в конфигурационных файлах Asterisk и DAHDI.
 
 Давайте начнем с составления списка \(не в определенном порядке\) вещей, которые возможно потребуется изменить для оптимизации вашей телефонной системы на основе Asterisk для данного местоположения за пределами Северной Америки. Вы можете выкрикнуть что-нибудь ещё, если хотите.…
 
@@ -29,13 +29,13 @@
 * Способ указания аналоговому устройству об ожидании голосовой почты \(MWI\)
 * Тоны, подаваемые абонентам Asterisk \(они вступают в игру, когда пользователь находится “внутри " системы; например, тоны, услышанные во время трансфера вызова\)
 
-Мы рассмотрим все в этом списке, приняв стратегию работы от внешнего края системы к самому ядру \(самой Asterisk\). Мы закончим с удобным контрольным списком того, что вам может понадобится изменить и где это сделать. 
+Мы рассмотрим все в этом списке, приняв стратегию работы от внешнего края системы к самому ядру \(самой Asterisk\). Мы закончим с удобным контрольным списком того, что вам может понадобится изменить и где это сделать.
 
 Хотя принципы, описанные в этой главе, позволят вам адаптировать установку Asterisk специально для вашего региона \(или для вашего клиента\), для обеспечения согласованности все наши примеры будут сосредоточены на том, как адаптировать Asterisk для одного региона: Соединенного Королевства.
 
 ## Внешние устройства по отношению к серверу Asterisk
 
-Существуют огромные различия между хорошим старомодным аналоговым телефоном и любым из большого количества IP-телефонов, и нам нужно подобрать одно из действительно фундаментальных различий, чтобы пролить свет на следующее объяснение, которое охватывает настройки, которые нам, возможно, придется изменить на устройствах, внешних по отношению к Asterisk, таких как IP-телефоны. 
+Существуют огромные различия между хорошим старомодным аналоговым телефоном и любым из большого количества IP-телефонов, и нам нужно подобрать одно из действительно фундаментальных различий, чтобы пролить свет на следующее объяснение, которое охватывает настройки, которые нам, возможно, придется изменить на устройствах, внешних по отношению к Asterisk, таких как IP-телефоны.
 
 Вы когда-нибудь задумывались о том, что аналоговый телефон - это совершенно немое устройство \(мы знаем, что базовая модель очень, очень дешевая\), которое должно подключаться к интеллектуальной сети \(ТфОП\), тогда как IP-телефон \(например, SIP или IAX2\) - это очень умное устройство, которое подключается к немой сети \(Интернет или любая обычная IP-сеть\)? Рисунки 9-1 и 9-2 проиллюстрируют разницу.
 
@@ -47,27 +47,27 @@
 
 **Рисунок 9-2. Ситуация на сегодняшний день: умные устройства подключаются через немую сеть**
 
-Could we take two analog phones, connect them directly to each other, and have the functionality we would normally associate with a regular phone? No, of course not, because the network supplies everything: the actual power to the phone, the dialtone \(from the local exchange or CO\), the caller ID information, the ringing tone \(from the remote \[closest to the destination phone\] exchange or CO\), all the signaling required, and so on.
+Можем ли мы взять два аналоговых телефона, подключить их непосредственно друг к другу и иметь функциональность, которую мы обычно связываем с обычным телефоном? Нет, конечно нет, потому что сеть предоставляет все: фактическое питание телефона, сигнал вызова \(от местной станции или центрального офиса\), информацию об идентификаторе вызывающего абонента \(CallerID\), сигнал вызова \(от удаленной \[ближайшего к телефону назначения\] станции или ЦО\), всю необходимую сигнализацию и так далее.
 
-Conversely, could we take two IP phones, connect them directly to each other, and get some sensible functionality? Sure we could, because all the intelligence is inside the IP phones themselves—they provide the tones we hear \(dialtone, ringing, busy\) and run the protocol that does all the required signaling \(usually SIP\). In fact, you can try this for yourself—most midpriced IP phones have a built-in Ethernet switch, so you can actually connect the two IP phones directly to each other with a regular \(straight-through\) Ethernet patch cable, or just connect them through a regular switch. They will need to have fixed IP addresses in the absence of a DHCP server, and you can usually dial the IP address of the other phone just by using the \* key for the dots in the address.
+И наоборот, можем ли мы взять два IP-телефона, подключить их непосредственно друг к другу и получить некоторую разумную функциональность? Конечно можем, потому что весь интеллект находится внутри самих IP—телефонов - они обеспечивают тоны, которые мы слышим \(сигнал вызова, звонок, занято\) и запускают протокол, который выполняет всю необходимую сигнализацию \(обычно SIP\). Фактически, вы можете попробовать это для себя - большинство средних IP-телефонов имеют встроенный коммутатор Ethernet, поэтому вы можете подключить два IP-телефона непосредственно друг к другу с помощью обычного \(прямого\) кабеля Ethernet или просто подключить их через обычный коммутатор. Они должны иметь фиксированные IP-адреса в отсутствие DHCP-сервера, и вы сможете набрать IP-адрес другого телефона, просто используя клавишу \* для точек в адресе.
 
-[Figure 9-2](9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22dumb_network) points to the fact that on an IP phone, we are responsible for setting all of the tones that the network would have provided in the old days. This can be done in one of \(at least\) two ways. The first is to configure the tones provided by the IP phone on the device’s own web GUI. You do this by browsing to the IP address of the phone \(the IP address can usually be obtained by a menu option on the phone\) and then selecting the appropriate options. For example, on a Yealink IP phone, the tones are set on the Phone page of the web GUI, under the Tones tab \(where you’ll find a list of the different types of tones that can be changed—in the case of the Yealink, these are Dial, Ring Back, Busy, Congestion, Call Waiting, Dial Recall, Record, Info, Stutter, Message, and Auto Answer\).
+Рисунок 9-2 указывает на тот факт, что на IP-телефоне мы несем ответственность за настройку всех тонов, которые предоставила бы сеть в былые времена. Это можно сделать одним \(по крайней мере\) из двух способов. Первый заключается в настройке тонов, предоставляемых IP-телефоном на собственном веб-интерфейсе устройства. Вы делаете это, просматривая IP-адрес телефона \(IP-адрес обычно можно получить с помощью опции меню на телефоне\), а затем выбрав соответствующие параметры. Например, на IP-телефоне Yealink тоны устанавливаются на странице веб-графического интерфейса телефона под вкладкой "Тоны" \(где вы найдете список различных типов тонов, которые можно изменить — в случае Yealink это набор, КПВ, занято, перегрузка, ожидание вызова, повторный вызов, запись, информация, заикание, сообщение и автоответ\).
 
-The other way that this configuration can be applied is to autoprovision the phone with these settings. A full explanation of the mechanism for autoprovisioning is beyond the scope of this book, but you can usually set up the tones in the appropriate attributes of the relevant elements in the XML file.
+Другой способ, которым эта конфигурация может быть применена - это автоматическое предоставление телефону этих настроек. Полное объяснение механизма автопровижинга выходит за рамки этой книги, но как правило вы можете настроить тоны в соответствующих атрибутах необходимых элементов в XML-файле.
 
-While we are changing settings on the IP phones, there are two other things that may need to be changed in order for the phones to look right and to function correctly as part of the system.
+В то время как мы меняем настройки на IP-телефонах, есть еще две вещи, которые может потребоваться изменить, чтобы телефоны выглядели правильно и функционировали как часть системы.
 
-Most phones display the time when idle and, since many people find it particularly annoying when their phones show the wrong time, we need to ensure that the correct local time is displayed. It should be fairly easy to find the appropriate page of the web GUI \(or XML attributes\) to specify the time server. You will also find that there are settings for daylight saving time and other relevant stuff nearby.
+Большинство телефонов отображают время в режиме ожидания, и, поскольку многие люди находят это особенно раздражающим, когда их телефоны показывают неправильное время, мы должны убедиться, что отображается правильное местное время. Должно быть довольно легко найти соответствующую страницу веб-интерфейса \(или атрибутов XML\) для указания сервера сингхронизации времени. Вы также обнаружите что есть настройки для перехода на летнее время и другие важные вещи.
 
-The last thing to change is a potential showstopper as far as the making of a phone call is concerned—the dialplan. We’re not talking about the dialplan we find in /etc/asterisk/extensions.conf, but the dialplan of the phone. Not everyone realizes that IP phones have dialplans, too—although these dialplans are more concerned with which dial strings are permitted than with what to do on a given dial.
+Последнее, что нужно изменить - это потенциальный showstopper, когда речь идет о телефонном звонке - диалплан. Мы говорим не о диалплане, который находится в _/etc/asterisk/extensions.conf_, а о диалплане телефона. Не все понимают что IP-телефоны также имеют схемы набора номеров, хотя эти диалпланы больше связаны с тем, какие строки набора разрешены, чем с тем, что делать с данным набором.
 
-The general rule seems to be that if you dial on-hook the built-in dialplan is bypassed, but if you pick up the handset the phone’s dialplan comes into play, and it just might happen that the dialplan will not allow the dial string you need to be dialed. Although this problem can manifest itself with a refusal by the phone to pass certain types of numbers through to Asterisk, it can also affect any feature codes you plan to use. This can easily be remedied by Googling the model number of the phone along with “UK dialplan” \(or the particular region you need\), or you can go to the appropriate page on the web GUI and either manually adjust the dialplan or pick the country you need from a drop-down box \(depending on the type of phone you are working with\).
+Общее правило, по-видимому, заключается в том, что если вы набираете при положенной трубке - встроенная схема набора номера проигнорируется, но если вы поднимаете трубку - в игру вступает диалплан телефона и может случиться так, что диалплан не позволит набрать необходимую строку. Хотя эта проблема может проявляться в отказе телефона передавать определенные типы номеров в Asterisk, она также может повлиять на любые коды функций, которые вы планируете использовать. Это может быть легко исправлено путем поиска номера модели телефона вместе с «UK dialplan» \(или конкретным нужным вам регионом\) или вы можете перейти на соответствующую страницу в веб-интерфейсе пользователя и там либо вручную настроить диалплан, либо выбрать страну из выпадающего списка \(в зависимости от типа телефона, с которым вы работаете\).
 
-The prior discussion of IP phone configuration also applies to any analog telephone adapters \(ATAs\) you plan to use—specifically, to those supporting an FXS interface. In addition, you may need to specify some of the electrical characteristics of the telephony interface, like line voltage and impedance, together with the caller ID format that will work with local phones. All that differs is the way you obtain the IP address for the web GUI—you usually do this by dialing a specific code on the attached analog phone, which results in the IP address being read back to the caller.
+Предварительное обсуждение конфигурации IP-телефона также относится к любым аналоговым телефонным адаптерам \(ATA\), которые вы планируете использовать, в частности к тем, которые поддерживают интерфейс FXS. Кроме того, может потребоваться указать некоторые электрические характеристики телефонного интерфейса, такие как линейное напряжение и импеданс, а также формат идентификатора вызывающего абонента, который будет работать с локальными телефонами. Все, что отличается - это способ получения IP-адреса для веб-интерфейса - обычно это делается набором определенного кода на подключенном аналоговом телефоне, что приводит к тому, что IP-адрес произносится вызывающему абоненту. 
 
-Of course, an ATA may also feature an FXO interface, which will also need to be configured to properly interact with the analog line provided in your region. The types of things that need to be changed are similar to the FXS interface.
+Конечно, ATA также может иметь интерфейс FXO, который также должен быть настроен для правильного взаимодействия с аналоговой линией, предоставляемой в вашем регионе. Типы настроек, которые необходимо изменить, аналогичны интерфейсу FXS. 
 
-What if you are connecting your analog phone or line to a Digium card? We’ll cover this next.
+Что делать, если вы подключаете аналоговый телефон или линию к карте Digium? Мы рассмотрим это в следующий раз.
 
 ## PSTN Connectivity, DAHDI, Digium Cards, and Analog Phones
 
@@ -77,7 +77,7 @@ Primary Rate Interfaces \(PRIs\) are generally terminated in an RJ45 connection 
 
 Generally speaking, a PRI terminated in an RJ45 will be an ISDN connection, and if you find the connection is made by a pair of BNC connectors \(push-and-twist coaxial connectors\), the likelihood is that you are dealing with an older CAS-based protocol \(like MFCR2\).
 
-[Figure 9-3](9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22balun-connection) shows the adapter required if your telco has supplied BNC connectors \(Sangoma/Digium cards require an RJ45 connection\). It is called a balun, as it converts from a balanced connection \(RJ45\) to an unbalanced connection \(the BNCs\), in addition to changing the connection impedance.
+[Figure 9-3](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22balun-connection/README.md) shows the adapter required if your telco has supplied BNC connectors \(Sangoma/Digium cards require an RJ45 connection\). It is called a balun, as it converts from a balanced connection \(RJ45\) to an unbalanced connection \(the BNCs\), in addition to changing the connection impedance.
 
 #### Note
 
@@ -87,7 +87,7 @@ Basic Rate Interfaces \(BRIs\) are common in continental Europe and are almost a
 
 #### Figure 9-3. A balun
 
-Analog connections vary massively from place to place—you will know what kind of connector is used in your locality. The important thing to remember is that the analog line is only two wires, and these need to connect to the middle two pins of the RJ11 plug that goes into the Digium card—the other end is the local one. [Figure 9-4](9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22bt-plug-diagram) shows the plug used in the UK, where the two wires are connected to pins 2 and 5.
+Analog connections vary massively from place to place—you will know what kind of connector is used in your locality. The important thing to remember is that the analog line is only two wires, and these need to connect to the middle two pins of the RJ11 plug that goes into the Digium card—the other end is the local one. [Figure 9-4](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22bt-plug-diagram/README.md) shows the plug used in the UK, where the two wires are connected to pins 2 and 5.
 
 ![](.gitbook/assets/3%20%281%29.png)
 
@@ -179,7 +179,7 @@ As a quick aside, analog phones that have a message-waiting indicator \(e.g., an
 
 That’s it at the DAHDI level. We chose the protocol\(s\) for PRI or BRI connections, the type of signaling for the analog channels \(all covered in [Chapter 7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22asterisk-OutsideConn)\), and the tones for the analog connections that have just been discussed.
 
-The relationship between Linux, DAHDI, and Asterisk \(and therefore /etc/dahdi/system.conf and /etc/asterisk/chan\_dahdi.conf\) is shown in [Figure 9-5](9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22asterisk-dahdi-relationship).
+The relationship between Linux, DAHDI, and Asterisk \(and therefore /etc/dahdi/system.conf and /etc/asterisk/chan\_dahdi.conf\) is shown in [Figure 9-5](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22asterisk-dahdi-relationship/README.md).
 
 #### Tip
 
@@ -207,11 +207,11 @@ Again, Asterisk defaults to the North American caller ID format \(no entries in 
 
 cidstart=polarity ; the delivery of caller ID will be
 
- ; signaled by a polarity reversal
+; signaled by a polarity reversal
 
 cidsignalling=v23 ; the delivery of the called ID information
 
- ; will be in V23 format
+; will be in V23 format
 
 Of course, you may also need to send caller ID using the same local signaling information to any analog phones that are connected to FXS interfaces, and one more entry may be needed, as in some locations the caller ID information is sent after a specified number of rings. If this is the case, you can use this entry:
 
@@ -241,7 +241,7 @@ The following example would allow the caller to choose one of three languages in
 
 exten =&gt; s,1,Background\(choose-language\)
 
- same =&gt; n,WaitExten\(5\)
+same =&gt; n,WaitExten\(5\)
 
 exten =&gt; 1,1,Set\(CHANNEL\(language\)=fr\)
 
@@ -405,66 +405,71 @@ Your dialplan will need to reflect the numbering scheme for your region. If you 
 
 As you can now see, there are quite a few things to change in order to fully localize your Asterisk-based telephone system, and not all of them are in the Asterisk, or even DAHDI, configuration—some things need to be changed on the connected IP phones or ATAs themselves.
 
-Before we leave the chapter, have a look at [Table 9-1](9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22internationalization_cheat): a cheat sheet for what to change and where to change it, for your future reference.
+Before we leave the chapter, have a look at [Table 9-1](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22internationalization_cheat/README.md): a cheat sheet for what to change and where to change it, for your future reference.
 
 Table 9-1. Internationalization cheat sheet
+
+| What to change | Where to change it |
+| :--- | :--- |
+
 
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">What to change</th>
-      <th style="text-align:left">Where to change it</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align:left">Call progress tones</td>
-      <td style="text-align:left">
+      <th style="text-align:left">Call progress tones</th>
+      <th style="text-align:left">
         <ul>
           <li>IP phones&#x2014;on the phone itself</li>
           <li>ATAs&#x2014;on the ATA itself</li>
           <li>Analog phones&#x2014;DAHDI (/etc/dahdi/system.conf)</li>
         </ul>
-      </td>
+      </th>
     </tr>
+  </thead>
+  <tbody></tbody>
+</table>| Type of PRI/BRI and protocol | DAHDI—/etc/dahdi/system.conf and /etc/asterisk/chan\_dahdi.conf |
+| :--- | :--- |
+
+
+<table>
+  <thead>
     <tr>
-      <td style="text-align:left">Type of PRI/BRI and protocol</td>
-      <td style="text-align:left">DAHDI&#x2014;/etc/dahdi/system.conf and /etc/asterisk/chan_dahdi.conf</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">Physical PSTN connections</td>
-      <td style="text-align:left">
+      <th style="text-align:left">Physical PSTN connections</th>
+      <th style="text-align:left">
         <ul>
           <li>Balun if required for PRI</li>
           <li>Get the analog pair to middle two pins of the RJ11 connecting to the Digium
             card</li>
         </ul>
-      </td>
+      </th>
     </tr>
+  </thead>
+  <tbody></tbody>
+</table>| Caller ID on analog circuits | Asterisk—/etc/asterisk/chan\_dahdi.conf |
+| :--- | :--- |
+
+
+<table>
+  <thead>
     <tr>
-      <td style="text-align:left">Caller ID on analog circuits</td>
-      <td style="text-align:left">Asterisk&#x2014;/etc/asterisk/chan_dahdi.conf</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">Prompt language and/or accent</td>
-      <td style="text-align:left">
+      <th style="text-align:left">Prompt language and/or accent</th>
+      <th style="text-align:left">
         <ul>
           <li>Channel&#x2014;/etc/asterisk/sip.conf, /etc/asterisk/iax.conf, /etc/asterisk/chan_dahdi.conf,
             etc.</li>
           <li>Dialplan&#x2014;CHANNEL(language) function</li>
         </ul>
-      </td>
+      </th>
     </tr>
-    <tr>
-      <td style="text-align:left">Voicemail time/date stamps and pronunciation</td>
-      <td style="text-align:left">Asterisk&#x2014;/etc/asterisk/voicemail.conf</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">Tones delivered by Asterisk</td>
-      <td style="text-align:left">Asterisk&#x2014;/etc/asterisk/indications.conf</td>
-    </tr>
-  </tbody>
-</table>May all your Asterisk deployments feel at home…
+  </thead>
+  <tbody></tbody>
+</table>| Voicemail time/date stamps and pronunciation | Asterisk—/etc/asterisk/voicemail.conf |
+| :--- | :--- |
+
+
+| Tones delivered by Asterisk | Asterisk—/etc/asterisk/indications.conf |
+| :--- | :--- |
+
 
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html%22%20/l%20%22idm46178407219928-marker) i18n is a term used to abbreviate the word internationalization, due to its length. The format is &lt;first\_letter&gt;&lt;number&gt;&lt;last\_letter&gt;, where &lt;number&gt; is the number of letters between the first and last letters. Other words, such as localization \(L10n\) and modularization \(m12n\), have also found a home with this scheme, which Leif finds a little bit ridiculous. More information can be found in the [W3C glossary online](http://www.w3.org/2001/12/Glossary%22%20/l%20%22I18N).
 
