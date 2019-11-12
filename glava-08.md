@@ -69,18 +69,23 @@ european=Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
 ```
 
 {% hint style="info" %}
-Настройка Linux сервера для отправки почтовых сообщений  администратору выходит за рамки данной книги. Вы должны будете протестировать вашу службу голосовой почты чтобы убедиться что она корректно обрабатывается почтовым агентом\[^2\] и что нижеследующие спам-фильтры не отклоняют эти сообщения \(одна из причин почему это может происходить —использование сервером Астериск в теле письма имени хоста которое он не может разрешить\)
+Настройка Linux сервера для отправки почтовых сообщений  администратору выходит за рамки данной книги. Вы должны будете протестировать вашу службу голосовой почты чтобы убедиться что она корректно обрабатывается почтовым агентом\[^2\] и что нижеследующие спам-фильтры не отклоняют эти сообщения \(одна из причин почему это может происходить — использование сервером Астериск в теле письма имени хоста которое он не может быть разрешено\)
 {% endhint %}
 
-**Note**
+Вы можете создать массивный и сложный файл voicemail.conf \(и даже хранить в нем почтовые ящики пользователей\), но для упрощения задачи мы сосредоточимся на нескольких примерах.
 
-Setting up a Linux server to handle the sending of email is a Linux administration task that is beyond the scope of this book. You will need to test your voicemail-to-email service to ensure that the email is being handled appropriately by the Mail Transfer Agent \(MTA\),[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407573752) and that downstream spam filters are not rejecting the messages \(one reason this might happen is if your Asterisk server is using a hostname in the email body that does not in fact resolve to it\).
+### Секция \[general\]
 
-You can create a massive and complex voicemail.conf file \(and can even store user mailboxes in it\), but we’re going to focus on a few curated examples to keep things simple. You’ll likely find that what we present will serve your needs quite well \(and that the documentation samples will provide more detail, should you require it\).
-
-### The \[general\] Section
+В первой секции файла voicemail.conf, \[general\], определяются глобальные настройки. Многие из этих настроек могут быть переопределены в настройках каждого конкретного ящика. В таблице 8-1 мы перечислили  некоторые опции, которые, как мы считаем, наиболее важно рассмотреть.
 
 The first section of the voicemail.conf file, \[general\], allows you to define global settings. Many of these settings can be assigned on a per-mailbox setting. We’ve listed in [Table 8-1](8.%20Voicemail%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Voicemail_id272012) a few settings that we feel are the most important to consider.
+
+| Опция | Значение | Примечание |
+| :--- | :--- | :--- |
+| format | wav49\|gsm\|wav | Для каждого перечисленного формата, Астериск создает  отдельную запись в этом формате |
+| serveremail | user@domain |  |
+| attach | yes,no |  |
+|  |  |  |
 
 Table 8-1. \[general\] section options for voicemail.conf
 
