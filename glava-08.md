@@ -1,24 +1,20 @@
----
-description: Голосовая почта
----
-
 # Глава 8. Голосовая почта
 
-> _Просто оставьте сообщение, может быть, я перезвоню._ 
+> _Просто оставьте сообщение, может быть, я перезвоню._
 >
 > -- Джо Уолш
 
 До того как почта и мгновенные сообщения стали широко распространены, голосовая почта была очень популярна. Даже теперь, когда большинство людей предпочитает обмениваться текстовыми сообщениями, голосовая почта является важным компонентом любой телефонной станции.
 
-В Астериск есть достаточно гибкая система голосовой почты называемая Comedian Mail \[^1\]. В диалплане она реализуется посредством модуля app\_voicemail.so.
+В Asterisk есть достаточно гибкая система голосовой почты называемая Comedian Mail \[^1\]. В диалплане она реализуется посредством модуля app\_voicemail.so.
 
-#### Предупреждение о модуле голосовой почты в Астериск
+#### Предупреждение о модуле голосовой почты в Asterisk
 
-Модуль app\_voicemail один из старейших в Астериск, как следствие он имеет много ограничений, особенно если сравнивать его с другими, постоянно усовершенствуемыми модулями. Код модуля настолько устарел, что ни у кого не возникает желания с ним разбираться, и поэтому очень маловероятно появление в нем новых функций. Вы должны понимать что app\_voicemail не просто предоставляет элемент диалплана; для работы голосовой почты должно произойти много событий, например хранение и управление файлами, взаимодействие с почтовой системой операционной системы, распознавание временных зон, работы с форматами файлов, вопросы безопасности и еще куча вещей. И хотя app\_voicemail все это делает, в итоге получается довольно неуклюжая подсистема \(стоит заметить, что в традиционных АТС  для голосовой почты выделяется отдельная машина\).
+Модуль app\_voicemail один из старейших в ASterisk, как следствие он имеет много ограничений, особенно если сравнивать его с другими, постоянно усовершенствуемыми модулями. Код модуля настолько устарел, что ни у кого не возникает желания с ним разбираться, и поэтому очень маловероятно появление в нем новых функций. Вы должны понимать что app\_voicemail не просто предоставляет элемент диалплана; для работы голосовой почты должно произойти много событий, например хранение и управление файлами, взаимодействие с почтовой системой операционной системы, распознавание временных зон, работы с форматами файлов, вопросы безопасности и еще куча вещей. И хотя app\_voicemail все это делает, в итоге получается довольно неуклюжая подсистема \(стоит заметить, что в традиционных АТС  для голосовой почты выделяется отдельная машина\).
 
  Было предпринято множество попыток реинжинировать голосовую почту, но все они оказались неудачными. Причина проста: объем работ \(а следовательно и стоимость\), необходимых для перепроектирования модуля \(таким образом, чтобы удовлетворить потребности сообщества\), в сочетании с отсутствием интереса к технологии голосовой почты в целом, быстро убивали любую инициативу.
 
-Тем не менее важно отметить, что голосовая почта в Астериск работает, и работает хорошо. Возможно, она даже удовлетворит ваши потребности. В ином случае сообщество будет более чем благодарно, если вы попытаетесь перепроектировать её.
+Тем не менее важно отметить, что голосовая почта в Asterisk работает, и работает хорошо. Возможно, она даже удовлетворит ваши потребности. В ином случае сообщество будет более чем благодарно, если вы попытаетесь перепроектировать её.
 
 Вот некоторые функции, которые включает в себя модуль голосовой почты:
 
@@ -41,7 +37,7 @@ description: Голосовая почта
 
 Далее мы рассмотрим простейший voicemail.conf файл. Если у вас  возникнет желание доработать базовую конфигурацию, просто добавьте или измените соответствующие опции.
 
-### An Initial voicemail.conf File
+### Исходный файл voicemail.conf
 
 Мы рекомендуем использовать следующий пример кофигурации как базовый. Вы можете ознакомиться с файлом ~/asterisk-complete/asterisk/11/configs/voicemail.conf.sample для детализации различных настроек.
 
@@ -69,7 +65,7 @@ european=Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
 ```
 
 {% hint style="info" %}
-Настройка Linux сервера для отправки почтовых сообщений  администратору выходит за рамки данной книги. Вы должны будете протестировать вашу службу голосовой почты чтобы убедиться что она корректно обрабатывается почтовым агентом\[^2\] и что нижеследующие спам-фильтры не отклоняют эти сообщения \(одна из причин почему это может происходить — использование сервером Астериск в теле письма имени хоста которое не может быть разрешено\)
+Настройка Linux сервера для отправки почтовых сообщений  администратору выходит за рамки данной книги. Вы должны будете протестировать вашу службу голосовой почты чтобы убедиться что она корректно обрабатывается почтовым агентом\[^2\] и что нижеследующие спам-фильтры не отклоняют эти сообщения \(одна из причин почему это может происходить — использование сервером ASterisk в теле письма имени хоста которое не может быть разрешено\)
 {% endhint %}
 
 Вы можете создать массивный и сложный файл voicemail.conf \(и даже хранить в нем почтовые ящики пользователей\), но для упрощения задачи мы сосредоточимся на нескольких примерах.
@@ -78,106 +74,27 @@ european=Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
 
 В первой секции файла voicemail.conf, \[general\], определяются глобальные настройки. Многие из этих настроек могут быть переопределены в настройках каждого конкретного ящика. В таблице 8-1 мы перечислили  некоторые опции, которые, как мы считаем, наиболее важно рассмотреть.
 
-The first section of the voicemail.conf file, \[general\], allows you to define global settings. Many of these settings can be assigned on a per-mailbox setting. We’ve listed in [Table 8-1](8.%20Voicemail%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Voicemail_id272012) a few settings that we feel are the most important to consider.
-
 | Опция | Значение | Примечание |
 | :--- | :--- | :--- |
-| format | wav49\|gsm\|wav | Для каждого перечисленного формата, Астериск создает  отдельную запись в этом формате, каждый раз когда остается сообщение. Преимущество этого механизма в  экономии ресурсов на транскодировании, которое не надо выполнять, если для записи используется тот же самый кодек что и для канала. Мы любим WAV за высокое качество, и WAV49 потому что  он хорошо сжимается и легок для передачи по почте. Мы не любим GSM за шумы в записи, но он пользуется  некторой популярностью. |
-| serveremail | user@domain | Адрес в заголовке письма FROM, отображаемый в отправленном с Астериска письме. |
+| format | wav49\|gsm\|wav | Для каждого перечисленного формата, Asterisk создает  отдельную запись в этом формате, каждый раз когда остается сообщение. Преимущество этого механизма в  экономии ресурсов на транскодировании, которое не надо выполнять, если для записи используется тот же самый кодек что и для канала. Мы любим WAV за высокое качество, и WAV49 потому что  он хорошо сжимается и легок для передачи по почте. Мы не любим GSM за шумы в записи, но он пользуется  некторой популярностью[^a]. |
+| serveremail | user@domain | Адрес в заголовке письма FROM, отображаемый в отправленном с Asterisk письме[^b]. |
 | attach | yes,no | Если для ящика голосовой почты указан адрес электронной почты, эта опция определяет, будет ли прикреплено записанное сообщение к письму \(если нет, то будет отправлено простое уведомление, и пользователю нужно будет позвонить на голосовую почту чтобы получить свое сообщение\). |
-| maxmsg | 9999 | По умолчанию, Астериск разрешает хранить  максимум 100 сообщений на пользователя. Для пользователей удаляющих прослушанные сообщения это не является проблемой. Для пользовтелей которые предпочитают сохранять свои сообщения, этот лимит будет достигнут очень быстро. С размерами жестких дисков  в наши дни, вы можете легко хранить тысячи сообщений для каждого пользователя. Поэтому, по нашему мнению, можно выставить эту опцию в максимальное значение и позволить пользователям самим управлять этими данными. Имейте в виду, что после нескольких лет хранения, старые сообщения голосовой почты в больших системах могут занимать много места на жестком диске. |
-|  |  |  |
+| maxmsg | 9999 | По умолчанию, Asterisk разрешает хранить  максимум 100 сообщений на пользователя. Для пользователей удаляющих прослушанные сообщения это не является проблемой. Для пользователей которые предпочитают сохранять свои сообщения, этот лимит будет достигнут очень быстро. С размерами жестких дисков  в наши дни, вы можете легко хранить тысячи сообщений для каждого пользователя. Поэтому, по нашему мнению, можно выставить эту опцию в максимальное значение и позволить пользователям самим управлять этими данными. Имейте в виду, что после нескольких лет хранения, старые сообщения голосовой почты в больших системах могут занимать много места на жестком диске. |
+| maxsecs | 600 | Эта установка может быть полезной, когда большая система голосовой почты имеет хранилище размером в 40МБ[^c]\: В данном случае необходимо ограничение длины сообщения, иначе система легко использует весь объем хранилища. Этот параметр может раздражать вызывающих абонентов (хотя он заставляет их переходить к сути сообщения, поэтому некоторым людям это нравится). В настоящее время с терабайтными дисками, нет никаких технических причин для ограничения длины сообщения. Но есть два соображения: 1) Если канал завис, то хорошо бы иметь какое-либо ограничение, чтобы система не записывала бесконечное пустое сообщение 2)Если абонент использует свой почтовый ящик как голосовую записную книжку, он не обрадуется если вы его отключите через три минуты. Вероятно, будет правильным установить значение где-то между 600 секундами (10 минут) и 3600 секундами (1 час). |
+| emailsubject |\[PBX\]: New message ${VM_MSGNUM} in mailbox ${VM_MAILBOX}| Этой настройкой вы можете  задать вид темы письма которое отсылает Asterisk. Подробное описание смотрите в файле примера voicemail.conf.sample. |
+| emailbody |Dear ${VM_NAME}:\n\n\t you have a ${VM_DUR} long message (number ${VM_MSGNUM})\n in mailbox ${VM_MAILBOX} \n\n\t\t\t\t --Asterisk\n| Этой настройкой вы определяете как будет выглядеть тело письма. Подробное описание смотрите в файле примера voicemail.conf.sample. |
+| emaildateformat | %A, %d %B %Y at %H:%M:%S | Эта опция позволяет определить формат даты в письме. Используется тот же синтаксис, что и в функции STRFTIME языка C. |
+| pollmailboxes | no, yes | Если содержимое почтового ящика меняется чем-нибудь кроме app_voicemail (Например внешним приложением или другой системой Asterisk), эта настройка выставленная в "yes" указывает периодически опрашивать  почтовые ящики на предмет изменений и выставляет правильную индикацию ожидающих сообщений (MWI). |
+| pollfreq | 30 | Используется в сочетании с параметром pollmailboxes и в секундах задает частоту опроса почтового ящика. |
+ _Таблица 8-1. Настройки секции \[general\] файла voicemail.conf_
 
- Table 8-1. \[general\] section options for voicemail.conf
+[^a]: Разделителем для каждого формата служит знак вертикальной черты, pipe (|).<br>
+[^b]: Рассылка писем от Asterisk требует аккуратной настройки, так как многие спам-фильтры находят сообщения от Asterisk очень подозрительными и просто игнорируют их.<br>
+[^c]: Да, вы все верно прочитали. Мегабайт.
 
-<table>
-  <thead>
-    <tr>
-      <th style="text-align:left">Option</th>
-      <th style="text-align:left">Value/example</th>
-      <th style="text-align:left">Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align:left">maxmsg</td>
-      <td style="text-align:left">9999</td>
-      <td style="text-align:left">By default, Asterisk only allows a maximum of 100 messages to be stored
-        per user. For users who delete messages, this is no problem. For people
-        who like to save their messages, this space can get eaten up quickly. With
-        the size of hard drives these days, you could easily store thousands of
-        messages for each user, so our current thinking is to set this to the maximum
-        and let the users manage things from there. Be aware that old voicemail
-        messages on a large system can waste a lot of hard drive space, after a
-        few years of storing every message.</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">maxsecs</td>
-      <td style="text-align:left">600</td>
-      <td style="text-align:left">This type of setting was useful back when a large voicemail system might
-        have only 40 MB<a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407551304">c</a> of
-        storage: it was necessary to limit the system because it was easy to fill
-        up the hard drive. This setting can be annoying to callers (although it
-        does force them to get to the point, so some people like it). Nowadays,
-        with terabyte drives common, there is no technical reason to limit the
-        length of a message. Two considerations are: 1) if a channel gets hung
-        in a mailbox, it&#x2019;s good to set some sort of value so it doesn&#x2019;t
-        mindlessly record an endless, empty voice message, but 2) if a user wants
-        to use her mailbox to record notes to herself, she won&#x2019;t appreciate
-        it if you cut her off after 3 minutes. A setting somewhere between 600
-        seconds (10 minutes) and 3600 seconds (1 hour) will probably be about right.</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">emailsubject</td>
-      <td style="text-align:left">[PBX]: New message ${VM_MSGNUM} in mailbox ${VM_MAILBOX}</td>
-      <td style="text-align:left">When Asterisk sends an email, you can use this setting to define what
-        the Subject: line of the email will look like. See the voicemail.conf.sample
-        file for more details.</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">emailbody</td>
-      <td style="text-align:left">Dear ${VM_NAME}:\n\n\tyou have a ${VM_DUR} long message (number ${VM_MSGNUM})\nin
-        mailbox ${VM_MAILBOX} \n\n\t\t\t\t--Asterisk\n</td>
-      <td style="text-align:left">When Asterisk sends an email, you can use this setting to define what
-        the body of the email will look like. See the voicemail.conf.sample file
-        for more details.</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">emaildateformat</td>
-      <td style="text-align:left">%A, %d %B %Y at %H:%M:%S</td>
-      <td style="text-align:left">This option allows you to specify the date format in emails. Uses the
-        same rules as the C function STRFTIME.</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">pollmailboxes</td>
-      <td style="text-align:left">no, yes</td>
-      <td style="text-align:left">If the contents of mailboxes are changed by anything other than app_voicemail
-        (such as external applications or another Asterisk system), setting this
-        to yes will cause app_voicemail to poll all the mailboxes for changes,
-        which will trigger proper message waiting indication (MWI) updates.</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">pollfreq</td>
-      <td style="text-align:left">30</td>
-      <td style="text-align:left">Used in concert with pollmailboxes, this option specifies the number of
-        seconds to wait between mailbox polls.</td>
-    </tr>
-    <tr>
-      <td style="text-align:left">
-        <p><a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407560904-marker">a</a> The
-          separator that is used for each format option must be the pipe (|) character.</p>
-        <p><a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407558120-marker">b</a> Sending
-          email from Asterisk can require some careful configuration, because many
-          spam filters will find Asterisk messages suspicious and will simply ignore
-          them. We talk more about how to set email for Asterisk in <a href="8.%20Voicemail%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22voicemail_to_email">&#x201C;Voicemail to Email&#x201D;</a>.</p>
-        <p><a href="https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407551304-marker">c</a> Yes,
-          you read that correctly: megabytes.</p>
-      </td>
-      <td style="text-align:left"></td>
-      <td style="text-align:left"></td>
-    </tr>
-  </tbody>
-</table>#### External Validation of Voicemail Passwords
+
+
+#### External Validation of Voicemail Passwords
 
 By default, Asterisk does not validate user passwords to ensure they are at least somewhat secure. Anyone who maintains voicemail systems will tell you that a large percentage of mailbox users set their passwords to something like 1234 or 1111, or some other string that’s easy to guess. Although fraud bots aren’t typically interested in making mischief, having lousy passwords does represent a security hole in the voicemail system.
 
@@ -544,4 +461,3 @@ Asterisk’s voicemail system is a mature and capable module, and an essential p
 [4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407263160-marker) Popular MTAs these days are Postfix and Exim. The ubiquitous sendmail still exists as well, although its popularity has waned in the past few years. You’ll find Postfix on your RHEL/CentOS machines by default, and likely Exim on your Debian/Ubuntu platforms \(although Postfix is often recommended as the MTA there too\).
 
 [5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407258632-marker) Nortel used to store its messages in a sort of special partition, in a proprietary format, which made it pretty much impossible to extract messages from the system, or email them, or archive them, or really do anything with them. Ah, the good old days of closed, proprietary systems. We miss ... no ... wait ... we do not miss them!
-
