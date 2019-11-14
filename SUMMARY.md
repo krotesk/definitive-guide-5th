@@ -1,4 +1,4 @@
-# Table of contents
+# Содержание
 
 * [Аннотация](README.md)
 * [Вступление](foreword.md)
@@ -28,4 +28,3 @@
 * [Глава 23. Asterisk: Будущее телефонии](glava-23.md)
 * [Об авторах](about-the-authors.md)
 * [Послесловие](colophon.md)
-
