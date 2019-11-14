@@ -204,40 +204,40 @@ sendcalleridafter=2
 
 Прежде чем вы сможете сделать эти записи, вам нужно будет установить детали вашей локальной системы CallerID (кто-то из вашей местной телефонной компании или Google может помочь в этом, но также есть некоторая полезная информация в файле примера _/etc/asterisk/chan\_dahdi.conf_).
 
-### Language and/or Accent of Prompts
+### Язык и/или акцент подсказок
 
-As you may know, the prompts \(or recordings\) that Asterisk will use are stored in /var/lib/asterisk/sounds. In older versions of Asterisk all the sounds were in this actual directory, but these days you will find a number of subdirectories that allow the use of different languages or accents. The names of these subdirectories are arbitrary; you can call them whatever you want.
+Как вы знаете, подсказки (или записи), используемые Asterisk, хранятся в _/var/lib/asterisk/sounds/_. В более старых версиях Asterisk все звуки были в этом фактическом каталоге, но в наши дни вы найдете ряд подкаталогов, которые позволяют использовать различные языки или акценты. Имена этих подкаталогов произвольны; вы можете называть их как угодно.
 
-Note that the filenames in these directories must be what Asterisk is expecting—for example, in /var/lib/asterisk/sound/en, the file hello.gsm would contain the word “Hello” \(spoken by the lovely Allison\), whereas hello.gsm in /var/lib/asterisk/sounds/es \(for Spanish in this case\) would contain the word “Hola” \(spoken by the Spanish equivalent of the lovely Allison[2].
+Обратите внимание, что имена файлов в этих каталогах должны соответствовать ожиданиям Asterisk — например файл _/var/lib/asterisk/sound/en-hello.gsm_ будет содержать слово "Hello" (произнесенное прекрасной Элисон), тогда как hello.gsm в _/var/lib/asterisk/sounds/es (для испанского в данном случае) будет содержать слово "Hola" (произнесенное испанским эквивалентом прекрасной Эллисон[2]).
 
-The default directory used is /var/lib/asterisk/sounds/en, so how do you change that?
+По умолчанию используется каталог _/var/lib/asterisk/sounds/en/_, так как же это изменить?
 
-There are two ways. One is to set the language in the channel configuration file that calls are arriving through using the language directive. For example, the line:
+Есть два способа. Один из них - установить язык в файле конфигурации канала, на который поступают вызовы, используя директиву `language`. Например, строка:
 
 ```text
 language=en_UK
 ```
 
-placed in chan\_dahdi.conf, sip.conf, and so on \(to apply generally, or for just a given channel or profile\) will tell Asterisk to use sound files found in /var/lib/asterisk/sounds/en\_UK \(which could contain British-accented prompts\) for all calls that come in through those channels.
+помещенная в _chan_dahdi.conf_, _sip.conf_ и т.д. (Для применения в целом или только для данного канала или профиля) укажет Asterisk использовать звуковые файлы, найденные в _/var/lib/asterisk/sounds/en_UK/_ (которые могут содержать подсказки с британским акцентом) для всех вызовов, поступающих через эти каналы.
 
-The other way is to change the language during a phone call through the dialplan. This \(along with many attributes of an individual call\) can be set using the CHANNEL\(\) dialplan function. See [Chapter 10](../glava-10.md) for a full treatment of dialplan functions.
+Другой способ - изменить язык во время телефонного звонка через диалплан. Этот параметр (наряду со многими атрибутами отдельного вызова) можно задать с помощью функции Channel() dialplan. См. [Глава 10](../glava-10.md) для полной обработки функций диалплана.
 
-The following example would allow the caller to choose one of three languages in which to continue the call:
+В следующем примере вызывающий абонент может выбрать один из трех языков для продолжения вызова:
 
 ```text
-; gives the choice of (1) French, (2) Spanish, or (3) German
+; дает выбор (1) Французского, (2) Испанского, или (3) Немецкого
 exten => s,1,Background(choose-language)
 same => n,WaitExten(5)
 exten => 1,1,Set(CHANNEL(language)=fr)
 exten => 2,1,Set(CHANNEL(language)=es)
 exten => 3,1,Set(CHANNEL(language)=de)
-; the next priority for extensions 1, 2, or 3 would be handled here
+; следующий приоритет для  расширений 1, 2 или 3 будет обрабатываться здесь
 exten => _[123],n,Goto(menu,s,1)
 ```
 
-If the caller pressed 1, sounds would be played from /var/lib/asterisk/sounds/fr; if he pressed 2, the sounds would come from /var/lib/asterisk/sounds/es; and so on.
+Если вызывающий абонент нажмет 1, звуки будут воспроизводиться из _/var/lib/asterisk/sounds/fr/_; если он нажмет 2, звуки будут браться из _/var/lib/asterisk/sounds/es/_ и так далее.
 
-As already mentioned, the names of these directories are arbitrary and do not need to be only two characters long—the main thing is that you match the name of the subdirectory you have created in the language directive in the channel configuration, or when you set the CHANNEL\(language\) argument in the dialplan.
+Как уже упоминалось, имена этих каталогов произвольны и необязательно должны быть длиной всего два символа - главное, чтобы вы соответствовали имени подкаталога, который создали в директиве языка в конфигурации канала, или когда установили в качестве аргумента в `CHANNEL(language)` через диалплан.
 
 ### Time/Date Stamps and Pronunciation
 
