@@ -1,10 +1,6 @@
----
-description: 'Функции АТС, включая парковку, пейджинг и конференц-связь'
----
-
 # Глава 11. Функции АТС, включая парковку, пейджинг и конференц-связь
 
-> _Я не верю в ангелов, нет. Но у меня есть крошечный парковочный ангел. Он у меня на приборной панели, и ты его заводишь. Крылья хлопают, и это должно дать вам место для парковки. Это работало до сих пор._ 
+> _Я не верю в ангелов, нет. Но у меня есть крошечный парковочный ангел. Он у меня на приборной панели, и ты его заводишь. Крылья хлопают, и это должно дать вам место для парковки. Это работало до сих пор._
 >
 > -- Билли Коннолли
 
@@ -551,4 +547,3 @@ In this chapter we explored the features.conf file, which contains the functiona
 [9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406256840-marker) It even has its own Class D reserved IP address space, from 224.0.0.0 to 239.255.255.255 \(but read up on IP multicast before you just grab one of these and assign it\). Parts of this address space are private, parts are public, and parts are designated for purposes other than what you might want to use them for. For information about multicast addressing, see [its Wikipedia page](https://en.wikipedia.org/wiki/Multicast_address).
 
 [10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406245224-marker) Very loud, and no way to adjust gain.
-

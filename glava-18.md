@@ -1,7 +1,3 @@
----
-description: AGI
----
-
 # Глава 18. AGI
 
 > _Кофеин. Шлюз к наркотикам._
@@ -749,4 +745,3 @@ Table 18-3. AGI development frameworks
 ## Conclusion
 
 AGI provides a powerful interface to Asterisk that allows you to implement first-party call control in the programming language of your choice. You can take multiple approaches to implementing an AGI application. Some approaches can provide better performance, but at the cost of more complexity. AGI provides a programming environment that may make it easier to integrate Asterisk with other systems, or just provide a more comfortable call-control programming environment for the experienced programmer. In many cases, the use of a prebuilt framework will be the best approach, especially when evaluating or prototyping a complex project. For the ultimate performance, we still recommend you consider writing as much of your application as you can using the Asterisk dialplan.
-

@@ -1,7 +1,3 @@
----
-description: Состояния устройств
----
-
 # Глава 13. Состояния устройств
 
 Out of clutter, find simplicity.
@@ -223,4 +219,3 @@ The device states functionality in Asterisk can be used to track the state of va
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html%22%20/l%20%22idm46178405538488-marker) Items 2 and 3 may be formed as a single string, looking like 100@hints, or something similar.
 
 [2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html%22%20/l%20%22idm46178405536680-marker) Which is written using the same PJSIP library that Asterisk uses.
-

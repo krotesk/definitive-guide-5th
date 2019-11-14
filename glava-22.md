@@ -1,10 +1,6 @@
----
-description: Безопасность
----
-
 # Глава 22. Безопасность
 
-> _Мы тратим время на поиски безопасности и ненавидим, когда получаем ее._ 
+> _Мы тратим время на поиски безопасности и ненавидим, когда получаем ее._
 >
 > -- Джон Стейнбек
 
@@ -298,7 +294,7 @@ mysql> update ps_endpoints
         set acl='local_phones'
         where id in ('0000f30A0A01','0000f30B0B02','SOFTPHONE_A','SOFTPHONE_B')
        ;
- 
+
 mysql> select id,transport,aors,context,disallow,allow,acl from ps_endpoints;
 
 |id          |transport    |aors        |context|disallow|allow        |acl         |
@@ -356,4 +352,3 @@ exten => _X.,1,Set(GROUP(users)=${CHANNEL(endpoint)})
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396108536-marker) Реальный IP-адрес был заменен на 127.0.0.1 в записях лога.
 
 [2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch22.html%22%20/l%20%22idm46178396052456-marker) Например, себя, потому что вы забыли определить `ignoreip`...
-

@@ -1,7 +1,3 @@
----
-description: Интеграция реляционной базы данных
----
-
 # Глава 15. Интеграция реляционной базы данных
 
 Few things are harder to put up with than the annoyance of a good example.
@@ -1251,4 +1247,3 @@ In this chapter, you learned about several areas where Asterisk can integrate wi
 [10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch15.html%22%20/l%20%22idm46178404930968-marker) You may see different backends registered, depending on what configuration you have done with other components of the various CDR modules.
 
 [11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch15.html%22%20/l%20%22idm46178404879016-marker) Note that we’re creating this table in our pbx schema, rather than the asterisk schema, and that is because this is not a table that comes with Asterisk, but instead one we’re creating ourselves. We recommend letting Asterisk and Alembic have exclusive control over the asterisk schema, and using a custom schema \(such as pbx\) for anything custom we might create.
-

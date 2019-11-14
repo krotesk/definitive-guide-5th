@@ -1,10 +1,4 @@
----
-description: AMI и файлы вызовов
----
-
 # Глава 17. AMI и файлы вызовов
-
-## Chapter 17. Asterisk Manager Interface and Call Files
 
 John Malkovich: I have seen a world that NO man should see!
 
@@ -626,4 +620,3 @@ Table 17-2. AMI development frameworks
 ## Conclusion
 
 The Asterisk Manager Interface provides an API for monitoring events from an Asterisk system, as well as requesting that Asterisk perform a wide range of actions. An HTTP interface has been provided, and a number of frameworks have been developed, that make it easier to develop applications.
-

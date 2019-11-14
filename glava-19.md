@@ -1,7 +1,3 @@
----
-description: Asterisk REST Interface
----
-
 # Глава 19. Asterisk REST Interface
 
 > Люди, которые думаю, будто все знают, раздражают нас, людей, которые действительно все знают.
@@ -318,7 +314,7 @@ Digium предоставил образцы для этой структуры 
 
 ### asterisk-ari-client
 
-Да, Ruby тоже имеет фреймворк ARI. 
+Да, Ruby тоже имеет фреймворк ARI.
 
 Вы можете найти его по адресу [_https://github.com/svoboda-jan/asterisk-ari_](https://github.com/svoboda-jan/asterisk-ari).
 
@@ -333,4 +329,3 @@ ARI предоставляет RESTful API текущего поколения, 
 [3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396682696-marker) Если ваш компьютер имеет только один экран, то, вероятно, это то место, где вы задумаетесь, что неплохо было бы иметь их больше.
 
 [4](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch19.html%22%20/l%20%22idm46178396640584-marker) Строго говоря, REST - это гораздо больше, но на практике в наши дни не редкость предположить, что REST API будет основан на URL и JSON просто потому, что много сервисов представлены именно в этих форматах.
-
