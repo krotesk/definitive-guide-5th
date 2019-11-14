@@ -239,19 +239,19 @@ exten => _[123],n,Goto(menu,s,1)
 
 Как уже упоминалось, имена этих каталогов произвольны и необязательно должны быть длиной всего два символа - главное, чтобы вы соответствовали имени подкаталога, который создали в директиве языка в конфигурации канала, или когда установили в качестве аргумента в `CHANNEL(language)` через диалплан.
 
-### Time/Date Stamps and Pronunciation
+### Штампы времени/даты и произношение
 
-Asterisk uses the Linux system time from the host server, as you would expect, but we may have users of the system who are in different time zones, or even in different countries. Voicemail is where the rubber hits the road, as this is where users come into contact with time/date stamp information.
+Asterisk использует системное время Linux с хост-сервера как и следовало ожидать, но у нас могут быть пользователи системы, которые находятся в разных часовых поясах или даже в разных странах. Голосовая почта - это место, где резина попадает в дорогу, так как именно здесь пользователи вступают в контакт с информацией о времени/дате.
 
-Consider a scenario where some users of the system are based in the US, while others are in the UK.
+Рассмотрим сценарий, в котором одни пользователи системы находятся в США, а другие - в Великобритании.
 
-As well as the time difference, another thing to consider is the way people in the two locations are used to hearing date and time information—in the US, dates are usually ordered month, day, year, and times are specified in 12-hour clock format \(e.g., 2:54 P.M.\).
+Помимо разницы во времени, еще одна вещь, которую следует учитывать — это то, какой формат даты и времени используют люди в разных местах - в США даты обычно упорядочиваются по месяцам, дням, годам, а время указывается в 12-часовом формате (например, 2:54 P.M.).
 
-In contrast, in the UK dates are ordered day, month, year, and times are often specified in 24-hour clock format \(14:54 hrs\)—although some people in the UK prefer 12-hour clock format, so we will cover that, too.
+В отличие от этого, в Великобритании даты упорядочены как день, месяц, год и время указывается в 24-часовом формате (14:54 hrs), хотя некоторые люди в Великобритании предпочитают 12-часовой формат часов, поэтому мы рассмотрим его тоже.
 
-Since all these things are connected to voicemail, you would be right to guess that we configure it in /etc/asterisk/voicemail.conf—specifically, in the \[zonemessages\] section of the file.
+Поскольку все эти вещи связаны с голосовой почтой, Вы были бы правы, предположив, что мы настраиваем это в _/etc/asterisk/voicemail.conf_ - в частности, в разделе файла `[zonemessages]`.
 
-Here is the \[zonemessages\] part of the sample voicemail.conf file that comes with Asterisk, with UK24 \(for UK people that like 24-hour clock format times\) and UK12 \(for UK people that prefer 12-hour clock format\) zones added:
+Вот часть `[zonemessages]` образца файла _voicemail.conf_, который поставляется с Asterisk, добавлены зоны `UK24` (для британцев, которые любят 24-часовой формат) и `UK12` (для британцев, предпочитающих 12-часовой формат):
 
 ```text
 [zonemessages]
@@ -296,9 +296,9 @@ UK24=Europe/London|'vm-received' q 'digits/at' H N 'hours'
 UK12=Europe/London|'vm-received' Q 'digits/at' IMp
 ```
 
-These zones not only specify a time, but also dictate the way times and dates are ordered and read out.
+Эти зоны не только определяют время, но и указывают порядок следования и считывания времени и дат.
 
-Having created these zones, we can go to the voicemail context part of voicemail.conf to associate the appropriate mailboxes with the correct zones:
+Создав эти зоны, мы можем перейти к контекстной части _voicemail.conf_, чтобы связать соответствующие почтовые ящики с правильными зонами:
 
 ```text
 [default]
@@ -307,13 +307,13 @@ Having created these zones, we can go to the voicemail context part of voicemail
 4003 => 4450,Mary Poppins,mp@shifteight.org,,|tz=UK12|attach=yes
 ```
 
-As you can see, when we declare a mailbox, we also \(optionally\) associate it with a particular zone. Full details on voicemail can be found in [Chapter 8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22asterisk-Voicemail).
+Как вы могли заметить, когда мы объявляем почтовый ящик, мы также (необязательно) связываем его с определенной зоной. Полную информацию о голосовой почте можно найти в [Главе 8](glava-08.md).
 
-The last thing to localize in our Asterisk configuration is the tones played to callers by Asterisk once they are inside the system \(e.g., the tones a caller hears during a transfer\).
+Последнее, что нужно локализовать в нашей конфигурации Asterisk - это тоны, воспроизводимые для абонентов Asterisk, когда они находятся внутри системы (например, тоны, которые абонент слышит во время трансфера).
 
-As identified earlier in this chapter, the initial tones that people hear when they are calling into the system will come from the IP phone, or from DAHDI for analog channels.
+Как было указано ранее в этой главе, исходные сигналы, которые люди слышат, когда звонят в систему, будут поступать с IP-телефона или с DAHDI для аналоговых каналов.
 
-These tones are set in /etc/asterisk/indications.conf. Here is a part of the sample file, where you can see a given region specified by the country directive. We just need to change the country code as appropriate:
+Эти тоны задаются в _/etc/asterisk/indication.conf_. Вот часть файла примера, где вы можете увидеть данный регион, указанный в директиве страны. Нам просто нужно изменить код страны соответствующим образом:
 
 ```text
 ;
@@ -332,21 +332,21 @@ These tones are set in /etc/asterisk/indications.conf. Here is a part of the sam
 country=uk ; default is US, so we have changed it to UK
 ```
 
-Your dialplan will need to reflect the numbering scheme for your region. If you do not already know the scheme for your area, your local telecoms regulator will usually be able to supply details of the plan. Also, the example dialplan in /etc/asterisk/extensions.conf is, of course, packed with North American numbers and patterns.
+Ваш диалплан должен будет отражать схему нумерации для вашего региона. Если вы еще не знаете схему для своего региона, местный регулятор электросвязи обычно предоставляет подробную информацию об этом. Кроме того, пример диалплана в _/etc/asterisk/extensions.conf_ конечно же содержит номера и шаблоны для Северной Америки.
 
-## Conclusion—Easy Reference Cheat Sheet
+## Вывод - простая шпаргалка
 
-As you can now see, there are quite a few things to change in order to fully localize your Asterisk-based telephone system, and not all of them are in the Asterisk, or even DAHDI, configuration—some things need to be changed on the connected IP phones or ATAs themselves.
+Как вы теперь можете видеть - есть довольно много вещей, которые необходимо изменить, чтобы полностью локализовать вашу телефонную систему на основе Asterisk и не все из них находятся в конфигурации Asterisk или даже DAHDI — некоторые параметры должны быть изменены на подключенных IP-телефонах или ATA.
 
-Before we leave the chapter, have a look at [Table 9-1](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22internationalization_cheat/README.md): a cheat sheet for what to change and where to change it, for your future reference.
+Прежде чем мы покинем главу, взгляните на [Таблицу 9-1](Таблица 9-1): шпаргалка для того, что и где изменить для дальнейшего использования.
 
-Table 9-1. Internationalization cheat sheet
+[Таблица 9-1]Таблица 9-1. Шпаргалка интернационализации
 
 <table>
   <thead>
     <tr>
-      <th style="text-align:left">What to change</th>
-      <th style="text-align:left">Where to change it</th>
+      <th style="text-align:left">Что изменить</th>
+      <th style="text-align:left">Где это изменить</th>
     </tr>
   </thead>
   <tbody>
@@ -404,7 +404,7 @@ Table 9-1. Internationalization cheat sheet
       </td>
     </tr>
   </tbody>
-</table>May all your Asterisk deployments feel at home…
+</table>Пусть все ваши развертывания Asterisk чувствуют себя как дома…
 
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html%22%20/l%20%22idm46178407219928-marker) i18n is a term used to abbreviate the word internationalization, due to its length. The format is &lt;first\_letter&gt;&lt;number&gt;&lt;last\_letter&gt;, where &lt;number&gt; is the number of letters between the first and last letters. Other words, such as localization \(L10n\) and modularization \(m12n\), have also found a home with this scheme, which Leif finds a little bit ridiculous. More information can be found in the [W3C glossary online](http://www.w3.org/2001/12/Glossary%22%20/l%20%22I18N).
 
