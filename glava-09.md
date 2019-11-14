@@ -143,71 +143,72 @@ defaultzone=us
 В файле _/etc/dahdi/system.conf_ используется символ решётка (**#**) для обозначения комментария вместо точки с запятой (**;**), как в файлах _/etc/asterisk_.
 {% endhint %}
 
-Although it is possible to load a number of different tone sets \(you can see all the sets of tones in detail in zonedata.c\) and to switch between them, in most practical situations you will only need:
+Хотя можно загрузить несколько различных наборов тонов (вы можете увидеть все наборы в zonedata.c) и переключаться между ними, в большинстве случаев вам понадобится только:
 
 ```text
-loadzone=uk # to load the tone set
-defaultzone=uk # to default DAHDI to using that set
+loadzone=uk    # загружаемый набор тонов
+defaultzone=uk # по умолчанию DAHDI использует этот набор
 ```
 
-…or whichever tones you need for your region.
+…или тоны, необходимые для Вашего региона.
 
-If you perform a dahdi\_genconf to automatically \(or should that be auto-magically?\) configure your DAHDI adapters, you will notice that the newly generated /etc/dahdi/system.conf will have defaulted both loadzone and defaultzone to being us. Despite the warnings not to hand-edit the file, it is fine to change these settings to what you need.
+Если вы выполняете dahdi_genconf для автоматической (или она должна быть автомагическая?) настройки своих адаптеров DAHDI, то заметите, что сгенерированный _/etc/dahdi/system.conf_ объявит как `loadzone`, так и `defaultzone` как `us`. Несмотря на предупреждения не редактировать файл вручную, нормальная практика - изменить эти параметры на то, что Вам нужно.
 
-In case you were wondering how we tell whether there are any voicemails in the mailbox associated with the channel an analog phone is plugged into, it is done with a stuttered dialtone. The format of this stuttered dialtone is decided by the loadzone/defaultzone combination you have used.
+Если вам интересно как проверить почтовый ящик, связанный с каналом, к которому подключен аналоговый телефон, на наличие голосовых сообщений, то это делается заикающимся тоном. Формат этой заикнутой мелодии определяется выбранной комбинацией `loadzone/defaultzone`.
 
-As a quick aside, analog phones that have a message-waiting indicator \(e.g., an LED or lamp that flashes to indicate new voicemail\) achieve this by automatically going off-hook periodically and listening for the stuttered dialtone. You can witness this by watching the Asterisk command line to see the DAHDI channel go active \(if you have nothing better to do!\).
+В качестве быстрого отступления, аналоговые телефоны, у которых есть индикатор ожидания сообщения (например, светодиод или лампа, которая мигает, чтобы указать на новую голосовую почту), достигают этого, автоматически периодически отключаясь и слушая заикающийся тон. Вы можете увидеть это, посмотрев вывод командной строки Asterisk, чтобы увидеть как канал DAHDI становится активен (если у вас нет ничего лучше!).
 
-That’s it at the DAHDI level. We chose the protocol\(s\) for PRI or BRI connections, the type of signaling for the analog channels \(all covered in [Chapter 7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch07.html%22%20/l%20%22asterisk-OutsideConn)\), and the tones for the analog connections that have just been discussed.
+Вот и все на уровне DAHDI. Мы выбрали протокол(ы) для соединений PRI или BRI, тип сигнализации для аналоговых каналов (все рассмотрено в [Главе 7](glava-07.md)) и тональные сигналы для аналоговых соединений, которые только что были обсуждены.
 
-The relationship between Linux, DAHDI, and Asterisk \(and therefore /etc/dahdi/system.conf and /etc/asterisk/chan\_dahdi.conf\) is shown in [Figure 9-5](https://github.com/Krotesk1/definitive-guide-5th/tree/25dd8a8bd31ab9128242e9ca42e5fc842f433f2f/9.%20Internationalization%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22asterisk-dahdi-relationship/README.md).
-
-{% hint style="info" %}
-#### Tip
-
-Once you have completed your configuration at the DAHDI level \(in /etc/dahdi/system.conf\), you need to perform a dahdi\_cfg -vvv to have DAHDI reread the configuration. This is also a good time to use dahdi\_tool to check that everything appears to be in order at the Linux level.
-
-This way, if things do not work properly after you have configured Asterisk to work with the DAHDI adapters, you can be sure that the problem is confined to chan\_dahdi.conf \(or an \#included dahdi-channels.conf if you are using this part of the dahdi\_genconf output\).
-{% endhint %}
+Связь между Linux, DAHDI и Asterisk (и, следовательно, _/etc/dahdi/system.conf_ и _/etc/asterisk/chan_dahdi.conf_) показана на Рисунке 9-5.
 
 ![](.gitbook/assets/4%20%281%29.png)
 
-#### Figure 9-5. The relationship between Linux, DAHDI, and Asterisk
+#### Рисунок 9-5. Связь между Linux, DAHDI и Asterisk
 
-## Internationalization Within Asterisk
+{% hint style="info" %}
+#### Подсказка
 
-With everything set at the Linux level, we now only need to configure Asterisk to make use of the channels we just enabled at the Linux level and to customize the way that Asterisk interprets and generates information that comes in from, or goes out over, these channels. This work is done in /etc/asterisk/chan\_dahdi.conf.
+После завершения настройки на уровне DAHDI (в файле _/etc/dahdi/system.conf_), вам нужно выполнить _dahdi\_cfg -vvv_ чтобы DAHDI перечитал конфигурацию. Это также хороший шанс, чтобы использовать _dahdi\_tool_ для проверки что все в порядке на уровне Linux.
 
-In this file we will not only tell Asterisk what sort of channels we have \(these settings will fit with what we already did in DAHDI\), but also configure a number of things that will ensure Asterisk is well suited to its new home.
+Таким образом, если что-то не работает должным образом после настройки Asterisk для работы с адаптерами DAHDI, вы можете быть уверены, что проблема ограничена _chan\_dahdi.conf_ (или _\#include dahdi-channels.conf_ если вы используете эту часть вывода _dahdi\_genconf_).
+
+{% endhint %}
+
+## Интернационализация в Asterisk
+
+Теперь, когда все настроено на уровне Linux, нам нужно только настроить Asterisk, чтобы использовать каналы, которые мы только что включили на уровне Linux, и настроить способ, которым Asterisk интерпретирует и генерирует информацию, поступающую из этих каналов или исходящую через них. Эта работа выполняется в файле _/etc/asterisk/chan\_dahdi.conf_.
+
+В этом файле мы не только расскажем Asterisk, какие каналы у нас есть (эти настройки будут соответствовать тому, что мы уже сделали в DAHDI), но и настроим ряд вещей, которые гарантируют, что Asterisk хорошо подходит для своего нового дома.
 
 ### Caller ID
 
-A key component of this change is caller ID. While caller ID delivery methods are pretty much standard within the BRI and PRI world, they vary widely in the analog world; thus, if you plugged an American analog phone into the UK telephone network, it would actually work as a phone, but caller ID information would not be displayed. This is because that information is transmitted in different ways in different places around the world, and an American phone would be looking for caller ID signaling in the US format, while the UK telephone network would be supplying it in the UK format \(if it is enabled—caller ID is not standard in the UK; you have to ask for and sometimes even pay for, it!\).
+Ключевым компонентом этого изменения является CallerID (идентификатор вызывающего абонента). Хотя методы доставки CallerID являются довольно стандартными в мире BRI и PRI, в аналоговом мире они сильно различаются; таким образом, если вы подключите американский аналоговый телефон к телефонной сети Великобритании, он, фактически, будет работать как телефон, но CallerID отображаться не будет. Это потому, что эта информация передается разными способами в разных местах по всему миру, и американский телефон будет искать сигнализацию CallerID в формате США, в то время как телефонная сеть Великобритании будет поставлять ее в формате Великобритании (если он включен - CallerID не является стандартным в Великобритании, вы должны попросить, а иногда даже заплатить, это!).
 
-Not only is the format different, but the method of telling a telephone \(or Asterisk\) to look out for the caller ID may vary from place to place, too. This is important, as we do not want Asterisk to waste time looking for caller ID information if it is not being presented on the line.
+Мало того, что формат отличается, но и способ сообщить телефону (или Asterisk) искать CallerID также может варьироваться от места к месту. Это важно, так как мы не хотим, чтобы Asterisk тратил время на поиск информации о CallerID, если он не отображается на линии.
 
-Again, Asterisk defaults to the North American caller ID format \(no entries in /etc/asterisk/chan\_dahdi.conf describe this, it’s just the default\), and in order to change it we will need to make some entries that describe the technical details of the caller ID system. In the case of the UK, the delivery of caller ID information is signaled by a polarity reversal on the telephone line \(in other words, the A and B legs of the pair of telephone wires are temporarily switched over\), and the actual caller ID information is delivered in a format known as V.23 \(frequency shift keying, or FSK\). So the entries in chan\_dahdi.conf to receive UK-style caller ID on any FXO interfaces will look like this:
+Опять же, Asterisk по умолчанию использует североамериканский формат идентификатора (записи в _/etc/asterisk/chan_dahdi.conf_ не описывают этого, это просто значение по умолчанию) и для его изменения нам потребуется сделать несколько записей, которые опишут технические детали системы идентификации вызывающего абонента. В случае Великобритании о доставке информации CallerID сигнализирует смена полярности на телефонной линии (другими словами, жилы A и B пары телефонных проводов временно переключаются) и фактическая информация о CallerID доставляется в формате, известном как V.23 (частотная манипуляция или FSK). Таким образом, записи в файле _chan_dahdi.conf_ для получения идентификатора вызывающего абонента в британском стиле на любых интерфейсах FXO будут выглядеть следующим образом:
 
 ```text
-cidstart=polarity ; the delivery of caller ID will be
-                  ; signaled by a polarity reversal
-cidsignalling=v23 ; the delivery of the called ID information
-                  ; will be in V23 format
+cidstart=polarity ; доставка caller ID будет осуществляться
+                  ; методом изменения полярности
+cidsignalling=v23 ; доставка информации о вызываемом идентификаторе
+                  ; будет в формате V23
 ```
 
-Of course, you may also need to send caller ID using the same local signaling information to any analog phones that are connected to FXS interfaces, and one more entry may be needed, as in some locations the caller ID information is sent after a specified number of rings. If this is the case, you can use this entry:
+Конечно, вам также может понадобиться отправить CellrID, используя ту же информацию локальной сигнализации, на любые аналоговые телефоны, которые подключены к интерфейсам FXS, и может потребоваться еще одна запись, поскольку в некоторых местах информация CallerID отправляется после указанного количества звонков. Если это так - вы должны использовать эту запись:
 
 ```text
 sendcalleridafter=2
 ```
 
-Before you can make these entries, you will need to establish the details of your local caller ID system \(someone from your local telco or Google could be your friend here, but there is also some good information in the sample /etc/asterisk/chan\_dahdi.conf file\).
+Прежде чем вы сможете сделать эти записи, вам нужно будет установить детали вашей локальной системы CallerID (кто-то из вашей местной телефонной компании или Google может помочь в этом, но также есть некоторая полезная информация в файле примера _/etc/asterisk/chan\_dahdi.conf_).
 
 ### Language and/or Accent of Prompts
 
 As you may know, the prompts \(or recordings\) that Asterisk will use are stored in /var/lib/asterisk/sounds. In older versions of Asterisk all the sounds were in this actual directory, but these days you will find a number of subdirectories that allow the use of different languages or accents. The names of these subdirectories are arbitrary; you can call them whatever you want.
 
-Note that the filenames in these directories must be what Asterisk is expecting—for example, in /var/lib/asterisk/sound/en, the file hello.gsm would contain the word “Hello” \(spoken by the lovely Allison\), whereas hello.gsm in /var/lib/asterisk/sounds/es \(for Spanish in this case\) would contain the word “Hola” \(spoken by the Spanish equivalent of the lovely Allison[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch09.html%22%20/l%20%22idm46178407073864)\).
+Note that the filenames in these directories must be what Asterisk is expecting—for example, in /var/lib/asterisk/sound/en, the file hello.gsm would contain the word “Hello” \(spoken by the lovely Allison\), whereas hello.gsm in /var/lib/asterisk/sounds/es \(for Spanish in this case\) would contain the word “Hola” \(spoken by the Spanish equivalent of the lovely Allison[2].
 
 The default directory used is /var/lib/asterisk/sounds/en, so how do you change that?
 
@@ -219,7 +220,7 @@ language=en_UK
 
 placed in chan\_dahdi.conf, sip.conf, and so on \(to apply generally, or for just a given channel or profile\) will tell Asterisk to use sound files found in /var/lib/asterisk/sounds/en\_UK \(which could contain British-accented prompts\) for all calls that come in through those channels.
 
-The other way is to change the language during a phone call through the dialplan. This \(along with many attributes of an individual call\) can be set using the CHANNEL\(\) dialplan function. See [Chapter 10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch10.html%22%20/l%20%22asterisk-DP-Deeper) for a full treatment of dialplan functions.
+The other way is to change the language during a phone call through the dialplan. This \(along with many attributes of an individual call\) can be set using the CHANNEL\(\) dialplan function. See [Chapter 10](../glava-10.md) for a full treatment of dialplan functions.
 
 The following example would allow the caller to choose one of three languages in which to continue the call:
 
