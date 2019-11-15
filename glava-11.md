@@ -4,9 +4,9 @@
 >
 > -- Билли Коннолли
 
-This chapter discusses several peripheral features common to business telephone environments. We’ll briefly cover the features.conf file, and then spend a few sections on paging and parking, and finally do a bit of work with Asterisk’s conferencing engine, confbridge.
+В этой главе рассматриваются некоторые периферийные функции, общие для бизнес-телефонных сред. Мы кратко рассмотрим  файл _features.conf_, а затем посвятим несколько разделов пейджингу и парковке и, наконец, немного поработаем с механизмом конференц-связи Asterisk, `confbridge`.
 
-First up, let’s copy the features.conf file over from the installation directory, and have a look at it:
+Во-первых, давайте скопируем файл _features.conf_ из каталога установки и рассмотрим его:
 
 ```text
 $ sudo cp ~/src/asterisk-16.<TAB>/configs/samples/features.conf.sample \
@@ -16,7 +16,7 @@ $ sudo chown asterisk:asterisk /etc/asterisk/features.conf
 
 ## features.conf
 
-Asterisk provides several features common to most PBXs, many of which have optional parameters. The features.conf file is where you can adjust or define the various feature parameters in Asterisk.
+Asterisk предоставляет несколько функций, общих для большинства УАТС, многие из которых имеют необязательные параметры. Файл features.conf - это место, где вы можете настроить или определить различные параметры объектов в Asterisk.
 
 **DTMF-Based Features**
 
