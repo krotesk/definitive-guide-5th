@@ -223,9 +223,9 @@ language=en_UK
 В следующем примере вызывающий абонент может выбрать один из трех языков для продолжения вызова:
 
 ```text
-; дает выбор (1) Французского, (2) Испанского, или (3) Немецкого
+; дает выбор (1) Французского, (2) Испанского или (3) Немецкого
 exten => s,1,Background(choose-language)
-same => n,WaitExten(5)
+    same => n,WaitExten(5)
 exten => 1,1,Set(CHANNEL(language)=fr)
 exten => 2,1,Set(CHANNEL(language)=es)
 exten => 3,1,Set(CHANNEL(language)=de)
@@ -253,37 +253,37 @@ Asterisk использует системное время Linux с хост-с
 
 ```text
 [zonemessages]
-; Users may be located in different time zones, or may have different
-; message announcements for their introductory message when they enter
-; the voicemail system. Set the message and the time zone each user
-; hears here. Set the user into one of these zones with the tz=attribute
-; in the options field of the mailbox. Of course, language substitution
-; still applies here so you may have several directory trees that have
-; alternate language choices.
+; Пользователи могут находиться в разных часовых поясах или иметь разные
+; объявления для сообщения при входе в систему голосовой почты. Здесь можно
+; установить сообщение и часовой пояс для каждого пользователя. Определите
+; пользователя в одну из этих зон с помощью tz=атрибут в параметрах почтового
+; ящика. Конечно, замена языка здесь всё еще применяется, поэтому у вас
+; может быть несколько деревьев каталогов, которые имеют альтернативные
+; варианты языка.
 ;
-; Look in /usr/share/zoneinfo/ for names of timezones.
-; Look at the manual page for strftime for a quick tutorial on how the
-; variable substitution is done on the values below.
+; Найдите в /usr/share/zoneinfo/ названия часовых поясов.
+; Посмотрите страницу руководства для strftime для быстрой справки о том,
+; как выполняется подстановка переменных на значениях ниже.
 ;
-; Supported values:
-; 'filename' filename of a soundfile (single ticks around the filename
-; required)
-; ${VAR} variable substitution
-; A or a Day of week (Saturday, Sunday, ...)
-; B or b or h Month name (January, February, ...)
-; d or e numeric day of month (first, second, ... thirty-first)
-; Y Year
-; I or l Hour, 12 hour clock
-; H Hour, 24 hour clock (single digit hours preceded by "oh")
-; k Hour, 24 hour clock (single digit hours NOT preceded by "oh")
-; M Minute, with 00 pronounced as "o'clock"
-; N Minute, with 00 pronounced as "hundred" (US military time)
-; P or p AM or PM
-; Q "today", "yesterday" or ABdY
-; (*note: not standard strftime value)
-; q " (for today), "yesterday", weekday, or ABdY
-; (*note: not standard strftime value)
-; R 24 hour time, including minute
+; Поддерживаемые значения:
+; 'filename' имя звукового файла (требует одиночные кавычки вокруг имени
+; файла)
+; ${VAR} подстановка переменных
+; A или a - день недели (Saturday, Sunday, ...)
+; B или b или h - название месяца (January, February, ...)
+; d или e - число в месяце (first, second, ... thirty-first)
+; Y - год
+; I или l - час, 12-часовой формат
+; H - час, 24-часовой формат (одноразрядные часы перед "oh")
+; k - час, 24-часовой формат (одноразрядные часы НЕ перед "oh")
+; M - минута, с 00 произносится как "o'clock"
+; N - минута, с 00 произносится как "hundred" (военное время США)
+; P или p - AM или PM
+; Q "today", "yesterday" или ABdY
+; (*примечание: нестандартное значение strftime)
+; q " (для today), "yesterday", weekday или ABdY
+; (*примечание: нестандартное значение strftime)
+; R - 24-часовой формат, включая минуты
 ;
 eastern=America/New_York|'vm-received' Q 'digits/at' IMp
 central=America/Chicago|'vm-received' Q 'digits/at' IMp
@@ -317,17 +317,18 @@ UK12=Europe/London|'vm-received' Q 'digits/at' IMp
 ;
 ; indications.conf
 ;
-; Configuration file for location specific tone indications
+; Конфигурационный файл для индикаций конкретного местоположения
 ;
-; NOTE:
-; When adding countries to this file, please keep them in alphabetical
-; order according to the 2-character country codes!
+; ПРИМЕЧАНИЕ:
+; При добавлении стран в этот файл, пожалуйста, держите их в алфавитном
+; порядке в соответствии с 2-символьными кодами стран!
 ;
-; The [general] category is for certain global variables.
-; All other categories are interpreted as location specific indications
+; Категория [general] предназначена для некоторых глобальных переменных.
+; Все остальные категории интерпретируются как индикации для
+; конкретного местоположение
 ;
 [general]
-country=uk ; default is US, so we have changed it to UK
+country=uk ; по умолчанию - US, поэтому мы изменили его на uk
 ```
 
 Ваш диалплан должен будет отражать схему нумерации для вашего региона. Если вы еще не знаете схему для своего региона, местный регулятор электросвязи обычно предоставляет подробную информацию об этом. Кроме того, пример диалплана в _/etc/asterisk/extensions.conf_ конечно же содержит номера и шаблоны для Северной Америки.
