@@ -97,8 +97,7 @@ _Таблица 8-1. Настройки секции \[General\] файла voic
 
 #### Проверка паролей голосовой почты внешними средствами
 
-По умолчанию, Asterisk не проверяет  пароли пользователей на устойчивость к взлому. Любой кто разрабатывает системы голосовой почты скажет вам, что подавляющее число пользователей устанавливает такие пароли к своим ящикам, которые легко запомнить, например 1234 или 1111
-By default, Asterisk does not validate user passwords to ensure they are at least somewhat secure. Anyone who maintains voicemail systems will tell you that a large percentage of mailbox users set their passwords to something like 1234 or 1111, or some other string that’s easy to guess. Although fraud bots aren’t typically interested in making mischief, having lousy passwords does represent a security hole in the voicemail system.
+По умолчанию, Asterisk не проверяет  пароли пользователей на устойчивость к взлому. Любой кто разрабатывает системы голосовой почты скажет вам, что подавляющее число пользователей устанавливает такие пароли к своим ящикам, которые легко запомнить, например 1234 или 1111. Хотя обычно Фрод-боты не предназначены для баловства, наличие слабых паролей представляет собой дыру в системе безопасности голосовой почты.
 
 Since the app\_voicemail.so module does not have the built-in ability to validate passwords, the settings externpass, externpassnotify, and externpasscheck allow you to validate them using an external program. Asterisk will call the program based on the path you specify, and pass it the following arguments:
 
