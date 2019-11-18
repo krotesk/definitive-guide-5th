@@ -18,44 +18,44 @@ $ sudo chown asterisk:asterisk /etc/asterisk/features.conf
 
 Asterisk предоставляет несколько функций, общих для большинства УАТС, многие из которых имеют необязательные параметры. Файл features.conf - это место, где вы можете настроить или определить различные параметры объектов в Asterisk.
 
-**DTMF-Based Features**
+**Функции на основе DTMF**
 
-Many of the parameters in features.conf only apply when invoked on calls that have been bridged by the dialplan applications Dial\(\) or Queue\(\) using one or more of the options K, k, H, h, T, t, W, w, X, or x. Features accessed in this way are DTMF-based \(meaning they can’t be accessed via SIP messaging, but only through touch-tone signals in the audio channel triggered by users dialing the required digits on their dialpads\).[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406491144)
+Многие параметры в _features.conf_ применяются только при вызовах, которые были совершены с помощью приложений диалплана `Dial()` или `Queue()`, используя один или несколько параметров `k`, `K`, `H`, `h`, `T`, `t`, `W`, `w`, `X` или `x`. Функции доступны путем передачи DTMF-сигналов (т.е. они не могут быть доступны через SIP-сообщения, а только в аудиоканале через тональные сигналы, запускаемые пользователями, набирающими необходимые цифры на своих клавиатурах).[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406491144)
 
-Transfers on SIP channels \(for example, from a SIP telephone\) can be handled using the capabilities of the phone itself and won’t be affected by anything in the features.conf file.
+Трансферы SIP-каналов (например через SIP-телефон) могут быть обработаны с использованием возможностей самого телефона и не будут затронуты файлом `features.conf`.
 
-### The \[general\] Section
+### Раздел \[general\]
 
-In the \[general\] section of features.conf, you can define options that fine-tune the behavior of the transfers feature in Asterisk. These have nothing to do with how SIP telephones handle call transfers. You instead access these features by using DTMF digits while on a call \(the call must be bridged, so calls ringing or in progress will not have access to these features\).
+В разделе `[general]` _features.conf_, вы можете определить параметры, которые точно настраивают поведение функции трансфера в Asterisk. Они не имеют ничего общего с тем, как SIP-телефоны обрабатывают трансфер вызовов. Вместо этого вы получаете доступ к этим функциям с помощью DTMF во время вызова (вызов должен быть установлен, поэтому вызовы звонящие или выполняющиеся, не будут иметь доступа к этим функциям).
 
-The features.conf.sample file in your ~/asterisk/ folder contains details of the various options, and examples of how they can be set.
+Пример файла _features.conf.sample_ в папке _~/asterisk/_ содержит подробные сведения о различных параметрах и примеры их установки.
 
-These features are not as commonly used as they were in the past, mostly because many of these things can be handled in more advanced ways than firing DTMF from the telephone set \(for example, through an external integration of some sort, or for that matter from the telephone itself using its own internal transfer features\).
+Эти функции не так часто используются как в прошлом, главным образом потому, что многие из этих вещей могут быть обработаны более продвинутыми способами, чем запуск DTMF с телефонного аппарата (например, через какую-то внешнюю интеграцию или, если на то пошло, с самого телефона, используя свои собственные внутренние функции трансфера).
 
-### The \[featuremap\] Section
+### Раздел [featuremap]
 
-The \[featuremap\] section, summarized in [Table 11-1](10.%20Deeper%20into%20the%20Dialplan%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22AdditionalConfig_id243783), allows you to define specific DTMF sequences that will trigger features on channels that have been bridged via options in the Dial\(\) or Queue\(\) application. The two options you are most likely to use are parkcall and automixmon.
+Раздел `[featuremap]`, приведенный в Таблице 11-1, позволяет определить определенные последовательности DTMF, которые будут запускать функции на каналах, которые были соединены с помощью опций в приложении `Dial()` или `Queue()`. Два варианта, которые вы, скорее всего, будете использовать, это `parkcall` и `automixmon`.
 
-Table 11-1. features.conf \[featuremap\] section
+_Таблица 11-1. features.conf раздел \[featuremap\]_
 
-| Option | Value/example | Notes | Dial\(\)/Queue\(\) flags |
+| Параметр | Значение/пример | Примечание | флаги Dial\(\)/Queue\(\) |
 | :--- | :--- | :--- | :--- |
-| blindxfer | \#1 | Invokes a blind \(unsupervised\) transfer | T, t |
-| disconnect | \*0 | Hangs up the call | H, h |
-| automon | \*1 | Starts recording of the current call using the Monitor\(\) application \(pressing this key sequence a second time stops the recording\) | W, w |
-| atxfer | \*2 | Performs an automated transfer | T, t |
-| parkcall | \#72 | Parks a call | K, k |
-| automixmon | \*3 | Starts recording of the current call using the MixMonitor\(\) application \(pressing this key sequence again stops the recording\) | X, x |
+| `blindxfer` | `#1` | Вызывает слепой (неконтролируемый) трансфер | `T, t` |
+| `disconnect` | `*0` | Завершает вызов | `H, h` |
+| `automon` | `*1` | Запускает запись текущего вызова с помощью приложения Monitor() (повторное нажатие этой последовательности клавиш останавливает запись) | `W, w` |
+| `atxfer` | `*2` | Выполняет автоматический трансфер | `T, t` |
+| `parkcall` | `#72` | Паркует вызов | `K, k` |
+| `automixmon` | `*3` | Запускает запись текущего вызова с помощью приложения MixMonitor() (повторное нажатие этой последовательности клавиш останавливает запись) | `X, x` |
 
-### The \[applicationmap\] Section
+### Раздел [applicationmap]
 
-The \[applicationmap\] section of features.conf is arguably the most nifty, as it allows you to map DTMF codes to dialplan applications. The caller will be placed on hold until the application has completed execution.
+Раздел `[applicationmap]` в _features.conf_ возможно, является самым изящным, поскольку он позволяет сопоставлять коды DTMF с приложениями диалплана. Вызывающий абонент будет поставлен на удержание, пока приложение не завершит выполнение.
 
-The syntax for defining an application map is as follows \(it must appear on a single line; line breaks are not allowed\):[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406451032)
+Синтаксис для определения карты приложения выглядит следующим образом (она должна отображаться в одной строке; разрывы строк не разрешены):[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178)
 
 Name =&gt; DTMF\_sequence,ActivateOn\[/ActivatedBy\],App\(\[Args\]\)\[,MOH\_Class\]
 
-What you are doing is the following:
+То, что вы делаете, заключается в следующем:
 
 1. Giving your map a name so that it can be enabled in the dialplan through the use of the DYNAMIC\_FEATURES channel variable \(more on this in a moment\).
 2. Defining the DTMF sequence that activates this feature \(we recommend using at least two digits for this\).
