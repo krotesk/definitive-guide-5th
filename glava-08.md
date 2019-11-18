@@ -107,10 +107,9 @@ mailbox context oldpass newpass
 
 Возможно вам стоит реализовать следующие правила:
 
-
-* Passwords must be a minimum of six digits in length
-* Passwords must not be strings of repeated digits \(e.g., 111111\)
-* Passwords must not be strings of contiguous digits \(e.g., 123456 or 987654\)
+* Минимальная длина пароля должна составлять 6 символов
+* Пароль не должен представлять собой строку повторяющихся цифр \(т.к. 111111\)
+* Пароль не должен представлять собой последовательность цифр \(т.к. 123456 или 456789\)
 
 Asterisk comes with a simple script that will greatly improve the security of your voicemail system. It is located in the source code under the folder: /contrib/scripts/voicemailpwcheck.py.
 
