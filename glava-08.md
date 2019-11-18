@@ -99,13 +99,14 @@ _Таблица 8-1. Настройки секции \[General\] файла voic
 
 По умолчанию, Asterisk не проверяет  пароли пользователей на устойчивость к взлому. Любой кто разрабатывает системы голосовой почты скажет вам, что подавляющее число пользователей устанавливает такие пароли к своим ящикам, которые легко запомнить, например 1234 или 1111. Хотя обычно Фрод-боты не предназначены для баловства, наличие слабых паролей представляет собой дыру в системе безопасности голосовой почты.
 
-Since the app\_voicemail.so module does not have the built-in ability to validate passwords, the settings externpass, externpassnotify, and externpasscheck allow you to validate them using an external program. Asterisk will call the program based on the path you specify, and pass it the following arguments:
+Поскольку модуль app\_voicemail.so не имеет встроенной возможности проверки паролей, настройки externpass, externpassnotify, и externpasscheck позволяют проверять их с помощью внешней программы. Asterisk вызовет приложение находящееся по указанному вами пути и передаст следующие аргументы:
 
 mailbox context oldpass newpass
 
-The script will then evaluate the arguments based on rules that you defined in the external script, and, accordingly, it should return to Asterisk a value of VALID for success or INVALID for failure \(actually, the return value for a failed password can be anything except the words VALID or FAILURE\). This value is typically printed to stdout. If the script returns INVALID, Asterisk will play an invalid-password prompt and the user will need to attempt something different.
+Затем скрипт будет оценивать аргументы основываясь на правилах, которые вы в нем определили, и, соответственно, он должен вернуть в Asterisk значение VALID в случае успеха или INVALID в случае неуспеха \(На самом деле возвращаемое значение для пароля не прошедшего проверку может быть любое, кроме слов VALID и FAILURE\). Это значение выводится в stdout -- на стандартный вывод. Если сценарий вернул значение INVALID, Asterisk будет воспроизводить запись ошибочного пароля и пользователю будет нужно попробовать набрать что-то иное.
 
-Ideally, you would want to implement rules such as the following:
+Возможно вам стоит реализовать следующие правила:
+
 
 * Passwords must be a minimum of six digits in length
 * Passwords must not be strings of repeated digits \(e.g., 111111\)
