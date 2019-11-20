@@ -72,96 +72,90 @@ agi_test => *6,self/callee,AGI(agi-test.agi),default
 
 Вы можете добавить это в свой файл _/etc/asterisk/features.conf_ если пожелаете.
 
-!!! notice "ПРИМЕЧАНИЕ"
+**ПРИМЕЧАНИЕ**
 
-Поскольку приложения, порожденные картой приложений, выполняются вне ядра АТС, вы не можете выполнять приложения, запускающие диалплан (например, `Goto()`, `Macro()`, `Background()` и т.д.). Если вы хотите использовать карту приложений для создания внешних процессов (включая выполнение кода диалплана), то вам нужно будет вызвать внешнее приложение через вызов `AGI()` или приложение `System()`. Дело в том, что если вы хотите, чтобы что-то сложное произошло с помощью карты приложения, вам нужно будет очень тщательно протестировать, так как не все будет работать так, как вам хотелось бы.
+Поскольку приложения, вызванные картой приложений, выполняются вне ядра АТС, вы не можете выполнять приложения, запускающие диалплан (например, `Goto()`, `Macro()`, `Background()` и т.д.). Если вы хотите использовать карту приложений для создания внешних процессов (включая выполнение кода диалплана), то вам нужно будет вызвать внешнее приложение через вызов `AGI()` или приложение `System()`. Дело в том, что если вы хотите выполнить что-то сложное с помощью карты приложения, вам нужно будет это очень тщательно протестировать, так как не все будет работать так, как вам хотелось бы.
 
-Since applications spawned from the application map are run outside the PBX core, you cannot execute any applications that trigger the dialplan \(such as Goto\(\), Macro\(\), Background\(\), etc.\). If you wish to use the application map to spawn external processes \(including executing dialplan code\), you will need to trigger an external application through an AGI\(\) call or the System\(\) application. The point is, if you want anything complex to happen through the use of an application map, you will need to test very carefully, as not all things will work as you might expect.
+Чтобы использовать карту приложения, вы должны объявить ее в диалплане, установив переменную `DYNAMIC_FEATURES` где-то перед командой `Dial()`, которая соединяет каналы. Используйте модификатор двойного подчеркивания в имени переменной для гарантии того, что карта приложения будет доступна обоим каналам в течение всего жизненного цикла вызова. Давайте добавим его в нашу подпрограмму `subDialUser`, чтобы он был доступен всякий раз, когда любое из наших расширений вызывает друг друга:
 
-To use an application map, you must declare it in the dialplan by setting the DYNAMIC\_FEATURES variable somewhere before the Dial\(\) command that connects the channels. Use the double underscore modifier on the variable name to ensure that the application map is available to both channels throughout the life of the call. Let’s toss this one in our subDialUser subroutine, so that it’ll be available whenever any of our extensions call each other:
+```
+[subDialUser]
+exten => _[0-9].,1,Noop(Dial extension ${EXTEN},channel: ${ARG1}, mailbox: ${ARG2})
+    same => n,Noop(mboxcontext: ${ARG3}, timeout ${ARG4})
+    same => n,Set(__DYNAMIC_FEATURES=agi_test)
+    same => n,Dial(${ARG1},${ARG4})
+    same => n,GotoIf($["${DIALSTATUS}" = "BUSY"]?busy:unavail)
+```
 
-\[subDialUser\]
+**ПРИМЕЧАНИЕ**
 
-exten =&gt; \_\[0-9\].,1,Noop\(Dial extension ${EXTEN},channel: ${ARG1}, mailbox: ${ARG2}\)
+Если вы хотите, чтобы при вызове было доступно более одной карты приложения, вам нужно использовать символ \# в качестве разделителя между несколькими именами карт:
+```
+Set(__DYNAMIC_FEATURES=agi_test#my_other_map)
+```
+Причина, по которой символ \# был выбран вместо простой запятой, заключается в том, что более старые версии приложения `Set()` интерпретировали запятую иначе, чем более поздние версии, и синтаксис для карт приложений никогда не обновлялся.
 
- same =&gt; n,Noop\(mboxcontext: ${ARG3}, timeout ${ARG4}\)
+Не забудьте перезагрузить модуль `features` после внесения изменений в файл *features.conf*:
+```
+*CLI> module reload features
+```
+Вы можете проверить, что ваши изменения произошли через команду CLI `features show`.
 
- same =&gt; n,Set\(\_\_DYNAMIC\_FEATURES=agi\_test\)
+Кроме того, поскольку мы представляем здесь скрипт AGI, есть некоторые команды, которые необходимо выполнить, чтобы сделать упомянутый скрипт AGI доступным для Asterisk.
+```
+$ sudo cp ~/src/asterisk-16.<TAB>/agi/agi-test.agi /var/lib/asterisk/agi-bin/
 
- same =&gt; n,Dial\(${ARG1},${ARG4}\)
+$ sudo chown asterisk:asterisk /var/lib/asterisk/agi-bin/*
 
- same =&gt; n,GotoIf\($\["${DIALSTATUS}" = "BUSY"\]?busy:unavail\)
+$ sudo chmod 755 /var/lib/asterisk/agi-bin/*
+```
+Убедитесь, что вы протестировали карту приложения, прежде чем передать ее своим пользователям!
 
-**Note**
+**Динамическое создание Feature-Map из диалплана**
 
-If you want to allow more than one application map to be available on a call, you will need to use the \# symbol as a delimiter between multiple map names:
+Вы можете создавать карты объектов непосредственно из диалплана, делая динамическое определение объекта (и его отображение DTMF) для каждого канала. Это делается с помощью функций набора номеров `FEATURE()` и `FEATUREMAP()`. Допустимые значения для `FEATUREMAP()` включают следующие, которые устанавливают или извлекают последовательность DTMF, используемую для запуска функциональности:
 
-* Set\(\_\_DYNAMIC\_FEATURES=agi\_test\#my\_other\_map\)
+`atxfer`
 
-The reason why the \# character was chosen instead of a simple comma is that older versions of the Set\(\) application interpreted the comma differently than more recent versions, and the syntax for application maps has never been updated.
+Трансфер с уведомлением
 
-Don’t forget to reload the features module after making changes to the features.conf file:
+`blindxfer`
 
-\*CLI&gt; module reload features
+Слепой трансфер
 
-You can verify that your changes have taken place through the CLI command features show.
+`automon`
 
-Also, since we are introducing an AGI script here, there are some commands that must be run to make the referenced AGI script available to Asterisk.
+Авто `Monitor()` (запись вызовов)
 
-$ sudo cp ~/src/asterisk-16.&lt;TAB&gt;/agi/agi-test.agi /var/lib/asterisk/agi-bin/
+`disconnect`
 
-$ sudo chown asterisk:asterisk /var/lib/asterisk/agi-bin/\*
+Разъединение вызова
 
-$ sudo chmod 755 /var/lib/asterisk/agi-bin/\*
+`parkcall`
 
-Make sure you test out your application map before you turn it over to your users!
+Парковка вызова
 
-**Dynamic Feature-Map Creation from the Dialplan**
+`automixmon`
 
-You can create feature maps from the dialplan directly, making the definition of a feature \(and its DTMF mapping\) dynamic, on a per-channel basis. This is done with the FEATURE\(\) and FEATUREMAP\(\) dialplan functions. Valid values for FEATUREMAP\(\) include the following, which set or retrieve the DTMF sequence used to trigger the functionality:
+Авто `MixMonitor()` (запись вызова)
 
-atxfer
+Функция `FEATUREMAP()` позволяет получить текущую последовательность DTMF для этой функции:
+```
+exten => 232,1,Noop(Current DTMF for parkcall: ${FEATUREMAP(parkcall)})
+```
+Или вы можете использовать последовательность DTMF для особой функции на текущем канале:
+```
+exten => 233,1,NoOp()
+    same => n,Set(FEATUREMAP(parkcall)=*9)
+    same => n,Noop(DTMF for parkcall now: ${FEATUREMAP(parkcall)})
+```
+Если вы хотите установить тайм-аут парковки для канала, то можете сделать это с помощью функции `FEATURE()`. Она содержит единственный аргумент - `parkingtime`, который является значением в секундах до того, как припаркованный вызов будет возвращен вызывающему абоненту (или месту назначения, в зависимости от того, как вы настроили парковку):
+```
+exten => 234,1,NoOp()
+    same => n,Set(FEATURE(parkingtime)=60)
+```
 
-Attended transfer
-
-blindxfer
-
-Blind transfer
-
-automon
-
-Auto Monitor\(\) \(call recording\)
-
-disconnect
-
-Call disconnect
-
-parkcall
-
-Call parking
-
-automixmon
-
-Auto MixMonitor\(\) \(call recording\)
-
-With FEATUREMAP\(\), the function can be used to retrieve the current DTMF sequence for that functionality:
-
-exten =&gt; 232,1,Noop\(Current DTMF for parkcall: ${FEATUREMAP\(parkcall\)}\)
-
-Or you can use the DTMF sequence for a feature function on the current channel:
-
-exten =&gt; 233,1,NoOp\(\)
-
- same =&gt; n,Set\(FEATUREMAP\(parkcall\)=\*9\)
-
- same =&gt; n,Noop\(DTMF for parkcall now: ${FEATUREMAP\(parkcall\)}\)
-
-If you want to set the parking timeout for a channel, you can do so with the FEATURE\(\) function. It contains a single argument, parkingtime, which is a value in seconds before the parked call is returned to the caller \(or destination, depending on how you’ve configured parking\):
-
-exten =&gt; 234,1,NoOp\(\)
-
- same =&gt; n,Set\(FEATURE\(parkingtime\)=60\)
-
+### Группировка карт (сопоставлений) приложений
 ### Application Map Grouping
 
 If you have a lot of features that you need to activate for a particular context or extension, you can group several features together in an application map grouping, so that one assignment of the DYNAMIC\_FEATURES variable will assign all of the designated features of that map.
