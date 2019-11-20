@@ -53,23 +53,28 @@ _Таблица 11-1. features.conf раздел \[featuremap\]_
 
 Синтаксис для определения карты приложения выглядит следующим образом (она должна отображаться в одной строке; разрывы строк не разрешены):[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178)
 
-Name =&gt; DTMF\_sequence,ActivateOn\[/ActivatedBy\],App\(\[Args\]\)\[,MOH\_Class\]
+```
+Name => DTMF_sequence,ActivateOn[/ActivatedBy],App([Args])[,MOH_Class]
+```
 
 То, что вы делаете, заключается в следующем:
+1. Присвоение карте имени, позволяющего включить ее в диалплан с помощью переменной канала `DYNAMIC_FEATURES` (подробнее об этом чуть позже).
+2. Определение последовательности DTMF, которая активирует эту функцию (мы рекомендуем использовать для этого по крайней мере две цифры).
+3. Определение того, на каком канале будет активирована функция и (необязательно) какому участнику разрешено активировать её (по умолчанию обоим каналам разрешено использовать/активировать).
+4. Задает имя приложения, которое вызовет эта карта, и его аргументы.
+5. Предоставление дополнительного класса музыки на удержание (MOH) для назначения этой функции (который будет слышать противоположный канал при выполнении приложения). Если вы не определяете какой-либо класс, вызывающий абонент будет слышать только тишину.
 
-1. Giving your map a name so that it can be enabled in the dialplan through the use of the DYNAMIC\_FEATURES channel variable \(more on this in a moment\).
-2. Defining the DTMF sequence that activates this feature \(we recommend using at least two digits for this\).
-3. Defining which channel the feature will be activated on, and \(optionally\) which participant is allowed to activate the feature \(the default is to allow both channels to use/activate this feature\).
-4. Giving the name of the application that this map will trigger, and its arguments.
-5. Providing an optional music on hold \(MOH\) class to assign to this feature \(which the opposite channel will hear when the application is executing\). If you do not define any MOH class, the caller will hear only silence.
+Вот пример карты приложения, которая вызовет скрипт AGI:[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406440184)
 
-Here is an example of an application map that will trigger an AGI script:[3](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406440184)
+```
+agi_test => *6,self/callee,AGI(agi-test.agi),default
+```
 
-agi\_test =&gt; \*6,self/callee,AGI\(agi-test.agi\),default
+Вы можете добавить это в свой файл _/etc/asterisk/features.conf_ если пожелаете.
 
-You may add this to your /etc/asterisk/features.conf file if you wish.
+!!! notice "ПРИМЕЧАНИЕ"
 
-**Note**
+Поскольку приложения, порожденные картой приложений, выполняются вне ядра АТС, вы не можете выполнять приложения, запускающие диалплан (например, `Goto()`, `Macro()`, `Background()` и т.д.). Если вы хотите использовать карту приложений для создания внешних процессов (включая выполнение кода диалплана), то вам нужно будет вызвать внешнее приложение через вызов `AGI()` или приложение `System()`. Дело в том, что если вы хотите, чтобы что-то сложное произошло с помощью карты приложения, вам нужно будет очень тщательно протестировать, так как не все будет работать так, как вам хотелось бы.
 
 Since applications spawned from the application map are run outside the PBX core, you cannot execute any applications that trigger the dialplan \(such as Goto\(\), Macro\(\), Background\(\), etc.\). If you wish to use the application map to spawn external processes \(including executing dialplan code\), you will need to trigger an external application through an AGI\(\) call or the System\(\) application. The point is, if you want anything complex to happen through the use of an application map, you will need to test very carefully, as not all things will work as you might expect.
 
