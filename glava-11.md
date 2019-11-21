@@ -124,27 +124,27 @@ $ sudo chmod 755 /var/lib/asterisk/agi-bin/*
 
 `atxfer`
 
-Трансфер с уведомлением
+  Трансфер с уведомлением
 
 `blindxfer`
 
-Слепой трансфер
+  Слепой трансфер
 
 `automon`
 
-Авто `Monitor()` (запись вызовов)
+  Авто `Monitor()` (запись вызовов)
 
 `disconnect`
 
-Разъединение вызова
+  Разъединение вызова
 
 `parkcall`
 
-Парковка вызова
+  Парковка вызова
 
 `automixmon`
 
-Авто `MixMonitor()` (запись вызова)
+  Авто `MixMonitor()` (запись вызова)
 
 Функция `FEATUREMAP()` позволяет получить текущую последовательность DTMF для этой функции:
 ```
@@ -187,37 +187,36 @@ same => Set(__DYNAMIC_FEATURES=shifteight) ; используйте двойно
 ```
 ## Парковка и пейджинг
 
-Although these two features are completely separate from each other, they are so commonly used together we might as well treat them as one single feature.
+Хотя эти две функции полностью отделены друг от друга, они так часто используются вместе, что мы могли бы рассматривать их как одну отдельную функцию.
 
-Call parking allows calls to be placed on hold and then retrieved from a location different from where they were originally answered. Paging uses a public address system to allow announcements to be sent from the telephone system \(for example, to announce who the parked call is for and how it can be retrieved\).
+Парковка вызовов позволяет удерживать вызовы, а затем извлекать их из места, отличного от того, на котором им первоначально ответили. Пейджинг использует систему громкой связи, позволяющую отправлять объявления из телефонной системы (например, чтобы сообщить для кого предназначен припаркованный вызов и как его можно получить).
 
-Some businesses, perhaps with large warehouses, outdoor areas, or employees who move around the office a lot, utilize the paging and parking functionality of their systems to direct calls around the office. In this chapter we’ll show you how to use both parking and paging in the traditional setting \(park ’n’ page\), along with a couple of more modern takes on these commonly used functions.
+Некоторые компании, возможно, с большими складами, открытыми площадками или сотрудниками, передвигающимися по офису, используют функции пейджинга и парковки своих систем для прямых звонков по офису. В этой главе мы покажем вам, как использовать парковку и пейджинг в традиционных настройках (park’n’page), а также несколько более современных подходов к этим часто используемым функциям.
 
-### Call Parking
+### Парковка вызовов
 
-A parking lot allows a call to be held in the system without being associated with a particular extension. The call can then be retrieved by anyone who knows the park code for that call. This feature is often used in conjunction with a public address \(PA\), or “paging” system. For this reason, it is often referred to as “park-and-page.” It should be noted that parking and paging are in fact separate. We’ll cover paging momentarily, but first, let’s talk about call parking.
+Парковка позволяет удерживать вызов в системе без привязки к определенному добавочному номеру. Затем вызов может быть извлечен любым, кто знает код парковки для этого вызова. Эта функция часто используется вместе с публичным адресом (PA) или системой «пейджинга». По этой причине его часто называют «park-and-page». Следует отметить, что парковка и пейджинг на самом деле разделены. Мы кратко рассмотрим пейджинг, но сначала давайте поговорим о парковке вызовов.
 
-Let’s grab a copy of the sample file that we’ll use to configure call parking:
+Давайте возьмем копию файла примера, который будем использовать для настройки парковки вызовов:
+```
+$ sudo cp ~/src/asterisk-16.<TAB>/configs/samples/res_parking.conf.sample \
+/etc/asterisk/res_parking.conf
 
-$ sudo cp ~/src/asterisk-16.&lt;TAB&gt;/configs/samples/res\_parking.conf.sample \
+$ sudo chown asterisk:asterisk /etc/asterisk/res_parking.conf
 
-/etc/asterisk/res\_parking.conf
+$ sudo asterisk -rx 'module load res_parking.so'
+```
+Для парковки вызова в Asterisk Вам необходимо перевести вызывающего абонента на код функции, назначенный для парковки в файле *res_parking.conf* с помощью директивы `parkext`. По умолчанию это `700`:
+```
+parkext => 700      ; расширение, набираемое для парковки (все слоты парковки)
+```
+Вам нужно подождать завершения перевода пока вы не получите номер слота поиска парковки из системы, или у вас не будет возможности получить вызов. По умолчанию слоты поиска, назначенные с помощью директивы `parkpos` в _res_parking.conf_, нумеруются от `701` до `720`:
+```
+parkpos => 701-720  ; расширения для парковки вызовов (слоты парковки по умолчанию)
+```
+После того, как вызов припаркован, любой пользователь системы может получить его, набрав номер слота поиска (`parkpos`), назначенного этому вызову. Затем вызов будет соединен с каналом, который набрал код поиска.
 
-$ sudo chown asterisk:asterisk /etc/asterisk/res\_parking.conf
-
-$ sudo asterisk -rx 'module load res\_parking.so'
-
-To park a call in Asterisk, you need to transfer the caller to the feature code assigned to parking, which is assigned in the res\_parking.conf file with the parkext directive. By default, this is 700:
-
-parkext =&gt; 700 ; What extension to dial to park \(all parking lots\)
-
-You have to wait to complete the transfer until you get the number of the parking retrieval slot from the system, or you will have no way of retrieving the call. By default the retrieval slots, assigned with the parkpos directive in res\_parking.conf, are numbered from 701 to 720:
-
-parkpos =&gt; 701-720 ; What extensions to park calls on \(defafult parking lot\)
-
-Once the call is parked, anyone on the system can retrieve it by dialing the number of the retrieval slot \(parkpos\) assigned to that call. The call will then be bridged to the channel that dialed the retrieval code.
-
-There are two common ways to define how retrieval slots are assigned. This is done with the findslot directive in the res\_parking.conf file. The default method \(findslot =&gt; first\) always uses the lowest-numbered slot if it is available, and only assigns higher-numbered codes if required. The second method \(findslot =&gt; next\) will rotate through the retrieval codes with each successive park, returning to the first retrieval code after the last one has been used. Which method you choose will depend on how busy your parking lots are. If you use parking rarely, the default findslot of first will be best \(people will be used to their parked calls always being in the same slot\). If you constantly use the parking feature \(for example, in an automobile dealership\), it is far better for each successive page to assign the next slot, since you will often have more than one call parked at a time. Your users will get used to listening carefully to the actual parking lot number \(instead of just always dialing 701\), and this will minimize the chance of people accidentally retrieving the wrong call on a busy system.
+Существует два распространенных способа определения назначения слотов поиска. Это делается с помощью директивы `findlot` в файле _res_parking.conf_. Метод по умолчанию (`findlot => first`) всегда использует слот с наименьшим номером, если он доступен, и назначает коды с более высоким номером только в случае необходимости. Второй метод (`findlot => next`) будет чередовать слоты поиска при каждой последующей парковке, возвращаясь к первому слоту поиска только после того, как использовался последний. Какой метод вы выберете, будет зависеть от того, насколько загружена ваша парковка. Если вы редко пользуетесь парковкой - лучше всего подойдет `findslot` как `first` по умолчанию (люди будут привыкать к тому, что их припаркованные вызовы всегда находятся в одном и том же слоте). Если вы постоянно используете функцию парковки (например, в автосалоне), гораздо лучше для каждой последующей парковки назначать следующий слот, поскольку вы часто будете парковать более одного вызова одновременно. Ваши пользователи привыкнут внимательно слушать фактический номер парковки (вместо того, чтобы просто набирать 701), и это сведет к минимуму вероятность случайного получения неправильного вызова в занятой системе.
 
 **Handling Timed-Out Parked Calls with the comebacktoorigin Option**
 
