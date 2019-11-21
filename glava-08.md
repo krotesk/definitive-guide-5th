@@ -132,7 +132,7 @@ Asterisk поставляется с простейшим сценарием, з
 
 _Таблица 8-2. Утвержденный список дополнительных опций для voicemail.conf_
 
-\[a\]\: Typically the spool folder is /var/spool/asterisk, and it can be defined in /etc/asterisk/asterisk.conf.
+\[a\]\: Обычно каталог spool находится по пути /var/spool/asterisk, и может быть переопределен в /etc/asterisk/asterisk.conf.
 
 ### The \[zonemessages\] Section
 
