@@ -18,11 +18,11 @@
 
 Вот некоторые функции, которые включает в себя модуль голосовой почты:
 
-* Неограниченное количество защищенных паролем ящиков голосовой почты, каждый из которых содержит подпапки для сортировки голосовой почты
+* Неограниченное количество защищенных паролем ящиков голосовой почты, каждый из которых содержит подкаталоги для сортировки голосовой почты
 * Различные  приветствия для различных статусов, таких как "недоступен" или "занят"
 * Наличие  предустановленных приветствий и возможность создания собственных
 * Возможность ассоциирования телефонов с несколькими  почтовыми ящиками и почтового ящика с несколькими телефонами
-* Уведомление о голсовом сообщении на электронную почту,  опционально с прикрепленным  аудио файлом
+* Уведомление о голосовом сообщении на электронную почту,  опционально с прикрепленным  аудио файлом
 * Широковещательная голосовая почта и перенаправление голосовой почты
 * Индикатор ожидания сообщения  \(мигающий светодиод или специальный сигнал\) поддерживаемый на многих типах телефонов
 * Справочник сотрудников на основе голосовой почты
@@ -74,13 +74,13 @@ european=Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
 
 В первой секции файла voicemail.conf, \[general\], определяются глобальные настройки. Многие из этих настроек могут быть переопределены в настройках каждого конкретного ящика. В таблице 8-1 мы перечислили  некоторые опции, которые, как мы считаем, наиболее важно рассмотреть.
 
-| Опция | Значение | Примечание |
+| Опция | Значение/пример | Примечание |
 | :--- | :--- | :--- |
-| format | wav49\|gsm\|wav | Для каждого перечисленного формата, Asterisk создает  отдельную запись в этом формате, каждый раз когда остается сообщение. Преимущество этого механизма в  экономии ресурсов на транскодировании, которое не надо выполнять, если для записи используется тот же самый кодек что и для канала. Мы любим WAV за высокое качество, и WAV49 потому что  он хорошо сжимается и легок для передачи по почте. Мы не любим GSM за шумы в записи, но он пользуется  некторой популярностью[^a]. |
-| serveremail | user@domain | Адрес в заголовке письма FROM, отображаемый в отправленном с Asterisk письме[^b]. |
+| format | wav49\|gsm\|wav | Для каждого перечисленного формата, Asterisk создает  отдельную запись в этом формате, каждый раз когда остается сообщение. Преимущество этого механизма в  экономии ресурсов на транскодировании, которое не надо выполнять, если для записи используется тот же самый кодек что и для канала. Мы любим WAV за высокое качество, и WAV49 потому что  он хорошо сжимается и легок для передачи по почте. Мы не любим GSM за шумы в записи, но он пользуется  некторой популярностью\[^a\]. |
+| serveremail | user@domain | Адрес в заголовке письма FROM, отображаемый в отправленном с Asterisk письме\[^b\]. |
 | attach | yes,no | Если для ящика голосовой почты указан адрес электронной почты, эта опция определяет, будет ли прикреплено записанное сообщение к письму \(если нет, то будет отправлено простое уведомление, и пользователю нужно будет позвонить на голосовую почту чтобы получить свое сообщение\). |
 | maxmsg | 9999 | По умолчанию, Asterisk разрешает хранить  максимум 100 сообщений на пользователя. Для пользователей удаляющих прослушанные сообщения это не является проблемой. Для пользователей которые предпочитают сохранять свои сообщения, этот лимит будет достигнут очень быстро. С размерами жестких дисков  в наши дни, вы можете легко хранить тысячи сообщений для каждого пользователя. Поэтому, по нашему мнению, можно выставить эту опцию в максимальное значение и позволить пользователям самим управлять этими данными. Имейте в виду, что после нескольких лет хранения, старые сообщения голосовой почты в больших системах могут занимать много места на жестком диске. |
-| maxsecs | 600 | Эта установка может быть полезной, когда большая система голосовой почты имеет хранилище размером в 40МБ[^c]\: В данном случае необходимо ограничение длины сообщения, иначе система легко использует весь объем хранилища. Этот параметр может раздражать вызывающих абонентов (хотя он заставляет их переходить к сути сообщения, поэтому некоторым людям это нравится). В настоящее время с терабайтными дисками, нет никаких технических причин для ограничения длины сообщения. Но есть два соображения: 1) Если канал завис, то хорошо бы иметь какое-либо ограничение, чтобы система не записывала бесконечное пустое сообщение 2)Если абонент использует свой почтовый ящик как голосовую записную книжку, он не обрадуется если вы его отключите через три минуты. Вероятно, будет правильным установить значение где-то между 600 секундами (10 минут) и 3600 секундами (1 час). |
+| maxsecs | 600 | Эта установка может быть полезной, когда большая система голосовой почты имеет хранилище размером в 40МБ\[^c\]\: В данном случае необходимо ограничение длины сообщения, иначе система легко использует весь объем хранилища. Этот параметр может раздражать вызывающих абонентов (хотя он заставляет их переходить к сути сообщения, поэтому некоторым людям это нравится). В настоящее время с терабайтными дисками, нет никаких технических причин для ограничения длины сообщения. Но есть два соображения: 1) Если канал завис, то хорошо бы иметь какое-либо ограничение, чтобы система не записывала бесконечное пустое сообщение 2)Если абонент использует свой почтовый ящик как голосовую записную книжку, он не обрадуется если вы его отключите через три минуты. Вероятно, будет правильным установить значение где-то между 600 секундами (10 минут) и 3600 секундами (1 час). |
 | emailsubject |\[PBX\]: New message ${VM_MSGNUM} in mailbox ${VM_MAILBOX}| Этой настройкой вы можете  задать вид темы письма которое отсылает Asterisk. Подробное описание смотрите в файле примера voicemail.conf.sample. |
 | emailbody |Dear ${VM_NAME}:\n\n\t you have a ${VM_DUR} long message (number ${VM_MSGNUM})\n in mailbox ${VM_MAILBOX} \n\n\t\t\t\t --Asterisk\n| Этой настройкой вы определяете как будет выглядеть тело письма. Подробное описание смотрите в файле примера voicemail.conf.sample. |
 | emaildateformat | %A, %d %B %Y at %H:%M:%S | Эта опция позволяет определить формат даты в письме. Используется тот же синтаксис, что и в функции STRFTIME языка C. |
@@ -89,49 +89,50 @@ european=Europe/Copenhagen|'vm-received' a d b 'digits/at' HM
 
 _Таблица 8-1. Настройки секции \[General\] файла voicemail.conf_
 
-[^a]: Разделителем для каждого формата служит знак вертикальной черты, pipe (|).<br>
-[^b]: Рассылка писем от Asterisk требует аккуратной настройки, так как многие спам-фильтры находят сообщения от Asterisk очень подозрительными и просто игнорируют их.<br>
-[^c]: Да, вы все верно прочитали. Мегабайт.
+\[^a\]: Разделителем для каждого формата служит знак вертикальной черты, pipe (|).<br>
+\[^b\]: Рассылка писем от Asterisk требует аккуратной настройки, так как многие спам-фильтры находят сообщения от Asterisk очень подозрительными и просто игнорируют их.<br>
+\[^c\]: Да, вы все верно прочитали. Мегабайт.
 
 
 
-#### External Validation of Voicemail Passwords
+#### Проверка паролей голосовой почты внешними средствами
 
-By default, Asterisk does not validate user passwords to ensure they are at least somewhat secure. Anyone who maintains voicemail systems will tell you that a large percentage of mailbox users set their passwords to something like 1234 or 1111, or some other string that’s easy to guess. Although fraud bots aren’t typically interested in making mischief, having lousy passwords does represent a security hole in the voicemail system.
+По умолчанию, Asterisk не проверяет  пароли пользователей на устойчивость к взлому. Любой кто разрабатывает системы голосовой почты скажет вам, что подавляющее число пользователей устанавливает такие пароли к своим ящикам, которые легко запомнить, например 1234 или 1111. Хотя обычно Фрод-боты не предназначены для баловства, наличие слабых паролей представляет собой дыру в системе безопасности голосовой почты.
 
-Since the app\_voicemail.so module does not have the built-in ability to validate passwords, the settings externpass, externpassnotify, and externpasscheck allow you to validate them using an external program. Asterisk will call the program based on the path you specify, and pass it the following arguments:
+Поскольку модуль app\_voicemail.so не имеет встроенной возможности проверки паролей, настройки externpass, externpassnotify, и externpasscheck позволяют проверять их с помощью внешней программы. Asterisk вызовет приложение находящееся по указанному вами пути и передаст следующие аргументы:
 
 mailbox context oldpass newpass
 
-The script will then evaluate the arguments based on rules that you defined in the external script, and, accordingly, it should return to Asterisk a value of VALID for success or INVALID for failure \(actually, the return value for a failed password can be anything except the words VALID or FAILURE\). This value is typically printed to stdout. If the script returns INVALID, Asterisk will play an invalid-password prompt and the user will need to attempt something different.
+Затем скрипт будет оценивать аргументы основываясь на правилах, которые вы в нем определили, и, соответственно, он должен вернуть в Asterisk значение VALID в случае успеха или INVALID в случае неуспеха \(На самом деле возвращаемое значение для пароля не прошедшего проверку может быть любое, кроме слов VALID и FAILURE\). Это значение выводится в stdout -- на стандартный вывод. Если сценарий вернул значение INVALID, Asterisk будет воспроизводить запись ошибочного пароля и пользователю будет нужно попробовать набрать что-то иное.
 
-Ideally, you would want to implement rules such as the following:
+Возможно вам стоит реализовать следующие правила:
 
-* Passwords must be a minimum of six digits in length
-* Passwords must not be strings of repeated digits \(e.g., 111111\)
-* Passwords must not be strings of contiguous digits \(e.g., 123456 or 987654\)
+* Минимальная длина пароля должна составлять 6 символов
+* Пароль не должен представлять собой строку повторяющихся цифр \(т.к. 111111\)
+* Пароль не должен представлять собой последовательность цифр \(т.к. 123456 или 456789\)
 
-Asterisk comes with a simple script that will greatly improve the security of your voicemail system. It is located in the source code under the folder: /contrib/scripts/voicemailpwcheck.py.
+Asterisk поставляется с простейшим сценарием, значительно усовершенствующим безопасность вашей системы голосовой почты. Он расположен в каталоге исходного кода: /contrib/scripts/voicemailpwcheck.py.
 
-We strongly recommend that you copy it to your /usr/local/bin folder \(or wherever you prefer to put such things\), and then uncomment the externpasscheck= option in your voicemail.conf file. Your voicemail system will then enforce the password security rules you have established.
+Мы настоятельно рекомендуем вам скопировать его в ваш каталог /usr/local/bin \(или туда где вы держите подобные вещи\), и затем раскомментировать опцию externpasscheck= в вашем файле voicemail.conf.
 
-Part of the \[general\] section is an area of supplementary options \(referred to in the config file as advanced options, though there’s not really anything advanced about them\). These options \(listed in [Table 8-2](8.%20Voicemail%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Voicemail_id291550)\) are defined in the same way as the other options in the \[general\] section, but what is significant about them is that they can also be defined on a per-mailbox basis, which would override whatever is defined under \[general\] for that particular setting. In other words, the following options can be set in the database when you create a new mailbox.
+Часть секции \[general\], это раздел дополнительных опций \(Они упоминаются в конфигурационном файле как расширенные опции, хотя ничего особенного в них нет\). Эти опции \(перечисленные в таблице 8-2\) определены также как и другие в секции \[general\], но выделяет их то, что они могут быть переопределены для каждого отдельного почтового ящика, что перезапишет свойства установленные в этой области секции \[general\]. Другими словами нижеследующие опции могут быть установлены в базе данных когда вы создаете новый почтовый ящик.
 
-Table 8-2. A curated list of supplementary options for voicemail.conf
-
-| Option | Value/example | Notes |
+| Опция | Значение/пример | Примечание |
 | :--- | :--- | :--- |
-| tz | eastern, european, etc. | Specifies the zonemessages name, as defined under \[zonemessages\] \(discussed in the next section\). |
-| locale | de\_DE.utf8, es\_US.utf8, etc. | Used to define how Asterisk generates date/time strings in different locales. To determine the locales that are valid on your Linux system, type locale -a at the shell. |
-| attach | yes, no | If an email address is specified for a mailbox, this determines whether the messages are attached to the email notifications \(otherwise, a simple message notification is sent\). |
-| attachfmt | wav49, wav, etc. | If attach is enabled and messages are stored in different formats, this defines which format is sent with the email notifications. Often wav49 is a good choice, as it uses a better compression algorithm and thus will use less bandwidth, but doesn’t sound crappy, as gsm does. |
-| exitcontext | context | There are options that allow the callers to exit the voicemail system when they are in the process of leaving a message \(for example, pressing 0 to get an operator\). By default, the context the caller came from will be used as the exit context. If desired, this setting will define a different context for callers exiting the voicemail system. |
-| review | yes, no | This should almost always be set to yes \(even though it defaults to no\). People get upset if your voicemail system does not allow them to review their messages prior to delivering them. |
-| operator | yes, no | Best practice dictates that you should allow your callers to “zero out” from a mailbox, should they not wish to leave a message. Note that an o extension \(not “zero,” but “oh”\) is required in the exitcontext in order to handle these calls. |
-| delete | no, yes | After an email message notification is sent \(which could include the message itself\), the message will be deleted. This option is risky, because the fact that a message was emailed is not a guarantee that it was received \(spam filters seem to love to delete Asterisk voicemail messages\). On a new system, leave this at no until you are certain that no messages are being lost due to spam filters. |
-| nextaftercmd | yes, no | This handy little setting will save you some time, as it takes you directly to the next message once you’ve finished dealing with the current message. |
-| passwordlocation | spooldir | If you want, you can have mailbox passwords stored in the spool folder for each mailbox.[a](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407478744) One of the advantages of using the spooldir option is that it will allow you to define file \#include statements in voicemail.conf \(meaning you can store mailbox references in multiple files, as you can with, for example, dialplan code\). This is not possible otherwise, because app\_voicemail normally writes password changes to the filesystem, and cannot update a mailbox password stored outside of either voicemail.conf or the spool. If you do not use passwordlocation, you will not be able to define mailboxes outside of voicemail.conf, since password updates will not happen. Storing passwords in a file in the specific mailbox folder in the spool solves this problem. |
-| [a](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch08.html%22%20/l%20%22idm46178407478744-marker) Typically the spool folder is /var/spool/asterisk, and it can be defined in /etc/asterisk/asterisk.conf. |  |  |
+| tz | eastern, european, etc. | Указывает имя временной зоны, также определенной в разделе \[zonemessages\] \(мы будем говорить об этом в следующей части главы\). |
+| locale | de\_DE.utf8, es\_US.utf8, etc. | Используется для определения того, как Asterisk задает формат строки с данными даты и времени в различных локалях. Для определения локали корректной для вашей Linux системы, выполните в консоли операционной системы команду locale -a. |
+| attach | yes, no | Если для вашего голосового почтового ящика определен адрес электронной почты, эта опция определяет, будут ли сообщения прикреплены к почтовым уведомлениям \(В ином случае будет отправлено простое уведомление\). |
+| attachfmt | wav49, wav, etc. | Если опция attach включена и сообщения хранятся в различных форматах, данная опция определяет формат в котором будут отправлены записанные сообщения в почтовых уведомлениях. Обычно wav49 является хорошим выбором, так как использует лучший алгоритм сжатия, а следовательно использует меньшую полосу пропускания, и в тоже время не так жутко звучит как формат gsm. |
+| exitcontext | context | Эта опция позволяет звонящим абонентам выйти из системы голосовой почты, когда они находятся в процессе записи сообщений \(для примера, нажатие на 0 переключает на оператора\). По умолчанию, контекст с которого пришел вызов будет использоваться как выходной. По желанию этот параметр может быть определен в иной контекст. |
+| review | yes, no | Этот параметр почти всегда должен быть установлен в yes \(Хотя его значение по умолчанию no\). Люди расстраиваются, если ваша система голосовой почты не позволяет им прослушать свое сообщение перед отправкой. |
+| operator | yes, no | В соответствии с лучшими практиками вы должны разрешить своим абонентам в любой момент прекратить запись, если они передумали оставлять голосовое сообщение. Обратите внимание, что для обработки этих вызовов контексте exitcontext, требуется расширение o \(не \«ноль\», а буква \«о\»\). |
+| delete | no, yes | После того как почтовое уведомление \(которое может включать само голосовое сообщение\) будет отправлено, оно будет удалено. Эта опция рискованна, так как факт отправки сообщения не гарантирует его получения \(Спам фильтры любят удалять сообщения голосовой почты Asterisk\). На новых системах оставьте эту опцию в значении \"no\", до тех пор пока не убедитесь, что сообщения не теряются из-за спам-фильтров. |
+| nextaftercmd | yes, no | Эта удобная маленькая опция сэкономит вам немного времени, так как переключает вас на следующее сообщение сразу после завершения работы с предыдущим. |
+| passwordlocation | spooldir | Если вы захотите, то можете хранить пароли в собственных spool каталогах каждого почтового ящика\[\^a\]. Одно из преимуществ использования  опции spooldir в том, что она позволяет вам определять операторы \#include в файле voicemail.conf \(Имеется в виду что вы можете хранить ссылки на почтовые ящики в нескольких файлах, как, например, с кодом диалплана\). По другому так сделать невозможно, потому что в обычном случае app\_voicemail записывает изменение пароля в файловую систему и не может обновлять пароль почтового ящика  хранящийся за пределами voicemail.conf или spool/. Если вы не используете опцию passwordlocation, вы не сможете определять почтовые ящики снаружи voicemail.conf так как пароль не будет обновлен. Хранение паролей в файле в специальном spool каталоге решает эту проблему. |
+
+_Таблица 8-2. Утвержденный список дополнительных опций для voicemail.conf_
+
+\[a\]\: Обычно каталог spool находится по пути /var/spool/asterisk, и может быть переопределен в /etc/asterisk/asterisk.conf.
 
 ### The \[zonemessages\] Section
 
