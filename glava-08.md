@@ -134,91 +134,74 @@ _Таблица 8-2. Утвержденный список дополнител�
 
 \[a\]\: Обычно каталог spool находится по пути /var/spool/asterisk, и может быть переопределен в /etc/asterisk/asterisk.conf.
 
-### The \[zonemessages\] Section
+### Секция \[zonemessages\]
 
-The next section of the voicemail.conf file is the \[zonemessages\] section. The purpose of this section is to allow time zone–specific handling of messages, so you can play back to the user messages with the correct timestamps. You can set the name of the zone to whatever you need. Following the zone name, you can define which time zone you want the name to refer to, as well as some options that define how timestamps are played back. You can look at the ~//src/asterisk-16.&lt;TAB&gt;/configs/samples/voicemail.conf.sample file for syntax details. Asterisk includes the examples shown in [Table 8-3](8.%20Voicemail%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22Voicemail_id292277). Any valid time zone known to the Linux system should be configurable. Just use the Linux name for the zone, and then provide the details of how you want it handled.
+Следующей в файле voicemail.conf идет секция \[zonemessages\]. Цель этой секции, разрешить обработку сообщений в соответствии с часовым поясом, таким образом вы можете воспроизводить сообщения пользователей с правильными отметками времени. Вы можете установить имя зоны в нужное вам значение. Затем вы можете определить на какой часовой пояс будет ссылаться это имя зоны, а так же некоторые параметры которые определяют как воспроизводятся временные метки. Примеры синтаксиса вы можете посмотреть в файле ~/src/asterisk-16.&lt;TAB&gt;/configs/samples/voicemail.conf.sample. Asterisk  включает примеры показанные в таблице 8-3. Можно настроить любую временную зону, известную Linux-системе. Просто используйте для зон имена как в Linux и затем определите как вы хотите чтобы они обрабатывались.
 
-Table 8-3. \[zonemessages\] section options for voicemail.conf
 
-| Zone name | Value/example | Notes |
+| Имя зоны | Значение/пример | Примечание |
 | :--- | :--- | :--- |
-| eastern | America/New\_York\|'vm-received' Q 'digits/at' IMp | This value would be suitable for the Eastern time zone \(EST/EDT\). |
-| central | America/Chicago\|'vm-received' Q 'digits/at' IMp | This value would be suitable for the Central time zone \(CST/CDT\). |
-| central24 | America/Chicago\|'vm-received' q 'digits/at' H N 'hours' | This value would also be suitable for CST/CDT, but would play back the time in 24-hour format. |
-| military | Zulu\|'vm-received' q 'digits/at' H N 'hours' 'phonetic/z\_p' | This value would be suitable for Universal Time Coordinated \(Zulu time, formerly GMT\). |
-| european | Europe/Copenhagen\|'vm-received' a d b 'digits/at' HM | This value would be suitable for Central European time \(CEST\). |
+| eastern | America/New\_York\|'vm-received' Q 'digits/at' IMp | Это значение подойдет для восточных часовых поясов \(EST/EDT\). |
+| central | America/Chicago\|'vm-received' Q 'digits/at' IMp | Это значение подойдет для центрального часового пояса \(CST/CDT\). |
+| central24 | America/Chicago\|'vm-received' q 'digits/at' H N 'hours' | Это значение так же подойдет для CST/CDT, но будет отображать время в 24 часовом формате. |
+| military | Zulu\|'vm-received' q 'digits/at' H N 'hours' 'phonetic/z\_p' | Это значение подойдет для UTC - Всемирное координированное время \(Zulu time, formerly GMT\). |
+| european | Europe/Copenhagen\|'vm-received' a d b 'digits/at' HM | Это значение подойдет для Центральной Европы \(CEST\). |
+
+_Table 8-3. Настройки секции \[zonemessages\] для voicemail.conf_
 
 ### Mailboxes
 
-You can configure mailboxes in the voicemail.conf file, but it’s not the recommended way. We’re going to use the database to define your mailboxes.
+Вы можете настраивать почтовые ящики в конфигурационном файле voicemail.conf, но это не рекомендуемый путь. Для определения ваших ящиков мы будем использовать базу данных.
+Первая вещь которую нам надо сделать -- это сказать Asterisk, что голосовая почта пользователей доступна в базе данных. Это можно сделать отредактировав файл /etc/asterisk/extconfig.conf:
 
-The first thing we need to do is tell Asterisk that voicemail users are available in the database. We do that by editing the /etc/asterisk/extconfig.conf file:
-
+```
 $ sudo vim /etc/asterisk/extconfig.conf
-
 \[settings\] ; older mechanism for connecting all other modules to the database
-
 ps\_endpoints =&gt; odbc,asterisk
-
 ps\_auths =&gt; odbc,asterisk
-
 ps\_aors =&gt; odbc,asterisk
-
 ps\_domain\_aliases =&gt; odbc,asterisk
-
 ps\_endpoint\_id\_ips =&gt; odbc,asterisk
-
 ps\_contacts =&gt; odbc,asterisk
-
 voicemail =&gt; odbc,asterisk,voicemail
+```
+Вы должны перезапустить Asterisk для применения этих изменений \($ sudo service asterisk restart\).
 
-You should restart Asterisk to ensure this change has been applied \($ sudo service asterisk restart\).
+В системе голосовой почты, почтовый ящик должен быть определен в контексте. Это не имеет отношения к какому-нибудь контексту диалплана; Этот контекст является специфичной меткой голосовой почты, которая определяет, какие почтовые ящики будут сгруппированы вместе, а также используется для именования папки в спуле, который содержит различные файлы связанные с этим почтовым ящиком \(Приветствия, сообщения, конверты, и т.д.\). Обычно вам не стоит волноваться об этом, так как все почтовые ящики окажутся в контексте по умолчанию. На самом деле вам нужно определить только контексты, настройки которых отличаются от остальных -- если вы используете сложную, мультитенантную систему, в которой возможно перекрытие расширений, или если вы не хотите, чтобы определенные группы пользователей были доступны другим группам пользователей.
 
-In the voicemail system, a mailbox must be defined with a context. This does not relate to any dialplan context; it’s a label specific to voicemail that will determine what mailboxes will be grouped together, and is also used to name the folder in the spool that contains the various files associated with this mailbox \(greeting, messages, envelopes, and so forth\). Normally, you don’t need to worry about this, as all mailboxes will end up in the default context. You really only need to define various contexts if you have a complex, multi-tenanted system, where there’s a potential for extension overlap, or where you don’t want certain groups of users exposed to other groups of users.
+Таблица \`asterisk\`.\`voicemail\` поддерживает много опций; Однако, для создания почтового ящика необходимо заполнить только три поля, плюс еще два рекомендовано. Требуются поля context, mailbox, и password, а fullname и email являются строго рекомендованными. Вот простой MySQL запрос позволяющий вам создать несколько почтовых ящиков:
 
-The \`asterisk\`.\`voicemail\` table offers many options; however, to create a mailbox there are only three fields that are required, plus two more that are recommended. The context, mailbox, and password fields are required, and fullname and email are strongly recommended. Here’s a simple MySQL INSERT that’ll create some mailboxes for you.
-
+```
 INSERT INTO \`asterisk\`.\`voicemail\` \(context,mailbox,password,fullname,email\)
-
 VALUES
-
 \('default','100','486541','Russell Bryant', 'russell@shifteight.org'\),
-
 \('default','101','957642','Leif Madsen', 'leif@shifteight.org'\),
-
 \('default','102','656844','Jared Smith', 'jared@shifteight.org'\),
+\('default','103','375416','Jim VanMeggelen', 'jim@shifteight.org'\);
+```
 
-\('default','103','375416','Jim VanMeggelen', 'jim@shifteight.org'\)
 
-;
+Ниже части определений почтового ящика:
 
-The parts of the mailbox definition are:
+mailbox<br>
+Это номер почтового ящика. Обычно он соответствует добавочному номеру абонента.
 
-mailbox
+password<br>
+Это числовой пароль с помощью которого владелец почтового ящика сможет получить доступ к своей голосовой почте. Если пользователь меняет пароль, система обновит это поле в базе данных.<br>
+Если перед паролем стоит знак дефиса \(-\), пользователь не сможет изменить свой  пароль почтового ящика.
 
-This is the mailbox number. It is normal to ensure it corresponds with the extension number of the associated set.
 
-password
+fullname \(FirstName LastName\)<br>
+Это имя владельца почтового ящика. Каталог компании использует текст в этом поле для проверки имен пользователей. вы можете использовать только один пробел, чтобы отделить имя от фамилии, поэтому если ваша фамилия Ван Меггелен, вы должны записать ее как ВанМеггелен. Другие знаки пунктуации также могут вызвать проблемы. \(Мы смотрим на тебя, О'Рейли. \)
 
-This is the numeric password that the mailbox owner will use to access her voicemail. If the user changes her password, the system will update this field in the database.
+email address<br>
+Это почтовый адрес владельца ящика. Asterisk может выслать запись голосовой почты на
+определенный адрес электронной почты.
 
-If the password is preceded by the hyphen \(-\) character, the user cannot change their mailbox password.
+**Внимание**
+Asterisk не может обрабатывать концепцию фамилии отличающуюся от простого слова. Это значит, что перед добавлением в voicemail.conf, во всех таких фамилиях как О'Рейли, Брайан-Мэдсен-Смитт, и, да, даже Ван Меггелен, должны быть удалены все пунктуационные символы и пробелы.
 
-fullname \(FirstName LastName\)
-
-This is the name of the mailbox owner. The company directory uses the text in this field to allow callers to spell usernames. You only get one space, which is meant to delimit the first name from the last name, so if your last name is something like Van Meggelen, you’ll put that in as VanMeggelen. Other punctuation characters might also cause problems. \(We’re looking at you, O’Reilly.\)
-
-email address
-
-This is the email address of the mailbox owner. Asterisk can send the voicemail to the specified email box.
-
-**Warning**
-
-The Asterisk directory cannot handle the concept of a surname that is anything other than a simple word. This means that family names such as O’Reilly, Bryant-Madsen-Smith, and yes, even Van Meggelen must have any punctuation characters and spaces removed before being added to voicemail.conf.
-
-There are quite a few other options you can define for each user. It’s unlikely you’ll use many of them, but [Table 8-4](8.%20Voicemail%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22mailbox_options) contains a curated list of some that may be of use to you.
-
-Table 8-4. Mailbox options
+Есть довольно много других опций, которые вы можете определить для каждого пользователя. Маловероятно что вы будете использовать их все, но в таблице 8-4 содержится список тех из них которые могут быть вам полезны:
 
 | Option | Description |
 | :--- | :--- |
@@ -243,6 +226,8 @@ Table 8-4. Mailbox options
 | tempgreetwarn | Enables a notice to the user when their temporary greeting is enabled. Valid options are yes or no. Default is no. |
 | tz | Sets the time zone for a voicemail user \(or globally\). See /usr/share/timezone for different available time zones. Not applicable if envelope=no. |
 | volgain | The volgain option allows you to set volume gain for voicemail messages. The value is in decibels \(dB\). The sox application must be installed for this to work. |
+
+_Table 8-4. Mailbox options_
 
 ## Voicemail Dialplan Integration
 
