@@ -271,22 +271,24 @@ _Таблица 11-2. Параметры Page()_
 | Параметр | Описание | Объяснение |
 | :--- | :--- | :--- |
 | `d` | Включить полнодуплексный звук | Иногда его называют "пейджингом talkback", использование этого параметра подразумевает, что оборудование, принимающее пейджинг, имеет возможность передавать звук обратно одновременно с получением. Как правило, вы не станете использовать это, если у вас нет в нем потребности. | |
-| `i` | Игнорировать попытки перенаправления вызова | You would normally want this option enabled, because a call-forwarded set could go pretty much anywhere, and that’s not where your page needs to go. |
-| q | Does not play beep to caller (quiet mode) | Normally you won’t use this, since it’s good for paging to make a sound to alert people that a page is about to happen. However, if you have an external amplifier that provides its own tone, you may want to set this option. |
-| `r` | Записать пейджинг в файл | If you intended to use the same page multiple times in the future, you could record the page and then use it again later by triggering it using Originate() or using the A(x) option to Page(). |
-| `s` | Набирать канал только в том случае, если состояние устройства `NOT_INUSE` | This option is likely only useful (and reliable) on SIP-bound channels, and even so may not work if a single line is allowed to host multiple calls simultaneously (quite common with SIP phones). Therefore, don’t rely on this option in all cases. |
-| `A(x)` | Воспроизвести объявления `х` всем участникам | You could use a previously recorded file to be played over the paging system. If you combined this with Originate() and Record(), you could implement a delayed paging system. |
-| `n` | Не воспроизводить объявление звонящему (подразумевается `A(x)`) | By default, the system will play the paged audio to both the caller and the callee. If this option is enabled, the paged audio will not be played to the caller (the person paging). |
+| `i` | Игнорировать попытки перенаправления вызова | Как правило эту опцию включают, потому что переадресованный вызов может направиться куда угодно и это не то место, куда нужно направиться Вашему пейджингу. |
+| `q` | Не воспроизводить звуковой сигнал для вызывающего абонента (тихий режим) | Как правило не используется, так как для пейджинга следует подавать звуковой сигнал для предупреждения людей о том, что пейджинг вот-вот установится. Однако, если у вас есть внешний усилитель, который обеспечивает свой собственный сигнал, вы можете установить эту опцию. |
+| `r` | Записать пейджинг в файл | Если в будущем вы намеревались использовать один и тот же пейджинг несколько раз, то можете записать его, а затем использовать позже, вызывая с помощью `Originate()` или используя опцию `A(x)` для `Page()`. |
+| `s` | Набирать канал только в том случае, если состояние устройства `NOT_INUSE` | Эта опция, вероятно, полезна (и надежна) только для SIP-каналов, и даже в этом случае может не работать, если на одной линии одновременно разрешены несколько вызовов (довольно часто встречается на SIP-телефонах). Поэтому не полагайтесь на эту опцию во всех случаях. |
+| `A(x)` | Воспроизвести объявления `х` всем участникам | Вы можете использовать ранее записанный файл для воспроизведения через систему пейджинга. Если вы объедините это с `Originate()` и `Record()`, то могли бы реализовать систему отложенного пейджинга. |
+| `n` | Не воспроизводить объявление звонящему (подразумевается `A(x)`) | По умолчанию система будет воспроизводить звук пейджинга как для вызывающего, так и для вызываемого абонента. Если эта опция включена, звук пейджинга не будет транслироваться вызывающему абоненту (человеку, выполняющему пейджинг). |
 
-**Warning**
+---
+**Предупреждение**
 
-Because of how Page\(\) works, it is very resource-intensive. We cannot stress this enough. Carefully read on, and we’ll cover how to ensure that paging does not cause performance problems in a production environment \(which it is almost certain to do if not designed correctly\).
+Из-за того, как работает `Page()`, он очень ресурсоемкий. Мы не можем это не подчеркнуть. Внимательно читайте дальше, и мы расскажем, как обеспечить, чтобы пейджинг не вызывал проблем с производительностью в продакшене (что наверняка может случиться, если пейджинг не спроектирован правильно).
 
-### Places to Send Your Pages
+---
+### Места для отправки Вашего пейджинга
 
-As we stated before, Page\(\) is, in and of itself, very simple. The trick is how to bring it all together. Pages can be sent to different kinds of channels, and they all require different configuration.
+Как мы уже говорили, `Page()` само по себе очень простое. Хитрость в том, как собрать все это вместе. Пейджинги могут быть отправлены на различные виды каналов, и все они требуют различной конфигурации.
 
-#### External paging
+#### Внешний пейджинг
 
 If a public address system is installed in the building, it is common to connect the telephone system to an external amplifier and send pages to it through a call to a channel. The best way we know of doing this is to use an FXS device of some kind \(such as an ATA\), which is connected through a paging interface such as a Bogen UTI1,[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406290408) which then connects to the paging amplifier.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406289064)
 
