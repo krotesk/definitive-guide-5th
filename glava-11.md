@@ -290,85 +290,76 @@ _Таблица 11-2. Параметры Page()_
 
 #### Внешний пейджинг
 
-If a public address system is installed in the building, it is common to connect the telephone system to an external amplifier and send pages to it through a call to a channel. The best way we know of doing this is to use an FXS device of some kind \(such as an ATA\), which is connected through a paging interface such as a Bogen UTI1,[5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406290408) which then connects to the paging amplifier.[6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406289064)
+Если в здании установлена ​​система громкой связи, общепринято подключать телефонную систему к внешнему усилителю и отправлять пейджинг через вызов на канал. Лучший способ сделать это - использовать какое-либо устройство FXS (такое как ATA), которое подключается через интерфейс пейджинга, такой как Bogen UTI1, [5](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html#idm46178406290408), который затем подключается к усилителю пейджинга. [6](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html#idm46178406289064)
 
-Another popular way to connect to a paging system is to plug the output of the sound card of your Asterisk server into the paging amplifier, and send calls to the channel named Console/DSP. We don’t like this method because while it may seem inexpensive and simple, in practice it can be time-consuming. It asumes that the sound drivers on your server are working correctly, the audio levels are normalized correctly on that channel, your server has a decent on-board audio card, the grounding is good, and...well, in our opinion, this way is not recommended.[7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406286520)
+Другой популярный способ подключения к пейджинговой системе - подключить выход звуковой карты вашего сервера Asterisk к усилителю пейджинга и отправлять вызовы на канал с именем `Console/DSP`. Нам не нравится этот метод, потому что, хоть он и может показаться недорогим и простым, на практике может занимать много времени. Предполагается, что звуковые драйверы на вашем сервере работают правильно, уровни звука на этом канале нормализуются правильно, на вашем сервере имеется достойная встроенная звуковая карта, заземление хорошее, и ... ну, на наш взгляд, это путь не рекомендуется. [7](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html#idm46178406286520)
 
-In your dialplan, paging to an external amplifier would look similar to a simple Dial\(\) to the device that is connected to the paging equipment. You would need to configure the ATA the same as any SIP telephone \(through ps\_endpoints, ps\_auth, etc., in the database\), named something like PagingATA. You then plug the ATA into a Bogen UTI1, and to page you have this dialplan code:
+В вашем диалплане пейджинг на внешний усилитель будет выглядеть как простой `Dial()` для устройства, подключенного к пейджинговому оборудованию. Вам необходимо настроить ATA так же, как любой SIP-телефон (через `ps_endpoints`, `ps_auth` и т.д. в базе данных), с именем, похожим на `PagingATA`. Затем вы подключаете ATA к Bogen UTI1, и для пейджинга у вас будет этот код диалплана:
+```
+exten => *725,1,Verbose(2,Paging to external amplifier) ; '*' является частью того, что вы набираете
+    same => n,Set(PageDevice=PJSIP/PagingATA)           ; Это, вероятно, относится к [globals]
+    same => n,Page(${PageDevice},i,120)
+```
 
-exten =&gt; \*725,1,Verbose\(2,Paging to external amplifier\) ; The '\*' is part of what you dial
+Вы можете назвать это устройство как угодно (например, мы часто используем MAC-адрес в качестве имени SIP-устройства), но для всего, что не является телефоном пользователя, может быть полезно использовать имя, которое выделяет его из других устройств.
 
- same =&gt; n,Set\(PageDevice=PJSIP/PagingATA\) ; This probably belongs in \[globals\]
+На рынке также есть много пейджинговых устройств на основе SIP (динамики пейджинга с поддержкой SIP популярны, но как нам кажется, довольно дороги для того, что вы получаете, особенно в большом развертывании).
 
- same =&gt; n,Page\(${PageDevice},i,120\)
+#### Аппаратный пейджинг
 
-You can name this device anything you want \(for example, we often use the MAC address as the name of a SIP device\), but for anything that is not a user telephone, it can be helpful to use a name that makes it stand out from other devices.
+Пейджинг на основе аппаратов впервые стал популярным в клавишных телефонных системах, где громкоговорители офисных телефонов используются в качестве системы оповещения бедняков. Большинство SIP-телефонов имеют возможность автоматического ответа на вызов по громкой связи, которая выполняет то, что требуется для каждого телефона. В дополнение к этому необходимо передавать звук более чем в одно устройство одновременно. Asterisk использует встроенный механизм конференц-связи для обработки деталей под капотом. Вы используете приложение `Page()`, чтобы это произошло.
 
-There are also many SIP-based paging devices on the market \(SIP paging speakers are popular, but—we think—rather expensive for what you get, especially in a large deployment\).
+Как и `Dial()`, приложение `Page()` может обрабатывать несколько каналов. Поскольку вы захотите чтобы `Page()` сигнализировало сразу на несколько устройств (возможно, даже на все устройства в вашей системе), вы можете получить длинные строки устройств, которые будут выглядеть примерно так:
+```
+Page(PJSIP/SET1&PJSIP/SET2&PJSIP/SET3&PJSIP/SET4&PJSIP/SET5&PJSIP/SET6&PJSIP/SET7&...
+```
+---
+**Предупреждение**
 
-#### Set paging
+За пределами определенного размера система Asterisk не сможет создать несколько аппаратных пейджингов. Например, в офисе с 200 телефонами использование SIP для пейджинга каждого устройства будет невозможно; трафик и загрузка процессора на вашем сервере Asterisk были бы просто слишком велики. В таких случаях вы должны смотреть либо на многоадресный пейджинг, либо на внешний.
 
-Set-based paging first became popular in key telephone systems, where the speakers of the office telephones are used as a pauper’s public address system. Most SIP telephones have the ability to auto-answer a call on handsfree, which accomplishes what is required on a per-telephone basis. In addition to this, however, it is necessary to pass the audio to more than one set at the same time. Asterisk uses its built-in conferencing engine to handle the under-the-hood details. You use the Page\(\) application to make it happen.
+---
 
-Like Dial\(\), the Page\(\) application can handle several channels. Since you will generally want Page\(\) to signal several sets at once \(perhaps even all the sets on your system\), you may end up with lengthy device strings that look something like this:
+Возможно, самая сложная часть пейджинга для SIP-устройств заключается в том, что вам обычно приходится указывать каждому устройству, что оно должно отвечать на вызов автоматически, но разные производители SIP-телефонов используют разные SIP-сообщения для этой цели. Таким образом, в зависимости от используемой вами модели телефона команды, необходимые для выполнения пейджинговой связи на основе SIP, будут разными. Вот некоторые примеры:
 
-Page\(PJSIP/SET1&PJSIP/SET2&PJSIP/SET3&PJSIP/SET4&PJSIP/SET5&PJSIP/SET6&PJSIP/SET7&...
+  * Для Mitel (ранее известны как Aastra):
+```
+exten => *726,1,Verbose(2,Paging to Aastra sets)
+    same => n,SIPAddHeader(Alert-Info: info=alert-autoanswer)
+    same => n,Set(PageDevice=SIP/00085D000000)
+    same => n,Page(${PageDevice},i)
+```
 
-**Warning**
+* Для Polycom:
+```
+exten => *727,1,Verbose(2,Paging to Polycom sets)
+    same => n,SIPAddHeader(Alert-Info: Ring Answer)
+    same => n,Set(PageDevice=SIP/0004F2000000)
+    same => n,Page(${PageDevice},i)
+```
 
-Beyond a certain size, your Asterisk system will be unable to page multiple sets. For example, in an office with 200 telephones, using SIP to page every set would not be possible; the traffic and CPU load on your Asterisk server would simply be too much. In cases like this, you should be looking at either multicast paging or external paging.
-
-Perhaps the trickiest part of SIP-based paging is the fact that you usually have to tell each set that it must auto-answer, but different manufacturers of SIP telephones use different SIP messages for this purpose. So, depending on the telephone model you are using, the commands needed to accomplish SIP-based set paging will be different. Here are some examples:
-
-* For Mitel \(FKA Aastra\):
-
-exten =&gt; \*726,1,Verbose\(2,Paging to Aastra sets\)
-
- same =&gt; n,SIPAddHeader\(Alert-Info: info=alert-autoanswer\)
-
- same =&gt; n,Set\(PageDevice=SIP/00085D000000\)
-
- same =&gt; n,Page\(${PageDevice},i\)
-
-* For Polycom:
-
-exten =&gt; \*727,1,Verbose\(2,Paging to Polycom sets\)
-
- same =&gt; n,SIPAddHeader\(Alert-Info: Ring Answer\)
-
- same =&gt; n,Set\(PageDevice=SIP/0004F2000000\)
-
- same =&gt; n,Page\(${PageDevice},i\)
-
-* For Snom:
-
-exten =&gt; \*728,1,Verbose\(2,Paging to Snom sets\)
-
- same =&gt; n,Set\(VXML\_URL=intercom=true\)
-
+* Для Snom:
+```
+exten => *728,1,Verbose(2,Paging to Snom sets)
+    same => n,Set(VXML_URL=intercom=true)
 ; replace 'domain.com' with the domain of your system
+    same => n,SIPAddHeader(Call-Info: sip:domain.com\;answer-after=0)
+    same => n,Set(PageDevice=SIP/000413000000)
+    same => n,Page(${PageDevice},i)
+```
 
- same =&gt; n,SIPAddHeader\(Call-Info: sip:domain.com\;answer-after=0\)
+* Для Cisco SPA (бывшие телефоные Linksys, кроме серии 79XX):
+```
+exten => *729,1,Verbose(2,Paging to Cisco SPA sets, but not Cisco 79XX sets)
+    same => n,SIPAddHeader(Call-Info:\;answer-after=0)    ; Cisco SPA phones
+    same => n,Set(PageDevice=SIP/0004F2000000)
+    same => n,Page(${PageDevice},i)
+```
+Полагаем вы поняли, что произойдет, если у вас такое сочетание телефонов в рабочей среде? Как вы контролируете, какие заголовки отправлять на определенные телефоны? [8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html#idm46178406263240)
 
- same =&gt; n,Set\(PageDevice=SIP/000413000000\)
+В любом случае, это некрасиво.
 
- same =&gt; n,Page\(${PageDevice},i\)
-
-* For Cisco SPA \(the former Linksys phones, not the 79XX series\):
-
-exten =&gt; \*729,1,Verbose\(2,Paging to Cisco SPA sets, but not Cisco 79XX sets\)
-
- same =&gt; n,SIPAddHeader\(Call-Info:\;answer-after=0\) ; Cisco SPA phones
-
- same =&gt; n,Set\(PageDevice=SIP/0004F2000000\)
-
- same =&gt; n,Page\(${PageDevice},i\)
-
-Assuming you’ve figured that out, what happens if you have a mix of phones in your environment? How do you control which headers to send to which phones?[8](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406263240)
-
-Any way you slice it, it’s not pretty.
-
-Fortunately, many of these sets support IP multicast, which is a far better way to send a page to multiple sets \(read on for details\). Still, if you only have a few phones on your system and they are all from the same manufacturer, SIP-based paging could be the simplest method, so we don’t want to scare you off it completely.
+К счастью, многие из этих устройств поддерживают многоадресную IP-рассылку, что является гораздо лучшим способом отправки пейджинга нескольким устройствам (для подробностей читайте далее). Тем не менее, если в вашей системе всего несколько телефонов одного производителя, пейджинг на основе SIP может быть самым простым способом, поэтому мы не хотим вас напугать.
 
 #### Multicast paging via the MulticastRTP channel
 
