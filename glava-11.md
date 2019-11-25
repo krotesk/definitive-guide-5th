@@ -342,7 +342,7 @@ exten => *727,1,Verbose(2,Paging to Polycom sets)
 ```
 exten => *728,1,Verbose(2,Paging to Snom sets)
     same => n,Set(VXML_URL=intercom=true)
-; replace 'domain.com' with the domain of your system
+; замените 'domain.com' на домен вашей системы
     same => n,SIPAddHeader(Call-Info: sip:domain.com\;answer-after=0)
     same => n,Set(PageDevice=SIP/000413000000)
     same => n,Page(${PageDevice},i)
@@ -361,50 +361,53 @@ exten => *729,1,Verbose(2,Paging to Cisco SPA sets, but not Cisco 79XX sets)
 
 К счастью, многие из этих устройств поддерживают многоадресную IP-рассылку, что является гораздо лучшим способом отправки пейджинга нескольким устройствам (для подробностей читайте далее). Тем не менее, если в вашей системе всего несколько телефонов одного производителя, пейджинг на основе SIP может быть самым простым способом, поэтому мы не хотим вас напугать.
 
-#### Multicast paging via the MulticastRTP channel
+#### Многоадресный пейджинг через канал MulticastRTP
 
-If you are serious about paging through the sets on your system, and you have more than a handful of phones, you will need to look at using IP multicast. The concept of IP multicast has been around for a long time,[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406256840) but it has not been widely used. Nevertheless, it is ideal for paging within a single location.
+Если вы серьезно относитесь к пейджингу через аппараты в вашей системе, и у вас есть более чем горсть телефонов, вам нужно будет посмотреть на использование IP-многоадресной рассылки. Концепция IP multicast существует уже давно time,[9](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html#idm46178406256840) но он не получил широкого распространения. Тем не менее, он идеально подходит для пейджинга в пределах одного места.
 
-Asterisk has a channel \(chan\_multicast\_rtp\) that is designed to create an RTP multicast. This stream is then subscribed to by the various phones, and the result is that whenever media appears on the multicast stream, the phones will pass that media to their speakers.
+Asterisk имеет канал (`chan_multicast_rtp`), предназначенный для создания многоадресной рассылки RTP. Этот поток затем подписывается на различные телефоны, и в результате каждый раз, когда медиапоток  появляется в многоадресном потоке, телефоны передают его на свои динамики.
 
-Since MulticastRTP is a channel driver, it does not have an application, but instead will work anywhere in the dialplan that you might otherwise use a channel. In our case, we’ll be using the Page\(\) application to initiate our multicast.
+Поскольку `MulticastRTP` является драйвером канала, он не имеет приложения, но вместо этого будет работать в любом месте диалплана, где вы могли бы использовать канал иначе. В нашем случае мы будем использовать приложение `Page()` для инициирования нашей многоадресной рассылки.
 
-To use the multicast channel, you simply send a call to it the same as you would to any other channel. The syntax for the channel is as follows:
+Чтобы использовать многоадресный канал, вы просто посылаете ему вызов так же, как и любому другому каналу. Синтаксис канала выглядит следующим образом:
+```
+MulticastRTP/type/ip address:port[/linksys address:port]
+```
+Тип может быть либо `basic`, либо `linksys`. Основной синтаксис канала `MulticastRTP` выглядит следующим образом:
+```
+exten => *730,1,Page(MulticastRTP/basic/239.0.0.1:1234)
+```
+Не все устройства поддерживают IP multicast, но мы протестировали его на Snom,[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html#idm46178406245224) Linksys/Cisco, Polycom(прошивка 4.x или новее) и Aastra и он работает очень хорошо.
 
-MulticastRTP/type/ip address:port\[/linksys address:port\]
+---
+**Многоадресный пейджинг на телефонах Cisco SPA**
 
-The type can be either basic or linksys. The basic syntax of the MulticastRTP channel looks like this:
+Функция многоадресного пейджинга на телефонах Cisco SPA немного странная, но после настройки она работает отлично. Хитрость заключается в том, что адрес, который вы вводите в телефон, не является адресом групповой рассылки, по которому передается пейджинг, а скорее своего рода сигнальным каналом.
 
-exten =&gt; \*730,1,Page\(MulticastRTP/basic/239.0.0.1:1234\)
+Мы обнаружили, что вы можете сделать этот адрес таким же, как адрес многоадресной рассылки, но просто использовать другой номер порта.
 
-Not all sets support IP multicast, but we have tested it out on Snom,[10](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406245224) Linksys/Cisco, Polycom \(firmware 4.x or later\), and Aastra, and it works very well.
+Диалплан выглядит так:
+```
+exten => *724,1,Page(MulticastRTP/linksys/239.0.0.1:1234/239.0.0.1:6061)
+```
+В телефоне SPA вам нужно войти в интерфейс администрирования и перейти на вкладку _SIP_. В самом низу страницы вы найдете раздел под названием _Linksys Key System Parameters_. Вам необходимо задать следующие параметры:
 
-**Multicast Paging on Cisco SPA Telephones**
+* `Linksys Key System: Yes`
+* `Multicast Address: 239.0.0.1:6061`
 
-The multicast paging feature on Cisco SPA phones is a bit strange, but once configured it works fine. The trick of it is that the address you put into the phone is not the multicast address that the page is sent across, but rather a sort of signaling channel.
+Обратите внимание, что адрес групповой адресации, назначенный телефону, является вторым в определении канала (в нашем примере используется порт 6061).
 
-What we have found is that you can make this address the same as the multicast address, but simply use a different port number.
+Обратите внимание, что вы можете написать команду `Page()` в этом формате в среде, где есть сочетание телефонов SPA (ранее Linksys, теперь Cisco) и других типов. Другие телефоны будут использовать первый адрес и будут работать так же, как если бы вы использовали `basic` вместо `linksys`.
 
-The dialplan looks like this:
+---
 
-exten =&gt; \*724,1,Page\(MulticastRTP/linksys/239.0.0.1:1234/239.0.0.1:6061\)
+#### SIP-адаптеры для пейджинга
 
-In the SPA phone, you need to log into the Administration interface and navigate to the SIP tab. At the very bottom of the page you will find the section called Linksys Key System Parameters. You need to set the following parameters:
+На рынке существует множество пейджинговых динамиков на основе SIP. Эти устройства адресуются в диалплане точно так же, как SIP ATA, подключенный к UTI1 (другими словами для системы это просто телефонный аппарат), но физически они похожи на внешние пейджинговые динамики. Поскольку они отвечают автоматически, как правило нет необходимости передавать им какую-либо дополнительную информацию, как при использовании SIP-телефона.
 
-* Linksys Key System: Yes
-* Multicast Address: 239.0.0.1:6061
+Для небольших установок (где требуется не более полудюжины колонок), эти устройства могут быть экономически эффективными, поскольку не требуют никакого другого оборудования. Однако, для чего-либо большего (или для установки в сложной среде, такой как склад или автостоянка), вы получите лучшую производительность при гораздо меньших затратах с традиционной аналоговой системой оповещения, подключенной к телефонной системе через аналоговый (FXS) интерфейс.
 
-Note that the multicast address you assign to the phone is the one that comes second in the channel definition \(in our example, the one using port 6061\).
-
-Note that you can write the Page\(\) command in this format in an environment where there is a mix of SPA \(f.k.a. Linksys, now Cisco\) phones and other types of phones. The other phones will use the first address and will work the same as if you had used basic instead of linksys.
-
-#### SIP-based paging adapters
-
-There are many SIP-based paging speakers on the market. These devices are addressed in the dialplan in the exact same way as a SIP ATA connected to a UTI1 \(in other words, to the system they’re just a telephone set\), but physically they are similar to external paging speakers. Since they auto-answer, there is often no need to pass them any extra information, the way you would need to with a SIP telephone set.
-
-For smaller installations \(where no more than perhaps a half-dozen speakers are required\), these devices might be cost-effective because no other hardware is required. However, for anything larger than that \(or for installation in a complex environment such as a warehouse or parking lot\), you will get better performance at far less cost with a traditional analog paging system connected to the phone system by an analog \(FXS\) interface.
-
-We haven’t had any experience with these types of devices, but it is hoped that they would support multicast as standard. Keep this in mind if you are planning to use a large number of them. It’s usually best to order one, test it out in a prototypical configuration, and then only commit to a quantity once you’ve verified that it does what you need.
+У нас не было опыта работы с этими типами устройств, но есть надежда, что они будут поддерживать многоадресную передачу в качестве стандарта. Имейте это в виду, если планируете использовать большое их количество. Обычно лучше заказать одно устройство, протестировать его в прототипной конфигурации, и лишь когда вы убедитесь, что оно делает то, что вам нужно, расчитать количество.
 
 #### Combination paging
 
