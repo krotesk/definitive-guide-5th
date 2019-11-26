@@ -409,29 +409,30 @@ exten => *724,1,Page(MulticastRTP/linksys/239.0.0.1:1234/239.0.0.1:6061)
 
 У нас не было опыта работы с этими типами устройств, но есть надежда, что они будут поддерживать многоадресную передачу в качестве стандарта. Имейте это в виду, если планируете использовать большое их количество. Обычно лучше заказать одно устройство, протестировать его в прототипной конфигурации, и лишь когда вы убедитесь, что оно делает то, что вам нужно, расчитать количество.
 
-#### Combination paging
+#### Комбинации пейджинга
 
-In many organizations, there may be a need for both set-based and external paging. As an example, a manufacturing facility might want to use set-based paging for the office area but overhead paging for the plant and warehouse. From Asterisk’s perspective, this is fairly simple to accomplish. When you call the Page\(\) application, you simply specify the various resources you want to page, separated by the & character, and they will all be included in the conference that the Page\(\) application creates.
+Во многих организациях может потребоваться как пейджинг на основе аппаратов, так и внешний пейджинг. Например, производственному объекту может потребоваться использовать аппаратный пейджинг для офиса, но потолочный для завода и склада. С точки зрения Asterisk, это довольно просто сделать. Когда вы вызываете приложение `Page()`, то просто указываете различные ресурсы, на которые хотите отправить пейджинг, разделенные символом `&` и все они будут включены в конференцию, которую создает приложение `Page()`.
 
-#### Bringing it all together
+#### Соберем все это вместе
 
-At this point you should have a list of the various channel types that you want to page. Since Page\(\) will nearly always want to signal more than one channel, we recommend setting a global variable in the \[globals\] section of your extensions.conf file that defines the list of channels to include, and then calling the Page\(\) application with that string:
+На данный момент у вас должен быть список различных типов каналов, на которые вы хотите отправить пейджинг. Поскольку `Page()` почти всегда будет сигнализировать о более чем одном канале, мы рекомендуем установить глобальную переменную в разделе `[globals]` вашего файла _extensions.conf_, которая определяет список включаемых каналов, а затем вызвать приложение `Page()` с этой строкой:
 
 ```text
 [globals]
 MULTICAST=MulticastRTP/linksys/239.0.0.1:1234
 ;MULTICAST=MulticastRTP/linksys/239.0.0.1:1234/239.0.0.1:6061 ; if you have SPA phones
-BOGEN=PJSIP/ATAforPaging ; Assumes an ATA named [ATAforPaging]
+
+BOGEN=PJSIP/ATAforPaging  ; Assumes an ATA named [ATAforPaging]
 PAGELIST=${MULTICAST}&${BOGEN} ; Variable names are arbitrary.
 ;...
+
 [sets]
 ; ...
 exten => *731,1,Page(${PAGELIST},i,120)
 ```
+Этот пример предлагает несколько возможных конфигураций, в зависимости от оборудования. Хотя строго не требуется, чтобы была определена переменная `PAGELIST`, мы обнаружили, что это будет иметь тенденцию упрощать управление несколькими ресурсами пейджинга, особенно во время процесса настройки и тестирования.
 
-This example offers several possible configurations, depending on the hardware. While it is not strictly required to have a PAGELIST variable defined, we have found that this will tend to simplify the management of multiple paging resources, especially during the configuration and testing process.
-
-### Zone Paging
+### Зоны пейджинга
 
 Zone paging is popular in places such as automobile dealerships, where the parts department, the sales department, and perhaps the used car department all require paging, but do not want to hear each other’s pages.
 
