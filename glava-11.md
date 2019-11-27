@@ -434,66 +434,62 @@ exten => *731,1,Page(${PAGELIST},i,120)
 
 ### Зоны пейджинга
 
-Zone paging is popular in places such as automobile dealerships, where the parts department, the sales department, and perhaps the used car department all require paging, but do not want to hear each other’s pages.
+Зонирование пейджинга популярно в таких местах, как автомобильные дилерские центры, где отдел запчастей, отдел продаж и, возможно, отдел подержанных автомобилей требуют пейджинга, но не хотят (или не должны) слышать пейджинги друг друга.
 
-In zone paging, the person sending the page needs to select which zone to page into. A zone paging controller such as a Bogen PCM2000 is generally used to allow signaling of the different zones: the Page\(\) application signals the zone controller, the zone controller answers, and then an additional digit is sent to select to which zone the page is to be sent. Most zone controllers will allow for a page to all zones, in addition to combining zones \(for example, a page to both the new- and used-car sales departments\).
+В зонировании пейджинга пользователь, отправляющий пейджинг, должен выбрать, в какую зону будет помещен пейджинг. Контроллер зоны пейджинга, такой как Bogen PCM2000, обычно используется для обеспечения сигнализации различных зон: приложение `Page()` сигнализирует контроллеру зоны, контроллер зоны отвечает, а затем отправляется дополнительная цифра для выбора зоны, в которую должен быть отправлен пейджинг. Большинство контроллеров зон позволяют создавать пейджинги для всех зон, в дополнение к объединению зон (например, пейджинги для отделов продаж новых и подержанных автомобилей).
 
-You could also have separate extensions in the dialplan going to separate ATAs \(or groups of telephones\), but this may prove more complicated and expensive than simply purchasing a paging controller that is designed to handle this. Zone paging doesn’t require any significantly different technology, but it does require a little more thought and planning with respect to both the dialplan and the hardware.
+Вы также можете иметь отдельные расширения в диалплане, которые будут разделять ATAs (или группы телефонов), но это может оказаться более сложным и дорогостоящим, чем просто покупка контроллера пейджинга, предназначенного для обработки этого. Зонирование пейджинга не требует каких-либо существенно отличающихся технологий, но оно требует немного больше размышлений и планирования в отношении как диалплана, так и аппаратного обеспечения.
 
-And that’s parking and paging. It’s a ton of information to digest, but once you get the hang of it, it’s quite logical.
+И это парковка и пейджинг. Это тонна информации, которую нужно переварить, но как только вы ее освоите, все покажется вполне логичным.
 
-## Advanced Conferencing
+## Продвинутая конферец-связь
 
-The ConfBridge\(\) application is an enhanced conferencing application in Asterisk that delivers high-definition audio and basic video conferencing. We previously introduced a basic working setup for ConfBridge\(\). If you’ve been building out your dialplan as you read along, you’ll find a basic conference bridge in your extensions.conf file that looks something like this:
+Приложение `ConfBridge()` - это продвинутое приложение для конференц-связи в Asterisk, которое обеспечивает передачу звука высокой четкости и базовых видеоконференций. Ранее мы ввели базовую рабочую настройку для `ConfBridge()`. Если вы создаете свой диалплан во время чтения, то найдете базовый мост конференции в файле _extensions.conf_, который выглядит примерно так:
+```
+exten => 221,1,NoOp()
+    same => n,ConfBridge(${EXTEN})
+```
+В традиционной конфигурации Asterisk будет файл _confbridge.conf_, в котором мы можем настроить параметры для применения в различных сценариях. Это все еще возможно, но больше не имеет смысла делать это таким образом. Итак, мы собираемся пропустить сразу весь файл конфигурации, за исключением того, чтобы сказать, что файл примера (находится по адресу _~/src/asterisk-15.<TAB>/configs/samples/confbridge.conf.sample_) теперь становится отличным справочный документ, но не более того. Продолжайте читать и поймёте.
 
-exten =&gt; 221,1,NoOp\(\)
+Прежде всего, нам нужно объяснить, что для конференции можно настроить три типа элементов, а именно `bridge`, `menu` и `user`.
 
- same =&gt; n,ConfBridge\(${EXTEN}\)
+Тип `bridge` определяет сами конференц-залы, тип `menu` определяет меню, к которому можно получить доступ из конференций, а тип `user` позволяет различным участникам конференции применять к ним определенную конфигурацию. Например, большая конференц-связь может иметь докладчика (который будет вести большую часть разговора), администратора (для помощи докладчику) и десятки участников (которым может быть запрещено выступать).
 
-In a traditional Asterisk configuration, there would be a confbridge.conf file where we could configure parameters to apply to various scenarios. That is still possible, but it no longer makes much sense to do it that way. So, we’re going to skip right over the whole configuration file, except to say that the sample file \(found at ~/src/asterisk-15.&lt;TAB&gt;/configs/samples/confbridge.conf.sample\) now becomes an excellent reference document, but no more than that. Read on and this should start to make sense.
-
-First up, we need to explain that there are three types of items that can be configured for a conference, namely bridge, menu, and user.
-
-The bridge type defines the conference rooms themselves, the menu type defines menus that can be accessed from the conferences, and the user type allows different participants in the conference to have specific configuration applied to them. For example, a large conference call might have a speaker \(who will do most of the talking\), an administrator \(to assist the speaker\), and dozens of participants \(who might not be allowed to speak\).
-
-Let’s lay down a subroutine to get us started:
-
+Давайте создадим подпрограмму для начала:
 ```text
 [subConference]
 exten => _[0-9].,1,Noop(Creating conference room for ${EXTEN})
  same => n,Goto(${ARG1})
  same => n,Noop(INVALID ARGUMENT ARG1: ${ARG1})
  same => n(admin),Noop()
- same => n,Authenticate(${ARG2}) ; Could also use ,Set(CONFBRIDGE(user,pin)=${ARG2})
- same => n,Set(ConfNum=$[${EXTEN} - 1]) ; Hack: Subtract 1 to get the conf number
- same => n,Set(CONFBRIDGE(bridge,record_conference)=yes) ; Record when admin arrives
+ same => n,Authenticate(${ARG2}) ; Можно также использовать ,Set(CONFBRIDGE(user,pin)=${ARG2})
+ same => n,Set(ConfNum=$[${EXTEN} - 1]) ; Hack: вычтите 1, чтобы получить номер конференции
+ same => n,Set(CONFBRIDGE(bridge,record_conference)=yes) ; Запись, когда прибыл админ
  same => n,Set(RecordingFileName=${ConfNum}-${STRFTIME(,,%Y-%m-%d %H:%m:%S)})
- same => n,Set(CONFBRIDGE(bridge,record_file)=${RecordingFileName}) ; unique name
- same => n,Set(CONFBRIDGE(user,admin)=yes) ; Admin
- same => n,Set(CONFBRIDGE(user,marked)=yes) ; Mark this user
- same => n,Set(CONFBRIDGE(menu,7)=decrease_talking_volume) ; Decrease gain
- same => n,Set(CONFBRIDGE(menu,9)=increase_talking_volume) ; Increase gain
- same => n,Set(CONFBRIDGE(menu,4)=set_as_single_video_src) ; Lock video on me
- same => n,Set(CONFBRIDGE(menu,5)=release_as_single_video_src) ; Return to talker
- same => n,Set(CONFBRIDGE(menu,6)=admin_toggle_mute_participants); Mute all but admins
- same => n,Set(CONFBRIDGE(menu,2)=participant_count) ; How many participants?
+ same => n,Set(CONFBRIDGE(bridge,record_file)=${RecordingFileName}) ; уникальное имя
+ same => n,Set(CONFBRIDGE(user,admin)=yes) ; Админ
+ same => n,Set(CONFBRIDGE(user,marked)=yes) ; Маркировать этого пользователя
+ same => n,Set(CONFBRIDGE(menu,7)=decrease_talking_volume) ; Уменьшить громкость
+ same => n,Set(CONFBRIDGE(menu,9)=increase_talking_volume) ; Увеличить громкость
+ same => n,Set(CONFBRIDGE(menu,4)=set_as_single_video_src) ; Блокировать видео на меня
+ same => n,Set(CONFBRIDGE(menu,5)=release_as_single_video_src) ; Вернуться к докладчику
+ same => n,Set(CONFBRIDGE(menu,6)=admin_toggle_mute_participants); Отключить звук у всех, кроме администраторов
+ same => n,Set(CONFBRIDGE(menu,2)=participant_count) ; Сколько участников?
  same => n,ConfBridge(${ConfNum})
  same => n,Return()
  same => n(participant),Noop()
  same => n,Set(ConfNum=${EXTEN})
- same => n,Set(CONFBRIDGE(user,wait_marked)=yes) ; Wait for a marked user
- same => n,Set(CONFBRIDGE(user,announce_only_user)=no) ; Wait for a marked user
- same => n,Set(CONFBRIDGE(user,music_on_hold_when_empty)=yes) ; Wait for a marked user
- same => n,Set(CONFBRIDGE(menu,7)=decrease_talking_volume) ; Decrease gain
- same => n,Set(CONFBRIDGE(menu,9)=increase_talking_volume) ; Increase gain
+ same => n,Set(CONFBRIDGE(user,wait_marked)=yes) ; Ждите маркированного пользователя
+ same => n,Set(CONFBRIDGE(user,announce_only_user)=no) ; Ждите маркированного пользователя
+ same => n,Set(CONFBRIDGE(user,music_on_hold_when_empty)=yes) ; Ждите маркированного пользователя
+ same => n,Set(CONFBRIDGE(menu,7)=decrease_talking_volume) ; Уменьшить громкость
+ same => n,Set(CONFBRIDGE(menu,9)=increase_talking_volume) ; Увеличить громкость
  same => n,ConfBridge(${ConfNum})
  same => n,Return()
 ```
+Мы можем установить параметры `bridge`, `user` и `menu` как в предыдущем примере. Все параметры, которые вы можете использовать, описаны в файле _~/src/asterisk-15.<TAB>/configs/samples/confbridge.conf.sample_.
 
-We can set bridge, user, and menu parameters as in the preceding example. All of the parameters you might wish to use are documented in the ~/src/asterisk-15.&lt;TAB&gt;/configs/samples/confbridge.conf.sample file.
-
-When we call the subroutine, we can pass the user as an argument. Place the following new code in your \[sets\] context after \_55512XX and before \*724:
-
+Когда мы вызываем подпрограмму, то можем передать пользователя в качестве аргумента. Поместите следующий новый код в ваш контекст `[sets]` после `_55512XX` и до `*724`:
 ```text
 exten => _55512XX,1,Answer()
  same => n,Playback(tt-monkeys)
@@ -504,10 +500,9 @@ exten => *724,1,Noop(Page)
  same => n,Set(ChannelsToPage=${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_DeskPhone})
  same => n,Page(${ChannelsToPage},i,120)
 ```
+Если вы наберете *600, то станете участником. Если наберете *601, вас попросят ввести PIN-код (4242) и вы присоединитесь как администратор. Мы использовали метки диалплана для управления потоком вызовов в подпрограмме. Его легко читать и легко администрировать.
 
-If you dial \*600, you will be joined as a participant. If you dial \*601, you will be asked for the PIN \(4242\), and will join as an administrator. We used dialplan labels to control the call flow into the subroutine. It’s easy to read, and easy to administer.
-
-In [Chapter 15](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch15.html%22%20/l%20%22asterisk-DB) we’ll explore how to use an external database to store and retrieve these parameters, rather than hardcoding them in the dialplan.
+В [Главе 15](glava-15.md) мы узнаем, как использовать внешнюю базу данных для хранения и получения этих параметров, а не жестко кодировать их в диалплане.
 
 ### Video Conferencing
 
@@ -524,9 +519,9 @@ Before attempting to use video with your conferences, make sure your sets are ab
 
 In [Chapter 20](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch20.html%22%20/l%20%22webrtc_ch), we’ll dive into WebRTC, which is where we’ll explore more powerful concepts in the delivery of multimedia communication, including conferencing.
 
-## Conclusion
+## Вывод
 
-In this chapter we explored the features.conf file, which contains the functionality for enabling DTMF-based transfers, enabling the recording of calls during a call, and configuring parking lots for one or more companies. We also looked at various ways of announcing calls and information to people in the office using a multitude of paging methods, including traditional overhead paging systems and multicast paging to the phone sets on employees’ desks. After that we delved into the ConfBridge\(\) application, which is extremely flexible in configuration and rich in available features. This exploration of the various methods of implementing the traditional parking, paging, and conferencing features in a modern way hopefully shows you the flexibility Asterisk can offer.
+В этой главе мы рассмотрели файл _features.conf_, который содержит функциональные возможности для включения трансфера через набор DTMF, записи звонков во время разговора и настройки парковок для одной или нескольких компаний. Мы также рассмотрели различные способы объявления вызовов и информации людям в офисе с использованием множества методов пейджинга, в том числе традиционных систем служебного оповещения и многоадресной пейджинговой связи на телефонные аппараты на рабочих столах сотрудников. После этого мы углубились в приложение `ConfBridge()`, которое чрезвычайно гибко в настройке и имеет множество доступных функций. Это исследование различных методов реализации традиционных функций парковки, пейджинга и конференций современным способом, надеюсь покажет вам гибкость, которую может предложить Asterisk.
 
 [1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22idm46178406491144-marker) Yes, we realize that a SIP INFO message is in fact a SIP message and not technically part of the audio channel, but the point is that you can’t use the “transfer” or “park” button on your SIP phone to access these features while on a call. You’ll have to send DTMF.
 
