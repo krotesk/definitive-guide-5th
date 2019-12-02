@@ -1,12 +1,18 @@
 # Глава 13. Состояния устройств
 
-Out of clutter, find simplicity.
+> Среди беспорядка найдите простоту.
+>
+> --_Albert Einstein_
 
-Albert Einstein
+Часто бывает полезно иметь возможность определить состояние устройств, подключенных к телефонной системе. Например, оператору в приемной может потребоваться видеть статусы всех сотрудников офиса, чтобы определить, может ли кто-то принять телефонный звонок. Сам Asterisk нуждается в такой же информации. В качестве другого примера, если вы создали очередь вызовов, как описано в [Главе 12](glava-15.md), Asterisk должен знать, когда агент становится доступен, чтобы можно было отправить другой вызов. В этой главе рассматриваются понятия состояний устройства в Asterisk, а также способы использования и доступа устройств и приложений к этой информации.
 
-It is often useful to be able to determine the state of the devices that are attached to a telephone system. For example, a receptionist might require the ability to see the statuses of everyone in the office in order to determine whether somebody can take a phone call. Asterisk itself needs this same information. As another example, if you were building a call queue, as discussed in [Chapter 12](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch12.html%22%20/l%20%22asterisk-ACD), Asterisk needs to know when an agent is available so that another call can be delivered. This chapter discusses device state concepts in Asterisk, as well as how devices and applications use and access this information.
+## Состояния устройств
 
-## Device States
+Существует две категории устройств, для которых Asterisk предоставляет информацию о состоянии: канальные устройства (такие как конечные точки PJSIP) и виртуальные (являющиеся встроенными службами, которые можно было бы отслеживать, например конференц-залы).
+
+Ссылаться на состояние канала, Вы делаете это точно так же, как с `Dial()`, например `DEVICE_STATE(PJSIP/000f300B0B02)`, а ссылаться на состояние виртуального устройства, формат виртуального устройства тип:идентификатор, например `DEVICE_STATE(ConfBridge:1234)`.
+
+Виртуальные устройства включают вещи, которые находятся внутри Asterisk, но предоставляют полезную информацию о состоянии (см. [Таблицу 13-1](13.%20Device%20States%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22table-virtualDevices)\).
 
 There are two categories of devices that Asterisk provides state information for: channel devices \(such as PJSIP endpoints\) and virtual devices \(which are built-in services that one might wish to monitor, such as conference rooms\).
 
