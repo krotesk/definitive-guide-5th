@@ -134,7 +134,7 @@ exten => 321,1,NoOp()
 * `HOLDINUSE`
 * `ONHOLD`
 
-## SIP Presence
+## SIP-присутствие
 
 Asterisk дает устройствам возможность подписаться на состояние расширения с использованием протокола SIP. Эту функцию часто называют BLF (Busy Lamp Field); см. [Рисунок 13-1](13.%20Device%20States%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1301).
 
