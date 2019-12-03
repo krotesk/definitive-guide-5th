@@ -136,29 +136,28 @@ exten => 321,1,NoOp()
 
 ## SIP Presence
 
-Asterisk gives devices the capability to subscribe to extension state using the SIP protocol. This functionality is often referred to as BLF \(Busy Lamp Field\); see [Figure 13-1](13.%20Device%20States%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1301).
+Asterisk дает устройствам возможность подписаться на состояние расширения с использованием протокола SIP. Эту функцию часто называют BLF (Busy Lamp Field); см. [Рисунок 13-1](13.%20Device%20States%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22fig1301).
 
 ![](.gitbook/assets/0%20%282%29.png)
 
-#### Figure 13-1. Busy Lamp Field aka sidecar
+_Рисунок 13-1. Busy Lamp Field или боковая панель_
 
-The configuration of the module will be slightly \(or very\) different for each manufacturer; however, the subscription information will—one way or another—need to include the following:
+Конфигурация модуля будет немного (или очень) отличаться для каждого производителя; однако информация о подписке, так или иначе, должна включать следующее:
+* Адрес сервера Asterisk (это может быть определено для каждой кнопки или может применяться ко всему телефону).
+* Контекст для подписки (в нашем примере диалплана он называется `[hints]`). Этот параметр определяется в поле `subscribe_context` таблицы `asterisk.ps_endpoints`.
+* Соответствующее расширение (100, 101, 102 и т.д.)[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html%22%20/l%20%22idm46178405538488)
 
-* The address of the Asterisk server \(this might be defined on a per-button basis, or it might apply to the whole phone\).
-* The context to subscribe to \(in our sample dialplan, it’s named \[hints\]\). This setting is defined in the subscribe\_context field of the asterisk.ps\_endpoints table.
-* The relevant extension \(100, 101, 102, etc.\)[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html%22%20/l%20%22idm46178405538488)
-
-One of the more simple and inexpensive ways we’ve found for testing presence is using the open source Windows softphone, MicroSIP.[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html%22%20/l%20%22idm46178405536680) You’ll first need to download MicroSIP and get it registered to your Asterisk system. Then, under the contacts tab of the softphone, you can right-click in the open area to Add a contact. In the Name section you can put whatever you wish, but under the Number section, you will input extension@hints context, which in our case would be one of 100@hints, 101@hints, 102@hints, or 103@hints. If you’ve set everything up in Asterisk per the previous examples, you should see the state of your subscriptions change in response to whatever the far end set is doing. You can also monitor this from Asterisk’s perspective using a command such as:
-
+Один из самых простых и недорогих способов тестирования присутствия - использование opensource софтфона для Windows, MicroSIP[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html#idm46178405536680). Сначала вам нужно скачать MicroSIP и зарегистрировать его в вашей системе Asterisk. Затем на вкладке контактов софтфона вы можете щелкнуть правой кнопкой мыши в открытой области, чтобы добавить контакт. В разделе «Имя» вы можете указать все что пожелаете, но в разделе «Номер» вы должны ввести `extension@hints context`, который в нашем случае будет одним из `100@hints`, `101@hints`, `102@hints` или `103@hints`. Если вы настроили все в Asterisk согласно предыдущим примерам, то должны увидеть, как состояние ваших подписок меняется в зависимости от того, что делает устройство. Вы также можете отслеживать это с точки зрения Asterisk с помощью такой команды:
+```
 $ watch -n 0.5 "sudo asterisk -rx 'core show hints'"
-
-The configuration of presence on physical desk telephones is essentially the same, but it can be more difficult to make sense of the specific syntax each manufacturer requires. Our advice is to get it working with MicroSIP \(which you should be able to run on WINE under Linux or macOS\). It’s an easy setup, and from there you’ll have a known-good configuration you can trust when you’re sorting out a similar config for one of your desk phones.
+```
+Конфигурация присутствия на физических настольных телефонах по существу одинакова, но может быть сложнее понять конкретный синтаксис, который требуется каждому производителю. Наш совет - заставить его работать с MicroSIP (который вы сможете запустить на WINE под Linux или macOS). Это простая установка, и оттуда у вас будет отличная конфигурация, которой вы можете доверять, когда выбираете аналогичную конфигурацию для одного из ваших настольных телефонов.
 
 ## Использование пользовательских состояний устройств
 
-In addition to the devices Asterisk knows internally how to monitor (PJSIP, ConfBridge, Park, Calendar), Asterisk also provides the ability to create custom device states, which can be very useful in the development of some interesting applications.
+В дополнение к устройствам, которые Asterisk знает как внутренне контролировать (`PJSIP`, `ConfBridge`, `Park`, `Calendar`), Asterisk также предоставляет возможность создавать собственные состояния устройств, которые могут быть очень полезны при разработке некоторых интересных приложений.
 
-Custom device states are defined using a prefix of Custom:. The text that comes after the prefix can be anything you want. To set or read the value of a custom device state, use the DEVICE_STATE() dialplan function. Put this into your extensions.conf right after extension 235:
+Пользовательские состояния устройства определяются с помощью префикса `Custom:`. Текст, который идет после префикса, может быть чем угодно. Чтобы установить или прочитать значение пользовательского состояния устройства, используйте функцию диалплана `DEVICE_STATE()`. Поместите это в свой файл _extensions.conf_ сразу после расширения 235:
 ```
 exten => 235,1,Noop(The state of 100@hints is ${EXTENSION_STATE(100@hints)} )
   same => n,Hangup()
@@ -172,22 +171,25 @@ exten => 236,1,Noop(Set a custom status)
   same => n,Wait(0.75)
   same => n,Goto(blink)
 ```
-Then add this to your `[hints]` context:
+Затем добавьте это себе в контекст `[hints]`:
 ```
 exten => 221,hint,ConfBridge:221
 exten => santa,hint,Custom:santa
 exten => rudolph,hint,Custom:rudolph
 ```
-Festive, yeah?
+Весело, да?
 
-#### Note
+---
+#### Примечание
 
-You will notice that when you hang up, one of the custom device states will remain “Unavailable.” This is an important point: there is nothing in the system that will update your custom device states, unless you yourself have implemented something to do that.
+Вы заметите, что когда вы повесите трубку, одно из пользовательских состояний устройств останется "Unavailable". Это важный момент: в системе нет ничего, что обновляло бы ваши пользовательские состояния устройства, если вы сами не внедрили что-то для этого.
 
-## Conclusion
+---
 
-The device states functionality in Asterisk can be used to track the state of various resources and deliver information about those states to various subscribers. Commonly \(and traditionally\) used for Busy Lamp Fields, the Custom device state allows this resource to be far more flexible than it would be in a traditional PBX.
+## Вывод
 
-[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html%22%20/l%20%22idm46178405538488-marker) Items 2 and 3 may be formed as a single string, looking like 100@hints, or something similar.
+Функциональность состояний устройств в Asterisk может использоваться для отслеживания состояния различных ресурсов и доставки информации об этих состояниях различным подписчикам. Обычно (и традиционно) используется для BLF, пользовательское состояние устройства позволяет этому ресурсу быть гораздо более гибким, чем в традиционной УАТС.
 
-[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html%22%20/l%20%22idm46178405536680-marker) Which is written using the same PJSIP library that Asterisk uses.
+[1](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html#idm46178405538488-marker) Элементы 2 и 3 могут быть сформированы в виде одной строки, похожей на 100@hints или что-то подобное.
+
+[2](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch13.html#idm46178405536680-marker) Который написан с использованием той же библиотеки PJSIP что использует Asterisk.
