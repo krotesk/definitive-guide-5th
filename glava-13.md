@@ -58,99 +58,81 @@ exten => 7012,1,Answer()
 
 Эта информация может затем использоваться в диалплане для принятия решений о потоке вызовов (например, локальный канал вызова агента может использовать эту информацию для определения того, что телефон агента находится на вызове по другой линии, и таким образом отклонить вызов, чтобы тот вернулся в очередь).
 
-## Extension States Using the hint Directive
+## Состояния расширения используя директиву hint
 
-Extension state is a dialplan mechanism Asterisk uses to allow SIP devices to subscribe to presence information. As an example, a reception phone might have a Busy Lamp Field \(BLF\) module, containing buttons to be used to show the state of various phones in the office. The phone with the BLF will send subscription requests in order to tell Asterisk which devices it wants to receive presence information from. In the dialplan, we use the hint directive to define the mapping between an extension and one or more devices.
+Состояние расширения - это механизм диалплана, который Asterisk использует, чтобы разрешить SIP-устройствам подписываться на информацию о присутствии. Например, телефон в приемной может иметь модуль Busy Lamp Field (BLF), содержащий кнопки, которые будут использоваться для отображения состояний различных телефонов в офисе. Телефон с BLF будет отправлять запросы на подписку, чтобы сообщить Asterisk, с каких устройств он хочет получать информацию о присутствии. В диалплане мы используем директиву hint для определения сопоставления между расширением и одним или несколькими устройствами.
 
-### Hints
+### Хинты
 
-To define a hint in the dialplan, the keyword hint is used in place of a priority.
+Чтобы определить хинт в диалплане, вместо приоритета используется ключевое слово `hint`.
+```
+[hints]
+;exten = <extension>,hint,<device state id>[& <more dev state id],<presence state id>
 
-\[hints\]
+exten => 100,hint,${UserA_DeskPhone}
 
-;exten = &lt;extension&gt;,hint,&lt;device state id&gt;\[& &lt;more dev state id\],&lt;presence state id&gt;
+exten => 221,hint,ConfBridge:221
+```
+Часто вы можете увидеть хинты, определенные в том же разделе диалплана, что и обычные расширения. Это может сделать диалплан немного визуально загроможденным, и это также предполагает, что хинт так или иначе связан с набираемым добавочным номером, что на самом деле не так.
+```
+[sets]
 
-exten =&gt; 100,hint,${UserA\_DeskPhone}
+exten => 100,hint,${UserA_DeskPhone}
+exten => 100,1,Gosub(subDialUser,${EXTEN},1(${UserA_DeskPhone},${EXTEN},default,22))
+exten => 101,hint,${UserA_SoftPhone}
+exten => 101,1,Gosub(subDialUser,${EXTEN},1(${UserA_SoftPhone},${EXTEN},default,23))
+exten => 102,hint,${UserB_DeskPhone}
+exten => 102,1,Gosub(subDialUser,${EXTEN},1(${UserB_DeskPhone},${EXTEN},default,26))
+exten => 103,hint,${UserB_SoftPhone}
+exten => 103,1,Gosub(subDialUser,${EXTEN},1(${UserB_SoftPhone},${EXTEN},default,24))
 
-exten =&gt; 221,hint,ConfBridge:221
+exten => 110,1,Dial(${UserA_DeskPhone}&${UserA_SoftPhone}&${UserB_SoftPhone})
+```
+В нашем примере мы сделали прямую взаимосвязь между добавочным номером подсказки и набираемым добавочным номером, хотя этого не требуется.
 
-Often, you might see hints defined in the same section of the dialplan as the normal extension. This can get a bit visually cluttered, and it also suggests that the hint is somehow associated with the dialable extension, which is not the case.
+### Проверка состояний расширения
 
-\[sets\]
-
-exten =&gt; 100,hint,${UserA\_DeskPhone}
-
-exten =&gt; 100,1,Gosub\(subDialUser,${EXTEN},1\(${UserA\_DeskPhone},${EXTEN},default,22\)\)
-
-exten =&gt; 101,hint,${UserA\_SoftPhone}
-
-exten =&gt; 101,1,Gosub\(subDialUser,${EXTEN},1\(${UserA\_SoftPhone},${EXTEN},default,23\)\)
-
-exten =&gt; 102,hint,${UserB\_DeskPhone}
-
-exten =&gt; 102,1,Gosub\(subDialUser,${EXTEN},1\(${UserB\_DeskPhone},${EXTEN},default,26\)\)
-
-exten =&gt; 103,hint,${UserB\_SoftPhone}
-
-exten =&gt; 103,1,Gosub\(subDialUser,${EXTEN},1\(${UserB\_SoftPhone},${EXTEN},default,24\)\)
-
-exten =&gt; 110,1,Dial\(${UserA\_DeskPhone}&${UserA\_SoftPhone}&${UserB\_SoftPhone}\)
-
-In our example we’ve made a direct correlation between the hint’s extension number and the extension number being dialed, although there is no requirement that this be the case.
-
-### Checking Extension States
-
-The easiest way to check the current state of the hint extensions is through the Asterisk CLI. The core show hints command will display all currently configured hints:
-
-\*CLI&gt; core show hints
-
- -= Registered Asterisk Dial Plan Hints =-
-
-100@hints : PJSIP/0000f30A0A01 State:Unavailable Presence:not\_set Watchers 0
-
-101@hints : PJSIP/SOFTPHONE\_A State:Unavailable Presence:not\_set Watchers 0
-
-102@hints : PJSIP/0000f30B0B02 State:Unavailable Presence:not\_set Watchers 0
-
-103@hints : PJSIP/SOFTPHONE\_B State:Unavailable Presence:not\_set Watchers 0
-
-110@hints : PJSIP/0000f30A0A01&P State:Unavailable Presence:not\_set Watchers 0
-
-221@hints : ConfBridge:221 State:Unavailable Presence:not\_set Watchers 0
-
+Самый простой способ проверить текущее состояние хинтов расширений - через CLI Asterisk. Команда `core show hints` отобразит все настроенные в данный момент хинты:
+```
+*CLI> core show hints
+    -= Registered Asterisk Dial Plan Hints =-
+100@hints : PJSIP/0000f30A0A01   State:Unavailable Presence:not_set Watchers 0
+101@hints : PJSIP/SOFTPHONE_A    State:Unavailable Presence:not_set Watchers 0
+102@hints : PJSIP/0000f30B0B02   State:Unavailable Presence:not_set Watchers 0
+103@hints : PJSIP/SOFTPHONE_B    State:Unavailable Presence:not_set Watchers 0
+110@hints : PJSIP/0000f30A0A01&P State:Unavailable Presence:not_set Watchers 0
+221@hints : ConfBridge:221       State:Unavailable Presence:not_set Watchers 0
 ----------------
-
 - 6 hints registered
+```
+В дополнение к отображению состояния каждого хинта, вывод `core show hints` также выводит количество наблюдателей. _Наблюдатель_ - это объект, который подписался на получение обновлений о состоянии этого расширения. Если конечная точка SIP подписывается на состояние добавочного номера, количество наблюдателей будет увеличено.
 
-In addition to showing you the state of each hint, the output of core show hints also provides a count of watchers. A watcher is an entity that has subscribed to receive updates on the state of this extension. If a SIP endpoint subscribes to the state of an extension, the watcher count will be increased.
+Состояние расширения также может быть получено с помощью функции диалплана `EXTENSION_STATE()`. Эта функция работает так же, как `DEVICE_STATE()`, описанная в предыдущем разделе. Добавьте следующий пример в файл _/etc/asterisk/extensions.conf_ как новое расширение сразу после 235:
 
-Extension state can also be retrieved with a dialplan function, EXTENSION\_STATE\(\). This function operates much like the DEVICE\_STATE\(\) function described in the preceding section. Add the following example to your /etc/asterisk/extensions.conf file, as a new extension right after 235:
+```
+exten => 234,1,NoOp()
+  same => n,Set(FEATURE(parkingtime)=60)
 
-exten =&gt; 234,1,NoOp\(\)
+exten => 235,1,Noop(The state of 100@hints is ${EXTENSION_STATE(100@hints)} )
+  same => n,Hangup()
 
- same =&gt; n,Set\(FEATURE\(parkingtime\)=60\)
-
-exten =&gt; 235,1,Noop\(The state of 100@hints is ${EXTENSION\_STATE\(100@hints\)} \)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 321,1,NoOp\(\)
-
-When this extension is called from the endpoint assigned to 100, this is the message that shows up on the Asterisk console:
-
+exten => 321,1,NoOp()
+```
+Когда это расширение вызывается из конечной точки с номером 100, в консоли Asterisk отобразится следующее сообщение:
+```
  -- The state of 100@hints is INUSE
+```
+В следующем списке перечислены возможные значения, которые могут быть возвращены функцией `EXTENSION_STATE()`:
 
-The following list includes the possible values that may be returned from the EXTENSION\_STATE\(\) function:
-
-* UNKNOWN
-* NOT\_INUSE
-* INUSE
-* BUSY
-* UNAVAILABLE
-* RINGING
-* RINGINUSE
-* HOLDINUSE
-* ONHOLD
+* `UNKNOWN`
+* `NOT_INUSE`
+* `INUSE`
+* `BUSY`
+* `UNAVAILABLE`
+* `RINGING`
+* `RINGINUSE`
+* `HOLDINUSE`
+* `ONHOLD`
 
 ## SIP Presence
 
@@ -174,38 +156,28 @@ The configuration of presence on physical desk telephones is essentially the sam
 
 ## Использование пользовательских состояний устройств
 
-In addition to the devices Asterisk knows internally how to monitor \(PJSIP, ConfBridge, Park, Calendar\), Asterisk also provides the ability to create custom device states, which can be very useful in the development of some interesting applications.
+In addition to the devices Asterisk knows internally how to monitor (PJSIP, ConfBridge, Park, Calendar), Asterisk also provides the ability to create custom device states, which can be very useful in the development of some interesting applications.
 
-Custom device states are defined using a prefix of Custom:. The text that comes after the prefix can be anything you want. To set or read the value of a custom device state, use the DEVICE\_STATE\(\) dialplan function. Put this into your extensions.conf right after extension 235:
+Custom device states are defined using a prefix of Custom:. The text that comes after the prefix can be anything you want. To set or read the value of a custom device state, use the DEVICE_STATE() dialplan function. Put this into your extensions.conf right after extension 235:
+```
+exten => 235,1,Noop(The state of 100@hints is ${EXTENSION_STATE(100@hints)} )
+  same => n,Hangup()
 
-exten =&gt; 235,1,Noop\(The state of 100@hints is ${EXTENSION\_STATE\(100@hints\)} \)
-
- same =&gt; n,Hangup\(\)
-
-exten =&gt; 236,1,Noop\(Set a custom status\)
-
- same =&gt; n\(blink\),Set\(DEVICE\_STATE\(Custom:rudolph\)=UNAVAILABLE\)
-
- same =&gt; n,Set\(DEVICE\_STATE\(Custom:santa\)=NOT\_INUSE\)
-
- same =&gt; n,Wait\(0.75\)
-
- same =&gt; n,Set\(DEVICE\_STATE\(Custom:rudolph\)=NOT\_INUSE\)
-
- same =&gt; n,Set\(DEVICE\_STATE\(Custom:santa\)=UNAVAILABLE\)
-
- same =&gt; n,Wait\(0.75\)
-
- same =&gt; n,Goto\(blink\)
-
-Then add this to your \[hints\] context:
-
-exten =&gt; 221,hint,ConfBridge:221
-
-exten =&gt; santa,hint,Custom:santa
-
-exten =&gt; rudolph,hint,Custom:rudolph
-
+exten => 236,1,Noop(Set a custom status)
+  same => n(blink),Set(DEVICE_STATE(Custom:rudolph)=UNAVAILABLE)
+  same => n,Set(DEVICE_STATE(Custom:santa)=NOT_INUSE)
+  same => n,Wait(0.75)
+  same => n,Set(DEVICE_STATE(Custom:rudolph)=NOT_INUSE)
+  same => n,Set(DEVICE_STATE(Custom:santa)=UNAVAILABLE)
+  same => n,Wait(0.75)
+  same => n,Goto(blink)
+```
+Then add this to your `[hints]` context:
+```
+exten => 221,hint,ConfBridge:221
+exten => santa,hint,Custom:santa
+exten => rudolph,hint,Custom:rudolph
+```
 Festive, yeah?
 
 #### Note
