@@ -8,61 +8,55 @@
 
 ## Состояния устройств
 
-Существует две категории устройств, для которых Asterisk предоставляет информацию о состоянии: канальные устройства (такие как конечные точки PJSIP) и виртуальные (являющиеся встроенными службами, которые можно было бы отслеживать, например конференц-залы).
+Существует две категории устройств, для которых Asterisk предоставляет информацию о состоянии: канальные устройства (такие как конечные точки PJSIP) и виртуальные (являющиеся встроенными службами, которые можно отслеживать, например конференц-залы).
 
-Ссылаться на состояние канала, Вы делаете это точно так же, как с `Dial()`, например `DEVICE_STATE(PJSIP/000f300B0B02)`, а ссылаться на состояние виртуального устройства, формат виртуального устройства тип:идентификатор, например `DEVICE_STATE(ConfBridge:1234)`.
+Чтобы ссылаться на состояние _канала_, Вы делаете это точно так же, как с `Dial()`, например `DEVICE_STATE(PJSIP/000f300B0B02)`, тогда как для ссылки на состояние _виртуального устройства_ используется формат `тип виртуального устройства:идентификатор`, например `DEVICE_STATE(ConfBridge:1234)`.
 
 Виртуальные устройства включают вещи, которые находятся внутри Asterisk, но предоставляют полезную информацию о состоянии (см. [Таблицу 13-1](13.%20Device%20States%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22table-virtualDevices)\).
 
-There are two categories of devices that Asterisk provides state information for: channel devices \(such as PJSIP endpoints\) and virtual devices \(which are built-in services that one might wish to monitor, such as conference rooms\).
+Таблица 13-1. Устройства, для которых Asterisk может предоставлять информацию о состоянии
 
-To reference the state of a channel, you do so in exactly the same way you would with Dial\(\), for example DEVICE\_STATE\(PJSIP/000f300B0B02\), whereas to reference the state of a virtual device, the format is virtual device type:identifier, for example DEVICE\_STATE\(ConfBridge:1234\).
-
-Virtual devices include things that are inside Asterisk but provide useful state information \(see [Table 13-1](13.%20Device%20States%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22table-virtualDevices)\).
-
-Table 13-1. Devices for which Asterisk can provide state information
-
-| Device | Description |
+| Устройство | Описание |
 | :--- | :--- |
-| PJSIP/channel name | Many channels can have their state monitored, but the PJSIP channel offers by far the most amount of useful data; thus, monitoring SIP devices is the most common use of DEVICE\_STATE. |
-| ConfBridge:conference bridge | The state of a MeetMe conference bridge. The state will reflect whether or not the conference bridge currently has participants called in. More information on using MeetMe\(\) for call conferencing can be found in [Chapter 11](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22asterisk-SysAdmin). |
-| Custom:custom name | Custom device states. These states have custom names and are modified using the DEVICE\_STATE\(\) function. Example usage can be found in [“Using Custom Device States”](13.%20Device%20States%20-%20Asterisk%20%20The%20Definitive%20Guide,%205th%20Edition.htm%22%20/l%20%22usingCustomDeviceStates). |
-| Park:exten@context | The state of a spot in a call parking lot. The state information will reflect whether or not a caller is currently parked at that extension. More information about call parking in Asterisk can be found in [“Call Parking”](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch11.html%22%20/l%20%22parkingLots). |
-| Calendar:calendar name | Calendar state. Asterisk will use the contents of the named calendar to set the state to available or busy. |
+| `PJSIP/channel name` | Многие каналы позволяют контролировать их состояние, но канал PJSIP предлагает на сегодняшний день наибольшее количество полезных данных; таким образом, мониторинг SIP-устройств является наиболее распространенным использованием `DEVICE_STATE`. |
+| `ConfBridge:conference bridge` | Состояние конференц-моста MeetMe. Состояние будет отражать, имеются ли в настоящее время участники в конференц-зале. Более подробную информацию об использовании `MeetMe()` для конференц-связи можно найти в [Главе 11](glava-11.md). |
+| `Custom:custom name` | Пользовательские состояния устройств. Эти состояния имеют пользовательские имена и изменяются с помощью функции `DEVICE_STATE()`. Пример использования можно найти в разделе ["Использование пользовательских состояний устройств"](glava-13.md#Использование-пользовательских-состояний-устройств). |
+| `Park:exten@context` | Состояние слота парковки вызова. Информация о состоянии будет отражать, припаркован ли вызывающий абонент в данный момент на этом добавочном номере. Дополнительную информацию о парковке вызовов в Asterisk можно найти в ["Парковке вызовов"](glava-11.md#Парковка-вызовов). |
+| `Calendar:calendar name` | Состояние календаря. Asterisk будет использовать содержимое названного календаря, чтобы установить состояние `available` или `busy`. |
 
-### Checking Device States
+### Проверка состояний устройств
 
-The DEVICE\_STATE\(\) dialplan function reads the current state of a device.
-
-exten =&gt; 7012,1,Answer\(\)
-
- same =&gt; n,Set\(DeviceIdent=PJSIP/000f300B0B02\)
-
- same =&gt; n,Verbose\(3,${DeviceIdent} is ${DEVICE\_STATE\($DeviceIdent}\)}\)
-
- same =&gt; n,Hangup\(\)
-
-If we call extension 7012 from the same device that we are checking the state of, the following verbose message comes up on the Asterisk console:
-
+Функция диалплана `DEVICE_STATE()` считывает текущее состояние устройства.
+```
+exten => 7012,1,Answer()
+   same => n,Set(DeviceIdent=PJSIP/000f300B0B02)
+   same => n,Verbose(3,${DeviceIdent} is ${DEVICE_STATE($DeviceIdent})})
+   same => n,Hangup()
+```
+Если мы вызываем расширение 7012 с того же устройства, на котором проверяем состояние, в консоли Asterisk появляется следующее подробное сообщение:
+```
  -- PJSIP/000f300B0B02 is INUSE
+```
+---
+#### Примечание
 
-#### Note
+В [Главе 17](glava-17.md) обсуждается Asterisk Manager Interface (AMI). Действие диспетчера `GetVar` можно использовать для получения значения состояния устройства из внешней программы. Вы можете использовать его для получения значения обычной переменной или для возврата значения из функции диалплана, например `DEVICE_STATE()`.
 
-[Chapter 17](https://learning.oreilly.com/library/view/asterisk-the-definitive/9781492031598/ch17.html%22%20/l%20%22asterisk-AMI) discusses the Asterisk Manager Interface \(AMI\). The GetVar manager action can be used to retrieve device state values in an external program. You can use it to get the value of a normal variable, or to return a value from a dialplan function such as DEVICE\_STATE\(\).
+---
 
-Here is a list of the values that the DEVICE\_STATE\(\) function will return \(depending, of course, on what was found\):
+Вот список значений, которые вернет функция `DEVICE_STATE()` (в зависимости, конечно, от того, что было найдено):
 
-* UNKNOWN
-* NOT\_INUSE
-* INUSE
-* BUSY
-* INVALID
-* UNAVAILABLE
-* RINGING
-* RINGINUSE
-* ONHOLD
+* `UNKNOWN`
+* `NOT_INUSE`
+* `INUSE`
+* `BUSY`
+* `INVALID`
+* `UNAVAILABLE`
+* `RINGING`
+* `RINGINUSE`
+* `ONHOLD`
 
-This information can then be used in the dialplan for call-flow decisions \(for example, a local channel ringing an agent might use this information to determine that an agent phone is on a call on another line, and thus reject the call so it passes back into the queue\).
+Эта информация может затем использоваться в диалплане для принятия решений о потоке вызовов (например, локальный канал вызова агента может использовать эту информацию для определения того, что телефон агента находится на вызове по другой линии, и таким образом отклонить вызов, чтобы тот вернулся в очередь).
 
 ## Extension States Using the hint Directive
 
@@ -178,7 +172,7 @@ $ watch -n 0.5 "sudo asterisk -rx 'core show hints'"
 
 The configuration of presence on physical desk telephones is essentially the same, but it can be more difficult to make sense of the specific syntax each manufacturer requires. Our advice is to get it working with MicroSIP \(which you should be able to run on WINE under Linux or macOS\). It’s an easy setup, and from there you’ll have a known-good configuration you can trust when you’re sorting out a similar config for one of your desk phones.
 
-## Using Custom Device States
+## Использование пользовательских состояний устройств
 
 In addition to the devices Asterisk knows internally how to monitor \(PJSIP, ConfBridge, Park, Calendar\), Asterisk also provides the ability to create custom device states, which can be very useful in the development of some interesting applications.
 
